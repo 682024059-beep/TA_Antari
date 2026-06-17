@@ -1,0 +1,5 @@
+git config --global --list
+
+
+git config --global user.name 682024047-coder
+git config --global user.email 682024047@student.uksw.edu
