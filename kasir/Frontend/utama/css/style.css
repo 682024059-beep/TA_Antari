@@ -1,0 +1,957 @@
+/* ==========================================================================
+   1. VARIABLE WARNA & BASE CONFIG (TEMA COKELAT ANTARI COFFEE)
+   ========================================================================== */
+:root {
+    --primary-color: #6F3800;       /* Cokelat Khas Antari */
+    --primary-hover: #552B00;
+    --bg-sidebar: #33221F;         /* Cokelat Gelap Pekat */
+    --bg-body: #F9F6F3;            /* Krem Lembut Latte */
+    --white: #FFFFFF;
+    --text-dark: #2B1E1B;
+    --text-muted: #8E8380;
+    --border-color: #EBE5E0;
+    --success-color: #27AE60;
+    --danger-color: #E74C3C;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-dark);
+}
+
+/* ==========================================================================
+   2. DESAIN HALAMAN LOGIN (SPLIT SCREEN 50:50)
+   ========================================================================== */
+.login-body {
+    height: 100vh;
+    overflow: hidden;
+}
+
+.login-wrapper {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sisi Kiri - Branding */
+.login-left {
+    flex: 1;
+    background: linear-gradient(rgba(51, 34, 31, 0.9), rgba(51, 34, 31, 0.95)), 
+                url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1000') center/cover;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: var(--white);
+    position: relative;
+    padding: 20px;
+    text-align: center;
+}
+
+.brand-logo-circle {
+    width: 85px;
+    height: 85px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-left h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.login-left p {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: #C8B195;
+    margin-top: 5px;
+}
+
+.line-decorator {
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-color);
+    margin: 25px 0;
+}
+
+.copyright {
+    position: absolute;
+    bottom: 20px;
+    font-size: 11px;
+    opacity: 0.5;
+    letter-spacing: 1px;
+}
+
+/* Sisi Kanan - Form Box */
+.login-right {
+    flex: 1;
+    background-color: var(--white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 360px;
+}
+
+.form-container h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 35px;
+}
+
+.input-group-antari {
+    margin-bottom: 22px;
+}
+
+.input-group-antari label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.input-field {
+    display: flex;
+    align-items: center;
+    background-color: #F6F4F2;
+    border: 1px solid #E5E0DB;
+    border-radius: 8px;
+    padding: 12px 15px;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.input-field:focus-within {
+    border-color: var(--primary-color);
+    background-color: var(--white);
+    box-shadow: 0 0 0 3px rgba(111, 56, 0, 0.1);
+}
+
+.input-field i {
+    color: #A39692;
+    font-size: 16px;
+}
+
+.input-field input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 14px;
+    outline: none;
+    color: var(--text-dark);
+}
+
+.toggle-pwd {
+    cursor: pointer;
+}
+
+.btn-masuk {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    transition: background 0.2s;
+    box-shadow: 0 4px 12px rgba(111, 56, 0, 0.15);
+}
+
+.btn-masuk:hover {
+    background-color: var(--primary-hover);
+}
+
+.notice-text {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 25px;
+    line-height: 1.5;
+}
+
+
+/* ==========================================================================
+   3. LAYOUT UTAMA DASHBOARD & SIDEBAR KIRI
+   ========================================================================== */
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: var(--bg-sidebar);
+    color: var(--white);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand h2 {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.brand p {
+    font-size: 10px;
+    color: #9E8E8B;
+    margin-bottom: 40px;
+    letter-spacing: 1.5px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #C4B9B6;
+    text-decoration: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.menu-item i {
+    font-size: 16px;
+    width: 20px;
+}
+
+.menu-item.active, .menu-item:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.logout {
+    color: #F1948A;
+}
+.logout:hover {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #E74C3C;
+}
+
+
+/* ==========================================================================
+   4. AREA HEADER ATAS (TOPBAR)
+   ========================================================================== */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.topbar {
+    background-color: var(--white);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #EBECEE;
+}
+
+.page-title h2 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 13px;
+}
+
+.icon-bell {
+    font-size: 18px;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.avatar-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 1px solid #E5E0DB;
+    padding-left: 20px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-box h4 {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.avatar-box p {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.content-body {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+}
+
+
+/* ==========================================================================
+   5. LAYOUT KASIR & GRID PRODUK (KIRI)
+   ========================================================================== */
+.kasir-layout {
+    display: flex;
+    gap: 25px;
+    height: 100%;
+}
+
+.produk-area {
+    flex: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-scan {
+    display: flex;
+    background: var(--white);
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #E0DCD8;
+    gap: 12px;
+    align-items: center;
+}
+
+.input-scan i {
+    color: var(--primary-color);
+    font-size: 18px;
+}
+
+.input-scan input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
+}
+
+.btn-tambah-code {
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 6px 15px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.daftar-produk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.daftar-produk-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.mini-search {
+    background: var(--white);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #DDD;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.mini-search input {
+    border: none;
+    outline: none;
+    font-size: 13px;
+}
+
+.kategori-filter {
+    display: flex;
+    gap: 10px;
+}
+
+.kat-btn {
+    background: var(--white);
+    border: 1px solid #E2DCD8;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+    color: #555;
+    transition: all 0.2s;
+}
+
+.kat-btn.active, .kat-btn:hover {
+    background: var(--text-dark);
+    color: var(--white);
+    border-color: var(--text-dark);
+}
+
+/* Grid Custom List Menu */
+.grid-produk {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+    gap: 15px;
+}
+
+.card-produk {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-produk:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+}
+
+.card-produk.stok-habis {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.img-placeholder {
+    height: 110px;
+    background: #F4ECE6;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    color: var(--primary-color);
+    position: relative;
+}
+
+.badge-habis {
+    position: absolute;
+    background: var(--danger-color);
+    color: var(--white);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.card-info {
+    margin-top: 12px;
+}
+
+.p-code {
+    font-size: 9px;
+    font-weight: 700;
+    color: #D36A00;
+    letter-spacing: 0.5px;
+}
+
+.card-info h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 4px 0;
+    line-height: 1.4;
+    height: 36px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.p-harga {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 14px;
+}
+
+
+/* ==========================================================================
+   6. AREA STRUKS / BILLING CALCULATOR (KANAN)
+   ========================================================================== */
+.billing-area {
+    flex: 1;
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.customer-info-row {
+    display: flex;
+    gap: 12px;
+}
+
+.input-billing {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.input-billing.small {
+    flex: 0.35;
+}
+
+.input-billing label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+.input-billing input {
+    background: #F6F4F2;
+    border: 1px solid #E5E0DB;
+    padding: 10px 12px;
+    border-radius: 6px;
+    outline: none;
+    font-size: 13px;
+    color: var(--text-dark);
+}
+
+.input-billing input:focus {
+    border-color: var(--primary-color);
+    background: var(--white);
+}
+
+.section-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 1px solid #F1ECE8;
+    padding-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+/* List Item Belanja */
+.cart-items-list {
+    flex: 1;
+    min-height: 160px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-right: 4px;
+}
+
+.empty-text {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-auto: auto;
+    padding: 40px 0;
+}
+
+.item-cart {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    border-bottom: 1px dashed #EBE5E0;
+}
+
+.qty-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.qty-btn {
+    border: 1px solid #D1C9C5;
+    background: var(--white);
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    color: #555;
+    transition: background 0.1s;
+}
+
+.qty-btn:hover {
+    background: #F0EAE5;
+}
+
+/* Hitungan Ringkasan Nota */
+.payment-summary {
+    background: #FAF8F6;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+    border: 1px solid #F1ECE8;
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    color: #555;
+}
+
+.summary-line.diskon {
+    color: var(--danger-color);
+    font-weight: 500;
+}
+
+.total-utama {
+    font-size: 14px;
+    border-top: 1px solid #EBE5E0;
+    padding-top: 10px;
+    margin-top: 4px;
+    color: var(--text-dark);
+}
+
+.text-brown {
+    color: var(--primary-color);
+    font-size: 22px;
+    font-weight: 800;
+}
+
+/* Tombol Metode Bayar */
+.payment-methods {
+    display: flex;
+    gap: 10px;
+}
+
+.method-btn {
+    flex: 1;
+    padding: 11px;
+    border: 1px solid #DDD3CB;
+    background: var(--white);
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #666;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.method-btn.active {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+}
+
+/* Kotak Hitung Tunai */
+.cash-calculator {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.kembalian-box {
+    background: #EAF7EE;
+    padding: 10px 14px;
+    border-radius: 6px;
+    color: var(--success-color);
+    border: 1px solid #CDEED7;
+}
+
+.kembalian-box label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.kembalian-amount {
+    font-size: 20px;
+    font-weight: 800;
+    text-align: right;
+}
+
+/* Action Buttons Bottom */
+.btn-proses {
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 15px;
+    box-shadow: 0 4px 10px rgba(111, 56, 0, 0.15);
+    transition: background 0.2s;
+}
+
+.btn-proses:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-reset {
+    background: #EBE5E0;
+    color: #665E5A;
+    border: none;
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* ==========================================================================
+   7. HALAMAN RIWAYAT TRANSAKSI (TABLE LOG)
+   ========================================================================== */
+.riwayat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.summary-cards {
+    display: flex;
+    gap: 20px;
+}
+
+.card-stat {
+    flex: 1;
+    background: var(--white);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    background: #F7F2ED;
+    color: var(--primary-color);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+}
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-title {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.card-stat h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.trend {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.trend.up {
+    background: #EAF7EE;
+    color: var(--success-color);
+}
+
+.trend.stable {
+    background: #F0EFF1;
+    color: #7F8C8D;
+}
+
+/* Card Kontainer Tabel */
+.log-transaksi-box {
+    background: var(--white);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    padding: 22px;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.log-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.log-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-icon {
+    background: var(--white);
+    border: 1px solid #DCD6D1;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.1s;
+}
+
+.btn-icon:hover {
+    background: #FAF8F6;
+}
+
+/* Custom Table Style */
+.table-antari {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-antari th {
+    text-align: left;
+    padding: 14px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    border-bottom: 2px solid #EBE5E0;
+    letter-spacing: 0.5px;
+}
+
+.table-antari td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #F5F1EE;
+    font-size: 13.5px;
+    color: #443B38;
+}
+
+.table-antari tbody tr:hover {
+    background-color: #FAF9F8;
+}
+
+.badge-meja {
+    background: #EBE5E0;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--text-dark);
+}
+
+.badge-method {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}
+
+.badge-method.cash {
+    background: #EBE5E0;
+    color: #554E4A;
+}
+
+.badge-method.cashless {
+    background: #E1F0FF;
+    color: #2980B9;
+}
+
+.btn-detail {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-detail:hover {
+    background: var(--primary-color);
+    color: var(--white);
+}
