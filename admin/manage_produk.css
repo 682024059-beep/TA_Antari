@@ -1,0 +1,497 @@
+/* ============================
+   Manage Produk - CoffeeShop Antari
+   ============================ */
+
+/* ---- Filter Bar ---- */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.search-wrapper {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #8A8A8A;
+}
+
+.search-input {
+    width: 100%;
+    padding: 11px 14px 11px 40px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    color: #2C2C2C;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    border-color: #C0392B;
+}
+
+.search-input::placeholder {
+    color: #BDB3AE;
+}
+
+.kategori-select {
+    padding: 11px 14px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #4A4A4A;
+    cursor: pointer;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    background: white;
+    min-width: 160px;
+    transition: border-color 0.2s;
+}
+
+.kategori-select:focus {
+    border-color: #C0392B;
+}
+
+.btn-tambah {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #C0392B;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    transition: background 0.2s;
+    letter-spacing: 0.03em;
+}
+
+.btn-tambah:hover {
+    background: #A93226;
+}
+
+/* ---- Produk Card & Table ---- */
+.produk-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #EBEBEB;
+    overflow: hidden;
+}
+
+.produk-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 22px 16px;
+}
+
+.produk-header h3 {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.total-badge {
+    background: #C0392B;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.produk-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.produk-table th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: #8A8A8A;
+    letter-spacing: 0.06em;
+    padding: 12px 18px;
+    background: #3B1F0F;
+    color: rgba(255,255,255,0.7);
+    border-bottom: none;
+}
+
+.produk-table td {
+    padding: 14px 18px;
+    font-size: 14px;
+    border-bottom: 1px solid #F0F0F0;
+    color: #4A4A4A;
+    vertical-align: middle;
+}
+
+.produk-table tr:last-child td {
+    border-bottom: none;
+}
+
+.produk-table tr:hover td {
+    background: #FAFAFA;
+}
+
+/* Foto produk di tabel */
+.foto-produk {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #F0E8E0;
+}
+
+/* Badge kode produk */
+.kode-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #FEF3E2;
+    color: #E67E22;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: monospace;
+}
+
+/* Badge kategori */
+.kategori-badge {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.kategori-badge.coffee { color: #D35400; }
+.kategori-badge.non-coffee { color: #2980B9; }
+.kategori-badge.pastry { color: #8E44AD; }
+
+/* Badge status */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.tersedia {
+    background: #EAF7EE;
+    color: #27AE60;
+}
+
+.status-badge.habis {
+    background: #FDECEA;
+    color: #C0392B;
+}
+
+/* Stok merah kalau sedikit */
+.stok-rendah {
+    color: #C0392B;
+    font-weight: 700;
+}
+
+/* Tombol aksi edit/hapus */
+.aksi-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-edit,
+.btn-hapus {
+    background: none;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #8A8A8A;
+}
+
+.btn-edit:hover {
+    background: #EAF7EE;
+    border-color: #27AE60;
+    color: #27AE60;
+}
+
+.btn-hapus:hover {
+    background: #FDECEA;
+    border-color: #C0392B;
+    color: #C0392B;
+}
+
+/* ---- Pagination ---- */
+.pagination-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 22px;
+    border-top: 1px solid #F0F0F0;
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: #8A8A8A;
+}
+
+.pagination-btns {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.page-btn {
+    width: 34px;
+    height: 34px;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #4A4A4A;
+}
+
+.page-btn:hover {
+    border-color: #C0392B;
+    color: #C0392B;
+}
+
+.page-btn.active {
+    background: #C0392B;
+    border-color: #C0392B;
+    color: white;
+    font-weight: 600;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ---- Modal ---- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 20px;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal {
+    background: white;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 560px;
+    overflow: hidden;
+    animation: modalMuncul 0.25s ease;
+}
+
+.modal-sm {
+    max-width: 380px;
+}
+
+@keyframes modalMuncul {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.modal-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #8A8A8A;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.modal-close:hover {
+    background: #F0F0F0;
+}
+
+.modal-body {
+    padding: 22px 24px;
+}
+
+.modal-body p {
+    font-size: 14px;
+    color: #4A4A4A;
+    line-height: 1.6;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4A4A4A;
+    letter-spacing: 0.03em;
+}
+
+.form-group input,
+.form-group select {
+    padding: 10px 12px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 7px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    color: #2C2C2C;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #C0392B;
+}
+
+.form-note {
+    font-size: 12px;
+    color: #8A8A8A;
+    margin-top: 6px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid #F0F0F0;
+}
+
+.btn-batal {
+    padding: 10px 20px;
+    background: none;
+    border: 1px solid #E0E0E0;
+    border-radius: 7px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    color: #4A4A4A;
+    transition: background 0.2s;
+}
+
+.btn-batal:hover {
+    background: #F8F8F8;
+}
+
+.btn-simpan {
+    padding: 10px 22px;
+    background: #C0392B;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s;
+}
+
+.btn-simpan:hover {
+    background: #A93226;
+}
+
+.btn-simpan:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-hapus-konfirm {
+    padding: 10px 22px;
+    background: #C0392B;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s;
+}
+
+.btn-hapus-konfirm:hover {
+    background: #A93226;
+}
+
+/* ---- Toast Notifikasi ---- */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    z-index: 9999;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.sukses {
+    background: #27AE60;
+}
+
+.toast.error {
+    background: #C0392B;
+}
