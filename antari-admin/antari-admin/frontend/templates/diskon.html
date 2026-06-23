@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Manajemen Diskon{% endblock %}
+
+{% block header %}
+<header class="topbar">
+  <span class="topbar-title">Manajemen Diskon</span>
+  <div class="topbar-actions">
+    <button class="btn btn-primary" id="btn-tambah-diskon">
+      <i data-lucide="plus"></i> Tambah Diskon
+    </button>
+    <button class="icon-btn"><i data-lucide="calendar"></i></button>
+    <button class="icon-btn"><i data-lucide="bell"></i><span class="dot"></span></button>
+    <div class="topbar-user">
+      <img src="https://i.pravatar.cc/72?img=12" alt="avatar admin" />
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="card" style="padding:0;margin-bottom:22px;">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nama Diskon</th>
+          <th>Produk</th>
+          <th>Jenis</th>
+          <th>Nilai</th>
+          <th>Periode</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="diskon-tbody">
+        <tr><td colspan="7" class="empty-state">Memuat data diskon...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="two-col-grid">
+  <div class="card card-dark">
+    <div class="card-eyebrow">Total Diskon Digunakan</div>
+    <div class="card-value" id="stat-total-diskon">-</div>
+    <div class="card-trend card-trend-dark" id="stat-perubahan-diskon"></div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="card-eyebrow">Potongan Harga Berjalan</div>
+        <div class="card-value" id="stat-potongan-harga">-</div>
+      </div>
+      <div class="stat-icon tone-rose"><i data-lucide="image"></i></div>
+    </div>
+    <div style="margin-top:18px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:8px;">
+        <span>Pencapaian Target Promo</span>
+        <span id="stat-pencapaian-persen">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="stat-progress-fill" style="width:0%;"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal tambah diskon -->
+<div id="modal-diskon" style="display:none;position:fixed;inset:0;background:rgba(43,27,20,0.45);align-items:center;justify-content:center;z-index:50;">
+  <form id="form-diskon" class="card" style="width:100%;max-width:440px;margin:16px;">
+    <h3 style="font-size:17px;margin-bottom:18px;">Tambah Diskon Baru</h3>
+
+    <div class="form-group">
+      <label for="d-nama">Nama Diskon</label>
+      <input type="text" id="d-nama" name="nama" class="form-control" placeholder="Contoh: Promo Akhir Tahun" required />
+    </div>
+    <div class="form-group">
+      <label for="d-produk">Berlaku Untuk</label>
+      <input type="text" id="d-produk" name="produk_target" class="form-control" placeholder="Contoh: Semua Menu Kopi" required />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="d-jenis">Jenis</label>
+        <select id="d-jenis" name="jenis" class="form-control">
+          <option value="Persentase">Persentase (%)</option>
+          <option value="Nominal">Nominal (Rp)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="d-nilai">Nilai</label>
+        <input type="number" id="d-nilai" name="nilai" class="form-control" placeholder="10" min="0" required />
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="d-periode">Periode</label>
+      <input type="text" id="d-periode" name="periode_label" class="form-control" placeholder="Contoh: 01 Jan - 31 Jan / Selamanya" required />
+    </div>
+    <div class="form-group">
+      <label for="d-status">Status</label>
+      <select id="d-status" name="status" class="form-control">
+        <option value="AKTIF">Aktif</option>
+        <option value="DRAFT">Draft</option>
+      </select>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
+      <button type="button" class="btn btn-secondary" id="btn-batal-diskon">Batal</button>
+      <button type="submit" class="btn btn-primary">Simpan Diskon</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/diskon.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block header %}
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <button id="sidebar-toggle" class="icon-btn" style="display:none;">
+      <i data-lucide="menu"></i>
+    </button>
+    <span class="topbar-title">Dashboard</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="icon-btn"><i data-lucide="calendar"></i></button>
+    <button class="icon-btn"><i data-lucide="bell"></i><span class="dot"></span></button>
+    <div class="topbar-user">
+      <img src="https://i.pravatar.cc/72?img=12" alt="avatar admin" />
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="page-header-row">
+  <h2>Selamat datang kembali, Admin 👋</h2>
+</div>
+
+<div class="stat-grid" id="dashboard-stats">
+  <div class="card stat-card"><div class="card-eyebrow">Memuat data...</div></div>
+</div>
+
+<div class="two-col-grid">
+  <div class="card">
+    <div class="page-header-row" style="margin-bottom:14px;">
+      <h2>Pendapatan 30 Hari Terakhir</h2>
+    </div>
+    <div class="chart-wrap"><canvas id="dashboard-chart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="page-header-row" style="margin-bottom:14px;">
+      <h2>Akses Cepat</h2>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a href="{{ url_for('pages.manage_produk') }}" class="btn btn-secondary" style="justify-content:flex-start;">
+        <i data-lucide="archive"></i> Kelola Produk
+      </a>
+      <a href="{{ url_for('pages.diskon') }}" class="btn btn-secondary" style="justify-content:flex-start;">
+        <i data-lucide="tag"></i> Atur Diskon
+      </a>
+      <a href="{{ url_for('pages.riwayat_penjualan') }}" class="btn btn-secondary" style="justify-content:flex-start;">
+        <i data-lucide="history"></i> Riwayat Penjualan
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

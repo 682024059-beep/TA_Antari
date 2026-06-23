@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Tambah Produk Baru{% endblock %}
+
+{% block header %}
+<header class="topbar">
+  <a href="{{ url_for('pages.manage_produk') }}" class="topbar-back">
+    <i data-lucide="arrow-left"></i> Kembali
+  </a>
+  <div class="topbar-actions">
+    <button class="icon-btn"><i data-lucide="calendar"></i></button>
+    <button class="icon-btn"><i data-lucide="bell"></i><span class="dot"></span></button>
+    <div class="topbar-user">
+      <img src="https://i.pravatar.cc/72?img=12" alt="avatar admin" />
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:760px;margin:0 auto 28px;">
+  <h2 style="font-size:22px;">Tambah Produk Baru</h2>
+  <p style="color:var(--gray-500);margin-top:6px;">Lengkapi informasi produk untuk menambahkannya ke inventaris kasir.</p>
+</div>
+
+<form id="form-produk" class="card" style="max-width:760px;margin:0 auto;" enctype="multipart/form-data">
+  <div class="form-group">
+    <label>Foto Produk</label>
+    <label class="dropzone" id="dropzone">
+      <i data-lucide="camera"></i>
+      <strong>Unggah Foto Produk</strong>
+      <span>Format JPG, PNG (Maks. 2MB)</span>
+      <input type="file" id="input-foto" name="foto" accept=".jpg,.jpeg,.png" style="display:none;" />
+    </label>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="kode">Kode Produk</label>
+      <div class="input-with-icon">
+        <i data-lucide="qr-code"></i>
+        <input type="text" id="kode" name="kode" class="form-control" placeholder="Contoh: COF-001" required />
+      </div>
+      <div class="form-hint">Gunakan kode unik untuk mempermudah pencarian.</div>
+    </div>
+    <div class="form-group">
+      <label for="nama">Nama Produk</label>
+      <input type="text" id="nama" name="nama" class="form-control" placeholder="Nama Kopi atau Pastry" required />
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="kategori">Kategori</label>
+      <select id="kategori" name="kategori" class="form-control">
+        <option value="">Pilih Kategori</option>
+        <option value="Kopi">Kopi</option>
+        <option value="Non-Kopi">Non-Kopi</option>
+        <option value="Pastry">Pastry</option>
+        <option value="Cake">Cake</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="harga">Harga</label>
+      <div class="input-with-icon">
+        <span style="position:absolute;left:13px;font-size:14px;color:var(--gray-400);">Rp</span>
+        <input type="number" id="harga" name="harga" class="form-control" style="padding-left:38px;" placeholder="0" min="0" required />
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="stok">Stok Awal</label>
+    <input type="number" id="stok" name="stok" class="form-control" placeholder="0" min="0" />
+  </div>
+
+  <div class="form-group">
+    <label>Status Ketersediaan</label>
+    <div class="toggle-group">
+      <label class="toggle-option selected-tersedia" id="opt-tersedia">
+        <i data-lucide="check-circle-2" class="icon-tersedia"></i>
+        <span>
+          <span class="opt-title" style="display:block;">Tersedia</span>
+          <span class="opt-sub">Muncul di menu kasir</span>
+        </span>
+        <input type="radio" name="status" value="tersedia" checked style="display:none;" />
+      </label>
+      <label class="toggle-option" id="opt-habis">
+        <i data-lucide="ban" class="icon-habis"></i>
+        <span>
+          <span class="opt-title" style="display:block;">Habis</span>
+          <span class="opt-sub">Disembunyikan</span>
+        </span>
+        <input type="radio" name="status" value="habis" style="display:none;" />
+      </label>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:8px;">
+    <a href="{{ url_for('pages.manage_produk') }}" class="btn btn-secondary">Batal</a>
+    <button type="submit" class="btn btn-primary">Simpan Produk <i data-lucide="arrow-right"></i></button>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/tambah_produk.js') }}"></script>
+{% endblock %}

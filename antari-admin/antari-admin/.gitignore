@@ -1,0 +1,16 @@
+# Database (dibuat otomatis saat aplikasi pertama kali jalan)
+backend/antari.db
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Foto produk yang diupload user (biarkan folder-nya, jangan commit isinya)
+frontend/static/uploads/*
+!frontend/static/uploads/.gitkeep
+
+# OS / editor
+.DS_Store
+.vscode/

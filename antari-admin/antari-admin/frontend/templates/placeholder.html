@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ judul }}{% endblock %}
+
+{% block header %}
+<header class="topbar">
+  <span class="topbar-title">{{ judul }}</span>
+  <div class="topbar-actions">
+    <button class="icon-btn"><i data-lucide="calendar"></i></button>
+    <button class="icon-btn"><i data-lucide="bell"></i><span class="dot"></span></button>
+    <div class="topbar-user">
+      <img src="https://i.pravatar.cc/72?img=12" alt="avatar admin" />
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="placeholder-page">
+  <div style="text-align:center;">
+    <i data-lucide="construction" style="width:36px;height:36px;color:var(--gray-400);"></i>
+    <p style="margin-top:10px;">Halaman "{{ judul }}" belum ada di desain Figma yang dibagikan.<br/>Tambahkan frame-nya dan beri tahu saya supaya bisa dibuatkan kodenya juga.</p>
+  </div>
+</div>
+{% endblock %}

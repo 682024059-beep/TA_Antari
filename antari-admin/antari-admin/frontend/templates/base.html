@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Antari Admin{% endblock %} - Antari Admin</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    {% include "partials/sidebar.html" %}
+    <div class="main-area">
+      {% block header %}{% endblock %}
+      <main class="main-content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+  <script>
+    if (window.lucide) lucide.createIcons();
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

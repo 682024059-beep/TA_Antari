@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Riwayat Penjualan{% endblock %}
+
+{% block header %}
+<header class="topbar">
+  <span class="topbar-title">Riwayat Penjualan</span>
+  <div class="topbar-actions">
+    <button class="icon-btn"><i data-lucide="calendar"></i></button>
+    <button class="icon-btn"><i data-lucide="bell"></i><span class="dot"></span></button>
+    <div class="topbar-user with-info">
+      <img src="https://i.pravatar.cc/72?img=32" alt="avatar admin" />
+      <div class="topbar-user-info">
+        <div class="name">Admin Kopi</div>
+        <div class="role">MANAGER</div>
+      </div>
+    </div>
+  </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="toolbar-row">
+  <div class="filter-tabs" id="filter-tabs">
+    <button class="filter-tab active" data-range="harian">Harian</button>
+    <button class="filter-tab" data-range="mingguan">Mingguan</button>
+    <button class="filter-tab" data-range="bulanan">Bulanan</button>
+  </div>
+
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <div class="input-with-icon">
+      <i data-lucide="calendar"></i>
+      <input type="date" id="filter-start" class="form-control" />
+    </div>
+    <span class="cell-muted">-</span>
+    <input type="date" id="filter-end" class="form-control" style="width:auto;" />
+    <button class="btn btn-secondary" id="btn-export">
+      <i data-lucide="download"></i> Export Excel
+    </button>
+  </div>
+</div>
+
+<div class="stat-grid" id="penjualan-stats">
+  <div class="card stat-card"><div class="card-eyebrow">Memuat data...</div></div>
+</div>
+
+<div class="two-col-grid">
+  <div class="card">
+    <div class="page-header-row" style="margin-bottom:14px;">
+      <h2>Pendapatan per Hari</h2>
+      <span class="cell-muted" id="periode-label"></span>
+    </div>
+    <div class="chart-wrap"><canvas id="penjualan-chart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="page-header-row" style="margin-bottom:14px;">
+      <h2>Produk Terlaris</h2>
+    </div>
+    <div class="rank-list" id="rank-list">
+      <p class="empty-state">Memuat...</p>
+    </div>
+  </div>
+</div>
+
+<div class="card" style="padding:0;">
+  <div class="toolbar-row" style="padding:20px 22px 0;">
+    <h2 style="font-size:17px;">Daftar Transaksi</h2>
+    <div class="search-box">
+      <i data-lucide="search"></i>
+      <input type="text" id="search-transaksi" class="form-control" placeholder="Cari No. Transaksi..." />
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>No. Transaksi</th>
+          <th>Customer</th>
+          <th>Produk</th>
+          <th>Total</th>
+          <th>Diskon</th>
+          <th>Metode</th>
+          <th>Kasir</th>
+          <th>Waktu</th>
+        </tr>
+      </thead>
+      <tbody id="transaksi-tbody">
+        <tr><td colspan="8" class="empty-state">Memuat transaksi...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="toolbar-row" style="padding:0 22px 20px;">
+    <span class="cell-muted" id="pagination-info"></span>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="{{ url_for('static', filename='js/penjualan.js') }}"></script>
+{% endblock %}
