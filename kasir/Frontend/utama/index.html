@@ -4,57 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Masuk - Antari Coffee</title>
-    <!-- CSS Terhubung Langsung ke Frontend/utama/css/style.css -->
+
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body class="login-body">
 
     <div class="login-wrapper">
-        <!-- Sisi Kiri: Branding Gelap -->
+
+        <!-- Sisi Kiri -->
         <div class="login-left">
             <div class="overlay-brand">
                 <div class="brand-logo-circle">
                     <i class="fa-solid fa-mug-saucer"></i>
                 </div>
+
                 <h1>Antari Coffee</h1>
                 <p>SISTEM KASIR DIGITAL</p>
+
                 <div class="line-decorator"></div>
             </div>
+
             <p class="copyright">© 2026 ANTARI COFFEE GROUP</p>
         </div>
 
-        <!-- Sisi Kanan: Form Input -->
+        <!-- Sisi Kanan -->
         <div class="login-right">
             <div class="form-container">
                 <h2>Masuk ke Sistem</h2>
                 <p class="subtitle">Login sebagai Kasir</p>
 
-                <div class="input-group-antari">
-                    <label>USERNAME</label>
-                    <div class="input-field">
-                        <i class="fa-regular fa-user"></i>
-                        <input type="text" id="username" placeholder="Masukkan username" value="kasir">
+                <form id="loginForm">
+                    <div class="input-group-antari">
+                        <label for="username">USERNAME</label>
+                        <div class="input-field">
+                            <i class="fa-regular fa-user"></i>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username"
+                                placeholder="Masukkan username" 
+                                value="kasir"
+                                autocomplete="username"
+                                required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="input-group-antari">
-                    <label>PASSWORD</label>
-                    <div class="input-field">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="password" placeholder="Masukkan kata sandi" value="antari123">
-                        <i class="fa-regular fa-eye toggle-pwd"></i>
+                    <div class="input-group-antari">
+                        <label for="password">PASSWORD</label>
+                        <div class="input-field">
+                            <i class="fa-solid fa-lock"></i>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password"
+                                placeholder="Masukkan kata sandi" 
+                                value="antari123"
+                                autocomplete="current-password"
+                                required>
+
+                            <i class="fa-regular fa-eye toggle-pwd" id="togglePassword"></i>
+                        </div>
                     </div>
-                </div>
 
-                <button id="btn-login-submit" class="btn-masuk">Masuk <i class="fa-solid fa-arrow-right"></i></button>
+                    <p id="loginMessage" class="login-message"></p>
 
-                <p class="notice-text">Gunakan akun kasir yang telah terdaftar oleh manager outlet.</p>
+                    <button type="submit" id="btn-login-submit" class="btn-masuk">
+                        Masuk <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <p class="notice-text">
+                    Gunakan akun kasir yang telah terdaftar oleh manager outlet.
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Terhubung Langsung ke Frontend/utama/js/main.js -->
+    <!-- JavaScript -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
