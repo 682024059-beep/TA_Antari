@@ -1348,3 +1348,383 @@ a {
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================================================
+   10. CREATIVE POLISH - PREMIUM COFFEE DASHBOARD
+   Tambahan tampilan agar UI lebih modern dan tidak polos
+   ========================================================================== */
+
+/* Background halaman lebih hidup */
+body {
+    background:
+        radial-gradient(circle at top left, rgba(111, 56, 0, 0.10), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(211, 106, 0, 0.08), transparent 35%),
+        var(--bg-body);
+}
+
+/* Sidebar lebih premium */
+.sidebar {
+    background:
+        linear-gradient(180deg, #3A241F 0%, #241614 55%, #1B100E 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar::before {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    top: -70px;
+    right: -70px;
+}
+
+.sidebar::after {
+    content: "";
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    background: rgba(111, 56, 0, 0.35);
+    border-radius: 50%;
+    bottom: 80px;
+    left: -80px;
+}
+
+.sidebar > * {
+    position: relative;
+    z-index: 2;
+}
+
+.sidebar .brand {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 28px;
+}
+
+.sidebar .brand h2 {
+    color: #FFFFFF !important;
+    font-size: 22px;
+    letter-spacing: 0.2px;
+}
+
+.sidebar .brand p {
+    margin-bottom: 0;
+    margin-top: 6px;
+    color: #C8B195;
+}
+
+/* Menu sidebar lebih elegan */
+.menu-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item.active {
+    background: linear-gradient(135deg, #8A4B10, #6F3800);
+    box-shadow: 0 8px 18px rgba(111, 56, 0, 0.35);
+}
+
+.menu-item:hover {
+    transform: translateX(4px);
+}
+
+.menu-item.active::before {
+    content: "";
+    width: 4px;
+    height: 60%;
+    background: #F5D6A1;
+    border-radius: 10px;
+    position: absolute;
+    left: 0;
+}
+
+/* Topbar lebih soft */
+.topbar {
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 18px rgba(51, 34, 31, 0.04);
+}
+
+.page-title h2 {
+    position: relative;
+}
+
+.page-title h2::after {
+    content: "";
+    width: 36px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), #D36A00);
+    border-radius: 20px;
+    display: block;
+    margin-top: 6px;
+}
+
+/* Avatar lebih modern */
+.avatar {
+    background: linear-gradient(135deg, #6F3800, #D36A00);
+    box-shadow: 0 6px 14px rgba(111, 56, 0, 0.22);
+}
+
+/* Card umum lebih premium */
+.search-bar-container,
+.billing-area,
+.card-stat,
+.log-transaksi-box,
+.card-produk {
+    box-shadow: 0 10px 28px rgba(51, 34, 31, 0.07);
+}
+
+/* Search input lebih cantik */
+.search-bar-container {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.98), rgba(250,248,246,0.95));
+}
+
+.input-scan {
+    border-radius: 14px;
+    padding: 13px 15px;
+}
+
+.input-scan i {
+    background: #F4ECE6;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Header produk */
+.daftar-produk-header {
+    background: rgba(255, 255, 255, 0.65);
+    padding: 16px 18px;
+    border-radius: 14px;
+    border: 1px solid rgba(235, 229, 224, 0.85);
+}
+
+.daftar-produk-header h3 {
+    font-size: 20px;
+}
+
+/* Filter kategori lebih stylish */
+.kat-btn {
+    box-shadow: 0 4px 10px rgba(51, 34, 31, 0.04);
+}
+
+.kat-btn.active {
+    background: linear-gradient(135deg, #2B1E1B, #6F3800);
+}
+
+/* Card produk lebih menarik */
+.card-produk {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-produk::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(111,56,0,0.07), transparent 45%);
+    opacity: 0;
+    transition: 0.25s ease;
+}
+
+.card-produk:hover::before {
+    opacity: 1;
+}
+
+.img-placeholder {
+    background:
+        radial-gradient(circle at top right, rgba(211, 106, 0, 0.22), transparent 35%),
+        linear-gradient(135deg, #F8EFE6, #E8D5C2);
+}
+
+.img-placeholder i {
+    filter: drop-shadow(0 8px 10px rgba(111, 56, 0, 0.18));
+}
+
+/* Billing area dibuat seperti struk premium */
+.billing-area {
+    border: none;
+    background:
+        linear-gradient(180deg, #FFFFFF 0%, #FFFCFA 100%);
+    position: relative;
+}
+
+.billing-area::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 22px;
+    right: 22px;
+    height: 5px;
+    background: linear-gradient(90deg, #6F3800, #D36A00, #F5D6A1);
+    border-radius: 0 0 20px 20px;
+}
+
+.customer-info-row {
+    margin-top: 6px;
+}
+
+/* Detail pesanan lebih clean */
+.cart-items-list {
+    background: #FFFCFA;
+    border: 1px dashed #E3D8D1;
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.empty-text {
+    background: #F9F6F3;
+    border-radius: 10px;
+}
+
+/* Summary pembayaran lebih menonjol */
+.payment-summary {
+    background:
+        linear-gradient(135deg, #FAF8F6, #F3E9E0);
+    border: 1px solid #E8DCD3;
+}
+
+.total-utama {
+    align-items: center;
+}
+
+.text-brown {
+    background: #FFFFFF;
+    padding: 6px 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(111, 56, 0, 0.08);
+}
+
+/* Metode pembayaran */
+.payment-methods {
+    background: #FAF8F6;
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid #EEE5DD;
+}
+
+.method-btn.active {
+    background: linear-gradient(135deg, #6F3800, #9A5614);
+    box-shadow: 0 6px 14px rgba(111, 56, 0, 0.24);
+}
+
+/* Kembalian dibuat lebih premium */
+.kembalian-box {
+    background:
+        linear-gradient(135deg, #EAF7EE, #DDF4E5);
+    box-shadow: inset 0 0 0 1px rgba(39, 174, 96, 0.08);
+}
+
+.kembalian-amount {
+    font-size: 24px;
+}
+
+/* Tombol utama lebih hidup */
+.btn-proses {
+    background: linear-gradient(135deg, #6F3800, #9A5614);
+    box-shadow: 0 10px 20px rgba(111, 56, 0, 0.25);
+}
+
+.btn-proses:hover {
+    background: linear-gradient(135deg, #552B00, #7A3F0B);
+}
+
+.btn-reset {
+    transition: all 0.2s ease;
+}
+
+.btn-reset:hover {
+    transform: translateY(-1px);
+}
+
+/* Empty state lebih bagus */
+.empty-state-card,
+.empty-history,
+.empty-payment {
+    background:
+        linear-gradient(135deg, rgba(255,255,255,0.95), rgba(250,246,242,0.95));
+    box-shadow: 0 12px 30px rgba(51, 34, 31, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.empty-state-card::before,
+.empty-history::before,
+.empty-payment::before {
+    content: "";
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: rgba(111, 56, 0, 0.07);
+    top: -80px;
+    right: -70px;
+}
+
+.empty-state-card > *,
+.empty-history > *,
+.empty-payment > * {
+    position: relative;
+    z-index: 2;
+}
+
+.empty-icon {
+    background:
+        linear-gradient(135deg, #F5E7D8, #FFFFFF);
+    box-shadow: 0 8px 18px rgba(111, 56, 0, 0.10);
+}
+
+/* Riwayat transaksi */
+.card-stat {
+    transition: all 0.2s ease;
+}
+
+.card-stat:hover {
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    background: linear-gradient(135deg, #F7F2ED, #FFFFFF);
+    box-shadow: 0 6px 14px rgba(111, 56, 0, 0.10);
+}
+
+.log-transaksi-box {
+    background: rgba(255, 255, 255, 0.96);
+}
+
+/* Table lebih premium */
+.table-antari th {
+    background: #FAF8F6;
+}
+
+.table-antari tbody tr {
+    transition: all 0.15s ease;
+}
+
+.table-antari tbody tr:hover {
+    background: #FFF7EF;
+}
+
+/* Animasi masuk halus */
+.content-body {
+    animation: fadeSlideUp 0.35s ease both;
+}
+
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
