@@ -1728,3 +1728,278 @@ body {
         transform: translateY(0);
     }
 }
+
+/* ==========================================================================
+   11. EXTRA 3D EFFECT - ANTARI COFFEE
+   Paste di paling bawah style.css
+   ========================================================================== */
+
+/* Background 3D depth */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(circle at 12% 18%, rgba(111, 56, 0, 0.16), transparent 26%),
+        radial-gradient(circle at 88% 12%, rgba(211, 106, 0, 0.12), transparent 30%),
+        radial-gradient(circle at 80% 88%, rgba(51, 34, 31, 0.10), transparent 28%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Layout terasa punya kedalaman */
+.content-body {
+    perspective: 1200px;
+}
+
+/* Sidebar 3D */
+.sidebar {
+    box-shadow:
+        18px 0 45px rgba(27, 16, 14, 0.28),
+        inset -1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+.sidebar .brand {
+    box-shadow:
+        0 18px 30px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transform: translateZ(0);
+}
+
+.menu-item {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.menu-item.active {
+    box-shadow:
+        0 14px 28px rgba(111, 56, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* Topbar melayang */
+.topbar {
+    margin: 18px 22px 0;
+    border-radius: 18px;
+    border: 1px solid rgba(235, 229, 224, 0.8);
+    box-shadow:
+        0 18px 35px rgba(51, 34, 31, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Produk area lebih 3D */
+.search-bar-container,
+.daftar-produk-header,
+.billing-area,
+.card-stat,
+.log-transaksi-box {
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow:
+        0 22px 45px rgba(51, 34, 31, 0.12),
+        0 8px 18px rgba(51, 34, 31, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+/* Card produk lebih seperti kartu fisik */
+.card-produk {
+    transform-style: preserve-3d;
+    box-shadow:
+        0 16px 26px rgba(51, 34, 31, 0.12),
+        0 4px 8px rgba(51, 34, 31, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.card-produk:hover {
+    transform: translateY(-9px) rotateX(4deg) rotateY(-3deg);
+    box-shadow:
+        0 28px 46px rgba(51, 34, 31, 0.20),
+        0 10px 18px rgba(111, 56, 0, 0.12);
+}
+
+.card-produk::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.32),
+        transparent 35%,
+        rgba(111, 56, 0, 0.06)
+    );
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+/* Gambar produk lebih timbul */
+.img-placeholder {
+    box-shadow:
+        inset 0 8px 18px rgba(255, 255, 255, 0.45),
+        inset 0 -10px 22px rgba(111, 56, 0, 0.14),
+        0 12px 20px rgba(111, 56, 0, 0.10);
+}
+
+.img-placeholder i {
+    transform: translateZ(28px);
+    font-size: 38px;
+}
+
+/* Billing kanan seperti receipt box 3D */
+.billing-area {
+    box-shadow:
+        -18px 24px 55px rgba(51, 34, 31, 0.18),
+        0 8px 18px rgba(51, 34, 31, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+    transform: translateZ(0);
+}
+
+.billing-area::after {
+    content: "";
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: -12px;
+    height: 24px;
+    background: rgba(51, 34, 31, 0.12);
+    filter: blur(14px);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+/* Input jadi inset 3D */
+.input-scan,
+.input-billing input,
+.mini-search {
+    box-shadow:
+        inset 0 3px 8px rgba(51, 34, 31, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Cart dan summary lebih berdimensi */
+.cart-items-list,
+.payment-summary,
+.payment-methods,
+.kembalian-box {
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        0 10px 22px rgba(51, 34, 31, 0.08);
+}
+
+/* Tombol 3D */
+.btn-tambah-code,
+.btn-proses,
+.btn-reset,
+.method-btn,
+.btn-empty-action,
+.btn-detail,
+.btn-icon {
+    transform: translateY(0);
+    box-shadow:
+        0 8px 0 rgba(51, 34, 31, 0.14),
+        0 16px 24px rgba(51, 34, 31, 0.10);
+}
+
+.btn-tambah-code:hover,
+.btn-proses:hover,
+.btn-reset:hover,
+.method-btn:hover,
+.btn-empty-action:hover,
+.btn-detail:hover,
+.btn-icon:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 11px 0 rgba(51, 34, 31, 0.13),
+        0 22px 30px rgba(51, 34, 31, 0.14);
+}
+
+.btn-tambah-code:active,
+.btn-proses:active,
+.btn-reset:active,
+.method-btn:active,
+.btn-empty-action:active,
+.btn-detail:active,
+.btn-icon:active {
+    transform: translateY(4px);
+    box-shadow:
+        0 3px 0 rgba(51, 34, 31, 0.16),
+        0 8px 12px rgba(51, 34, 31, 0.10);
+}
+
+/* Empty state lebih premium 3D */
+.empty-state-card,
+.empty-history,
+.empty-payment {
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow:
+        0 28px 55px rgba(51, 34, 31, 0.14),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.empty-icon {
+    box-shadow:
+        0 16px 28px rgba(111, 56, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+}
+
+/* Summary card riwayat lebih 3D */
+.card-stat:hover {
+    transform: translateY(-8px) rotateX(3deg);
+    box-shadow:
+        0 28px 45px rgba(51, 34, 31, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* Table container lebih floating */
+.log-transaksi-box {
+    position: relative;
+}
+
+.log-transaksi-box::after {
+    content: "";
+    position: absolute;
+    left: 35px;
+    right: 35px;
+    bottom: -14px;
+    height: 24px;
+    background: rgba(51, 34, 31, 0.10);
+    filter: blur(14px);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+/* Login juga dibuat lebih 3D */
+.form-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 34px;
+    border-radius: 22px;
+    box-shadow:
+        0 30px 60px rgba(51, 34, 31, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.brand-logo-circle {
+    box-shadow:
+        0 18px 35px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+/* Responsive: kurangi efek 3D di layar kecil */
+@media (max-width: 768px) {
+    .topbar {
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .card-produk:hover,
+    .card-stat:hover {
+        transform: translateY(-4px);
+    }
+
+    .billing-area {
+        box-shadow:
+            0 18px 35px rgba(51, 34, 31, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 1);
+    }
+}
