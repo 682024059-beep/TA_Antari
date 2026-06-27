@@ -4,143 +4,294 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Kasir - Antari Coffee</title>
-    <!-- CSS Terhubung Langsung ke Frontend/utama/css/style.css -->
+
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
 
+<body>
     <div class="dashboard-container">
-        <!-- SIDEBAR KIRI -->
+
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="brand">
                 <h2>Antari Coffee</h2>
                 <p>CASHIER DASHBOARD</p>
             </div>
+
             <nav class="menu">
-                <a href="/kasir" class="menu-item active"><i class="fa-solid fa-cart-shopping"></i> Take Order</a>
-                <a href="/riwayat" class="menu-item"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Transaksi</a>
+                <a href="/kasir" class="menu-item active">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Take Order
+                </a>
+
+                <a href="/riwayat" class="menu-item">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Riwayat Transaksi
+                </a>
             </nav>
+
             <div class="sidebar-footer">
-                <a href="#" class="menu-item"><i class="fa-solid fa-circle-question"></i> Bantuan</a>
-                <a href="/login" class="menu-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-circle-question"></i>
+                    Bantuan
+                </a>
+
+                <a href="/logout" class="menu-item logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Keluar
+                </a>
             </div>
         </aside>
 
-        <!-- KONTEN UTAMA -->
+        <!-- MAIN CONTENT -->
         <main class="main-content">
+
+            <!-- TOPBAR -->
             <header class="topbar">
-                <div class="page-title"><h2>Menu Kasir</h2></div>
+                <div class="page-title">
+                    <h2>Menu Kasir</h2>
+                </div>
+
                 <div class="user-profile">
-                    <span><i class="fa-regular fa-clock"></i> 06:29 WIB</span>
+                    <span>
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="currentTime">--:-- WIB</span>
+                    </span>
+
                     <i class="fa-regular fa-bell icon-bell"></i>
+
                     <div class="avatar-box">
-                        <img src="https://via.placeholder.com/36" alt="Avatar" class="avatar">
+                        <div class="avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+
                         <div>
-                            <h4>Budi Santoso</h4>
+                            <h4>{{ username if username else 'Kasir' }}</h4>
                             <p>CASHIER SHIFT A</p>
                         </div>
                     </div>
                 </div>
             </header>
 
+            <!-- BODY -->
             <div class="content-body">
                 <div class="kasir-layout">
-                    <!-- Area Produk -->
-                    <div class="produk-area">
+
+                    <!-- AREA PRODUK -->
+                    <section class="produk-area">
+
+                        <!-- SCAN / INPUT KODE -->
                         <div class="search-bar-container">
                             <div class="input-scan">
-                                <i class="fa-solid fa-qrcode"></i>
-                                <input type="text" placeholder="Masukkan atau Scan Kode Produk...">
-                                <button class="btn-tambah-code">Tambah</button>
+                                <i class="fa-solid fa-barcode"></i>
+                                <input 
+                                    type="text" 
+                                    id="scan-input"
+                                    placeholder="Masukkan atau scan kode produk..."
+                                    {% if not produk %}disabled{% endif %}>
+
+                                <button 
+                                    type="button" 
+                                    class="btn-tambah-code"
+                                    {% if not produk %}disabled{% endif %}>
+                                    Tambah
+                                </button>
                             </div>
                         </div>
 
+                        <!-- HEADER PRODUK -->
                         <div class="daftar-produk-header">
-                            <h3>Daftar Produk</h3>
-                            <div class="mini-search"><i class="fa-solid fa-search"></i> <input type="text" placeholder="Cari Menu..."></div>
-                        </div>
-
-                        <div class="kategori-filter">
-                            <button class="kat-btn active">Semua</button>
-                            <button class="kat-btn">Coffee</button>
-                            <button class="kat-btn">Non-Coffee</button>
-                            <button class="kat-btn">Makanan Ringan</button>
-                        </div>
-
-                        <!-- Grid Produk Mengambil Data Dummy Python -->
-                        <div class="grid-produk">
-                            {% for p in produk %}
-                            <div class="card-produk {{ 'stok-habis' if p.status == 'stok habis' else '' }}" 
-                                 data-id="{{ p.id }}" data-nama="{{ p.nama }}" data-harga="{{ p.harga }}">
-                                <div class="img-placeholder">
-                                    <i class="fa-solid fa-mug-hot"></i>
-                                    {% if p.status == 'stok habis' %}
-                                    <span class="badge-habis">STOK HABIS</span>
-                                    {% endif %}
-                                </div>
-                                <div class="card-info">
-                                    <span class="p-code">{{ p.id }}</span>
-                                    <h4>{{ p.nama }}</h4>
-                                    <p class="p-harga">Rp {{ "{:,}".format(p.harga).replace(',', '.') }}</p>
-                                </div>
+                            <div>
+                                <h3>Daftar Produk</h3>
+                                <p class="small-muted">
+                                    Produk akan tampil setelah ditambahkan oleh admin.
+                                </p>
                             </div>
-                            {% endfor %}
-                        </div>
-                    </div>
 
-                    <!-- Area Billing Kanan -->
-                    <div class="billing-area">
+                            <div class="mini-search">
+                                <i class="fa-solid fa-search"></i>
+                                <input 
+                                    type="text" 
+                                    id="searchProduk"
+                                    placeholder="Cari menu..."
+                                    {% if not produk %}disabled{% endif %}>
+                            </div>
+                        </div>
+
+                        <!-- FILTER KATEGORI -->
+                        <div class="kategori-filter">
+                            <button type="button" class="kat-btn active" data-category="semua">
+                                Semua
+                            </button>
+
+                            {% if kategori_produk %}
+                                {% for kategori in kategori_produk %}
+                                <button type="button" class="kat-btn" data-category="{{ kategori }}">
+                                    {{ kategori }}
+                                </button>
+                                {% endfor %}
+                            {% else %}
+                                <button type="button" class="kat-btn" disabled>
+                                    Belum ada kategori
+                                </button>
+                            {% endif %}
+                        </div>
+
+                        <!-- GRID PRODUK -->
+                        <div class="grid-produk">
+                            {% if produk %}
+                                {% for p in produk %}
+                                <div 
+                                    class="card-produk {{ 'stok-habis' if p.status == 'stok habis' else '' }}"
+                                    data-id="{{ p.id }}"
+                                    data-nama="{{ p.nama }}"
+                                    data-harga="{{ p.harga }}"
+                                    data-kategori="{{ p.kategori }}"
+                                >
+                                    <div class="img-placeholder">
+                                        <i class="fa-solid fa-mug-hot"></i>
+
+                                        {% if p.status == 'stok habis' %}
+                                        <span class="badge-habis">STOK HABIS</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="card-info">
+                                        <span class="p-code">{{ p.id }}</span>
+                                        <h4>{{ p.nama }}</h4>
+                                        <p class="p-harga">
+                                            Rp {{ "{:,}".format(p.harga).replace(',', '.') }}
+                                        </p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="empty-state-card">
+                                    <div class="empty-icon">
+                                        <i class="fa-solid fa-box-open"></i>
+                                    </div>
+                                    <h3>Belum ada produk</h3>
+                                    <p>
+                                        Produk kasir masih kosong. Nantinya produk akan ditambahkan melalui halaman admin,
+                                        lalu otomatis muncul di halaman kasir ini.
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </section>
+
+                    <!-- AREA BILLING -->
+                    <aside class="billing-area">
+
+                        <!-- CUSTOMER INFO -->
                         <div class="customer-info-row">
                             <div class="input-billing">
                                 <label>NAMA CUSTOMER</label>
-                                <input type="text" id="cust-name" placeholder="Andri Wijaya">
+                                <input 
+                                    type="text" 
+                                    id="cust-name" 
+                                    placeholder="Contoh: Andri Wijaya">
                             </div>
+
                             <div class="input-billing small">
                                 <label>MEJA</label>
-                                <input type="text" id="cust-table" placeholder="08">
+                                <input 
+                                    type="text" 
+                                    id="cust-table" 
+                                    placeholder="08">
                             </div>
                         </div>
 
+                        <!-- CART -->
                         <h3 class="section-title">DETAIL PESANAN</h3>
+
                         <div class="cart-items-list" id="cart-items">
                             <p class="empty-text">Belum ada menu yang dipilih</p>
                         </div>
 
+                        <!-- SUMMARY -->
                         <div class="payment-summary">
-                            <div class="summary-line"><span>Subtotal</span><span id="subtotal-val">Rp 0</span></div>
-                            <div class="summary-line diskon"><span>Diskon (10%)</span><span id="diskon-val">- Rp 0</span></div>
+                            <div class="summary-line">
+                                <span>Subtotal</span>
+                                <span id="subtotal-val">Rp 0</span>
+                            </div>
+
+                            <div class="summary-line diskon">
+                                <span>Diskon (10%)</span>
+                                <span id="diskon-val">- Rp 0</span>
+                            </div>
+
                             <div class="summary-line total-utama">
                                 <strong>TOTAL HARGA</strong>
                                 <strong id="total-val" class="text-brown">Rp 0</strong>
                             </div>
                         </div>
 
-                        <div class="payment-methods">
-                            <button class="method-btn active" data-method="CASH"><i class="fa-solid fa-money-bill-wave"></i> CASH</button>
-                            <button class="method-btn" data-method="CASHLESS"><i class="fa-solid fa-credit-card"></i> CASHLESS</button>
+                        <!-- PAYMENT METHOD -->
+                        <div>
+                            <h3 class="section-title">METODE PEMBAYARAN</h3>
+
+                            <div class="payment-methods">
+                                {% if metode_pembayaran %}
+                                    {% for metode in metode_pembayaran %}
+                                    <button 
+                                        type="button" 
+                                        class="method-btn {{ 'active' if loop.first else '' }}"
+                                        data-method="{{ metode.nama }}">
+                                        <i class="{{ metode.icon if metode.icon else 'fa-solid fa-wallet' }}"></i>
+                                        {{ metode.nama }}
+                                    </button>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="empty-payment">
+                                        <i class="fa-solid fa-credit-card"></i>
+                                        <p>Belum ada metode pembayaran</p>
+                                        <small>Metode pembayaran akan ditambahkan melalui halaman admin.</small>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
 
+                        <!-- CASH CALCULATOR -->
                         <div class="cash-calculator">
                             <div class="input-billing">
                                 <label>JUMLAH DIBAYAR</label>
-                                <input type="number" id="cash-input" placeholder="Rp 100.000">
+                                <input 
+                                    type="number" 
+                                    id="cash-input" 
+                                    placeholder="Rp 100.000"
+                                    {% if not metode_pembayaran %}disabled{% endif %}>
                             </div>
+
                             <div class="kembalian-box">
                                 <label>KEMBALIAN</label>
                                 <div class="kembalian-amount" id="change-val">Rp 0</div>
                             </div>
                         </div>
 
-                        <button class="btn-proses" id="btn-proses-bayar">PROSES PEMBAYARAN</button>
-                        <button class="btn-reset" id="btn-reset-cart">RESET</button>
-                    </div>
+                        <!-- ACTION -->
+                        <button 
+                            type="button" 
+                            class="btn-proses" 
+                            id="btn-proses-bayar"
+                            {% if not produk or not metode_pembayaran %}disabled{% endif %}>
+                            Proses Pembayaran
+                        </button>
+
+                        <button type="button" class="btn-reset" id="btn-reset-cart">
+                            Reset
+                        </button>
+                    </aside>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- JavaScript Terhubung Langsung ke Frontend/utama/js/main.js -->
+    <!-- JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

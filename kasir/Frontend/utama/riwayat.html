@@ -4,118 +4,231 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Transaksi - Antari Coffee</title>
-    <!-- CSS Terhubung Langsung ke Frontend/utama/css/style.css -->
+
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
 
+<body>
     <div class="dashboard-container">
-        <!-- SIDEBAR KIRI -->
+
+        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="brand">
                 <h2>Antari Coffee</h2>
                 <p>CASHIER DASHBOARD</p>
             </div>
+
             <nav class="menu">
-                <a href="/kasir" class="menu-item"><i class="fa-solid fa-cart-shopping"></i> Take Order</a>
-                <a href="/riwayat" class="menu-item active"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Transaksi</a>
+                <a href="/kasir" class="menu-item">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Take Order
+                </a>
+
+                <a href="/riwayat" class="menu-item active">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Riwayat Transaksi
+                </a>
             </nav>
+
             <div class="sidebar-footer">
-                <a href="#" class="menu-item"><i class="fa-solid fa-circle-question"></i> Bantuan</a>
-                <a href="/login" class="menu-item logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Keluar</a>
+                <a href="#" class="menu-item">
+                    <i class="fa-solid fa-circle-question"></i>
+                    Bantuan
+                </a>
+
+                <a href="/logout" class="menu-item logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Keluar
+                </a>
             </div>
         </aside>
 
-        <!-- KONTEN UTAMA -->
+        <!-- MAIN CONTENT -->
         <main class="main-content">
+
+            <!-- TOPBAR -->
             <header class="topbar">
-                <div class="page-title"><h2>Riwayat Transaksi</h2></div>
+                <div class="page-title">
+                    <h2>Riwayat Transaksi</h2>
+                </div>
+
                 <div class="user-profile">
-                    <span><i class="fa-regular fa-clock"></i> 06:29 WIB</span>
+                    <span>
+                        <i class="fa-regular fa-clock"></i>
+                        <span id="currentTime">--:-- WIB</span>
+                    </span>
+
                     <i class="fa-regular fa-bell icon-bell"></i>
+
                     <div class="avatar-box">
-                        <img src="https://via.placeholder.com/36" alt="Avatar" class="avatar">
+                        <div class="avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+
                         <div>
-                            <h4>Budi Santoso</h4>
+                            <h4>{{ username if username else 'Kasir' }}</h4>
                             <p>CASHIER SHIFT A</p>
                         </div>
                     </div>
                 </div>
             </header>
 
+            <!-- BODY -->
             <div class="content-body">
                 <div class="riwayat-container">
-                    <!-- Ringkasan Cards Atas -->
+
+                    <!-- SUMMARY CARDS -->
                     <div class="summary-cards">
+
                         <div class="card-stat">
-                            <div class="stat-icon"><i class="fa-solid fa-receipt"></i></div>
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+
                             <div class="stat-info">
                                 <span class="stat-title">Total Transaksi</span>
-                                <h3>32 <span class="trend up">+12% vs Kemarin</span></h3>
+                                <h3>
+                                    {{ total_transaksi if total_transaksi else 0 }}
+                                    <span class="trend stable">Hari ini</span>
+                                </h3>
                             </div>
                         </div>
+
                         <div class="card-stat">
-                            <div class="stat-icon"><i class="fa-solid fa-wallet"></i></div>
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+
                             <div class="stat-info">
                                 <span class="stat-title">Total Pendapatan</span>
-                                <h3>Rp 1.850.000 <span class="trend up">+8.4% vs Kemarin</span></h3>
+                                <h3>
+                                    Rp {{ "{:,}".format(total_pendapatan if total_pendapatan else 0).replace(',', '.') }}
+                                    <span class="trend stable">Terkini</span>
+                                </h3>
                             </div>
                         </div>
+
                         <div class="card-stat">
-                            <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+
                             <div class="stat-info">
                                 <span class="stat-title">Rata-rata per Transaksi</span>
-                                <h3>Rp 57.800 <span class="trend stable">Stabil</span></h3>
+                                <h3>
+                                    Rp {{ "{:,}".format(rata_rata if rata_rata else 0).replace(',', '.') }}
+                                    <span class="trend stable">Stabil</span>
+                                </h3>
                             </div>
                         </div>
+
                     </div>
 
-                    <!-- Tabel Utama -->
+                    <!-- LOG TRANSAKSI -->
                     <div class="log-transaksi-box">
                         <div class="log-header">
-                            <h3>Log Transaksi Terbaru</h3>
+                            <div>
+                                <h3>Log Transaksi Terbaru</h3>
+                                <p class="small-muted">
+                                    Riwayat transaksi akan muncul setelah kasir memproses pembayaran.
+                                </p>
+                            </div>
+
                             <div class="log-actions">
-                                <button class="btn-icon"><i class="fa-solid fa-sliders"></i></button>
-                                <button class="btn-icon"><i class="fa-solid fa-download"></i></button>
+                                <button type="button" class="btn-icon" title="Filter transaksi">
+                                    <i class="fa-solid fa-sliders"></i>
+                                </button>
+
+                                <button type="button" class="btn-icon" title="Export laporan">
+                                    <i class="fa-solid fa-download"></i>
+                                </button>
                             </div>
                         </div>
 
+                        {% if transaksi %}
                         <table class="table-antari">
                             <thead>
                                 <tr>
-                                    <th>NO. TRANSAKSI</th>
-                                    <th>NAMA CUSTOMER</th>
-                                    <th>MEJA</th>
-                                    <th>PRODUK</th>
-                                    <th>TOTAL</th>
-                                    <th>METODE</th>
-                                    <th>WAKTU</th>
-                                    <th>AKSI</th>
+                                    <th>No. Transaksi</th>
+                                    <th>Nama Customer</th>
+                                    <th>Meja</th>
+                                    <th>Produk</th>
+                                    <th>Total</th>
+                                    <th>Metode</th>
+                                    <th>Waktu</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
+
                             <tbody>
                                 {% for t in transaksi %}
                                 <tr>
-                                    <td><strong>{{ t.no }}</strong></td>
+                                    <td>
+                                        <strong>{{ t.no }}</strong>
+                                    </td>
+
                                     <td>{{ t.customer }}</td>
-                                    <td><span class="badge-meja">{{ t.meja }}</span></td>
+
+                                    <td>
+                                        <span class="badge-meja">{{ t.meja }}</span>
+                                    </td>
+
                                     <td>{{ t.produk }}</td>
-                                    <td><strong>Rp {{ "{:,}".format(t.total).replace(',', '.') }}</strong></td>
-                                    <td><span class="badge-method {{ t.metode.lower() }}">{{ t.metode }}</span></td>
+
+                                    <td>
+                                        <strong>
+                                            Rp {{ "{:,}".format(t.total).replace(',', '.') }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge-method {{ t.metode.lower() }}">
+                                            {{ t.metode }}
+                                        </span>
+                                    </td>
+
                                     <td>{{ t.waktu }}</td>
-                                    <td><button class="btn-detail">Detail</button></td>
+
+                                    <td>
+                                        <button type="button" class="btn-detail">
+                                            Detail
+                                        </button>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
+                        {% else %}
+                        <div class="empty-history">
+                            <div class="empty-icon">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+
+                            <h3>Belum ada transaksi</h3>
+
+                            <p>
+                                Saat ini belum ada transaksi yang tercatat. Setelah kasir memproses pembayaran,
+                                data transaksi akan tampil di halaman ini.
+                            </p>
+
+                            <a href="/kasir" class="btn-empty-action">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                Mulai Transaksi
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
+
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- JavaScript Terhubung Langsung ke Frontend/utama/js/main.js -->
+    <!-- JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
