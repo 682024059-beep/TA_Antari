@@ -1,17 +1,25 @@
 /* ==========================================================================
-   1. VARIABLE WARNA & BASE CONFIG (TEMA COKELAT ANTARI COFFEE)
+   ANTARI COFFEE - STYLE.CSS
+   Tema: Sistem Kasir Digital
+   ========================================================================== */
+
+/* ==========================================================================
+   1. VARIABLE WARNA & BASE CONFIG
    ========================================================================== */
 :root {
-    --primary-color: #6F3800;       /* Cokelat Khas Antari */
+    --primary-color: #6F3800;
     --primary-hover: #552B00;
-    --bg-sidebar: #33221F;         /* Cokelat Gelap Pekat */
-    --bg-body: #F9F6F3;            /* Krem Lembut Latte */
+    --bg-sidebar: #33221F;
+    --bg-body: #F9F6F3;
     --white: #FFFFFF;
     --text-dark: #2B1E1B;
     --text-muted: #8E8380;
     --border-color: #EBE5E0;
     --success-color: #27AE60;
     --danger-color: #E74C3C;
+    --warning-color: #D36A00;
+    --soft-brown: #F7F2ED;
+    --shadow-soft: 0 6px 18px rgba(51, 34, 31, 0.06);
 }
 
 * {
@@ -21,81 +29,112 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background-color: var(--bg-body);
     color: var(--text-dark);
 }
 
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+}
+
+
 /* ==========================================================================
-   2. DESAIN HALAMAN LOGIN (SPLIT SCREEN 50:50)
+   2. HALAMAN LOGIN
    ========================================================================== */
 .login-body {
     height: 100vh;
     overflow: hidden;
+    background: var(--white);
 }
 
 .login-wrapper {
     display: flex;
     height: 100vh;
+    width: 100%;
 }
 
-/* Sisi Kiri - Branding */
+/* Sisi Kiri */
 .login-left {
     flex: 1;
-    background: linear-gradient(rgba(51, 34, 31, 0.9), rgba(51, 34, 31, 0.95)), 
-                url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1000') center/cover;
+    background:
+        linear-gradient(rgba(51, 34, 31, 0.88), rgba(51, 34, 31, 0.96)),
+        url('https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1000') center/cover;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     color: var(--white);
     position: relative;
-    padding: 20px;
+    padding: 40px;
     text-align: center;
 }
 
+.overlay-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .brand-logo-circle {
-    width: 85px;
-    height: 85px;
-    background: rgba(255, 255, 255, 0.1);
+    width: 86px;
+    height: 86px;
+    background: rgba(255, 255, 255, 0.10);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 36px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    backdrop-filter: blur(3px);
 }
 
 .login-left h1 {
-    font-size: 32px;
+    font-size: 30px;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 }
 
 .login-left p {
     font-size: 12px;
     letter-spacing: 3px;
     color: #C8B195;
-    margin-top: 5px;
+    margin-top: 10px;
 }
 
 .line-decorator {
     width: 60px;
     height: 3px;
     background-color: var(--primary-color);
-    margin: 25px 0;
+    margin: 32px 0;
+    border-radius: 20px;
 }
 
 .copyright {
     position: absolute;
-    bottom: 20px;
+    bottom: 28px;
     font-size: 11px;
-    opacity: 0.5;
+    opacity: 0.55;
     letter-spacing: 1px;
 }
 
-/* Sisi Kanan - Form Box */
+/* Sisi Kanan */
 .login-right {
     flex: 1;
     background-color: var(--white);
@@ -107,19 +146,20 @@ body {
 
 .form-container {
     width: 100%;
-    max-width: 360px;
+    max-width: 380px;
 }
 
 .form-container h2 {
     font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 5px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    color: var(--text-dark);
 }
 
 .subtitle {
     color: var(--text-muted);
     font-size: 14px;
-    margin-bottom: 35px;
+    margin-bottom: 34px;
 }
 
 .input-group-antari {
@@ -129,10 +169,10 @@ body {
 .input-group-antari label {
     display: block;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-muted);
     margin-bottom: 8px;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
 }
 
 .input-field {
@@ -140,21 +180,21 @@ body {
     align-items: center;
     background-color: #F6F4F2;
     border: 1px solid #E5E0DB;
-    border-radius: 8px;
-    padding: 12px 15px;
+    border-radius: 9px;
+    padding: 13px 15px;
     gap: 12px;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
 }
 
 .input-field:focus-within {
     border-color: var(--primary-color);
     background-color: var(--white);
-    box-shadow: 0 0 0 3px rgba(111, 56, 0, 0.1);
+    box-shadow: 0 0 0 4px rgba(111, 56, 0, 0.10);
 }
 
 .input-field i {
     color: #A39692;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .input-field input {
@@ -170,40 +210,62 @@ body {
     cursor: pointer;
 }
 
+.login-message {
+    font-size: 12px;
+    margin: -5px 0 14px;
+    min-height: 18px;
+}
+
+.login-message.error {
+    color: var(--danger-color);
+}
+
+.login-message.success {
+    color: var(--success-color);
+}
+
 .btn-masuk {
     width: 100%;
     background-color: var(--primary-color);
     color: var(--white);
     border: none;
-    padding: 14px;
-    border-radius: 8px;
+    padding: 15px;
+    border-radius: 9px;
     font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
+    font-weight: 800;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-top: 10px;
-    transition: background 0.2s;
-    box-shadow: 0 4px 12px rgba(111, 56, 0, 0.15);
+    margin-top: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 18px rgba(111, 56, 0, 0.18);
 }
 
 .btn-masuk:hover {
     background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-masuk:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .notice-text {
     font-size: 11px;
     color: var(--text-muted);
     text-align: center;
-    margin-top: 25px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px solid #F0ECE9;
     line-height: 1.5;
 }
 
 
 /* ==========================================================================
-   3. LAYOUT UTAMA DASHBOARD & SIDEBAR KIRI
+   3. DASHBOARD LAYOUT & SIDEBAR
    ========================================================================== */
 .dashboard-container {
     display: flex;
@@ -215,21 +277,32 @@ body {
     width: 260px;
     background-color: var(--bg-sidebar);
     color: var(--white);
-    padding: 30px 20px;
+    padding: 30px 18px;
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
+}
+
+.brand {
+    padding: 0 8px;
 }
 
 .brand h2 {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+.sidebar .brand h2 {
+    color: #241614;
 }
 
 .brand p {
     font-size: 10px;
     color: #9E8E8B;
-    margin-bottom: 40px;
-    letter-spacing: 1.5px;
+    margin-top: 2px;
+    margin-bottom: 42px;
+    letter-spacing: 1.4px;
 }
 
 .menu {
@@ -242,10 +315,9 @@ body {
 .menu-item {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 14px;
     color: #C4B9B6;
-    text-decoration: none;
-    padding: 12px 15px;
+    padding: 13px 14px;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
@@ -257,58 +329,64 @@ body {
     width: 20px;
 }
 
-.menu-item.active, .menu-item:hover {
+.menu-item.active,
+.menu-item:hover {
     background-color: var(--primary-color);
     color: var(--white);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .sidebar-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding-top: 15px;
+    padding-top: 16px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 
 .logout {
     color: #F1948A;
 }
+
 .logout:hover {
-    background-color: rgba(231, 76, 60, 0.2);
-    color: #E74C3C;
+    background-color: rgba(231, 76, 60, 0.18);
+    color: #FF6B6B;
 }
 
 
 /* ==========================================================================
-   4. AREA HEADER ATAS (TOPBAR)
+   4. TOPBAR
    ========================================================================== */
 .main-content {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-width: 0;
 }
 
 .topbar {
     background-color: var(--white);
-    padding: 15px 30px;
+    padding: 14px 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #EBECEE;
+    min-height: 68px;
 }
 
 .page-title h2 {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 21px;
+    font-weight: 800;
+    color: var(--text-dark);
 }
 
 .user-profile {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 18px;
     font-size: 13px;
+    color: var(--text-dark);
 }
 
 .icon-bell {
@@ -322,25 +400,33 @@ body {
     align-items: center;
     gap: 12px;
     border-left: 1px solid #E5E0DB;
-    padding-left: 20px;
+    padding-left: 18px;
 }
 
 .avatar {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     object-fit: cover;
+    background: var(--bg-sidebar);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
 }
 
 .avatar-box h4 {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 800;
+    color: var(--text-dark);
 }
 
 .avatar-box p {
     font-size: 10px;
     color: var(--text-muted);
-    font-weight: 500;
+    font-weight: 600;
+    margin-top: 2px;
 }
 
 .content-body {
@@ -351,25 +437,34 @@ body {
 
 
 /* ==========================================================================
-   5. LAYOUT KASIR & GRID PRODUK (KIRI)
+   5. HALAMAN KASIR / TAKE ORDER
    ========================================================================== */
 .kasir-layout {
     display: flex;
     gap: 25px;
-    height: 100%;
+    min-height: 100%;
 }
 
 .produk-area {
     flex: 1.6;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
+    min-width: 0;
+}
+
+.search-bar-container {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: var(--shadow-soft);
 }
 
 .input-scan {
     display: flex;
-    background: var(--white);
-    padding: 12px 15px;
+    background: #F8F5F3;
+    padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid #E0DCD8;
     gap: 12px;
@@ -386,17 +481,23 @@ body {
     outline: none;
     width: 100%;
     font-size: 14px;
+    background: transparent;
+    color: var(--text-dark);
 }
 
 .btn-tambah-code {
     background: var(--primary-color);
     color: var(--white);
     border: none;
-    padding: 6px 15px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
+    padding: 9px 18px;
+    border-radius: 7px;
+    font-weight: 700;
     font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.btn-tambah-code:hover {
+    background: var(--primary-hover);
 }
 
 .daftar-produk-header {
@@ -406,30 +507,39 @@ body {
 }
 
 .daftar-produk-header h3 {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 800;
 }
 
 .mini-search {
     background: var(--white);
-    padding: 6px 14px;
+    padding: 7px 14px;
     border-radius: 20px;
     border: 1px solid #DDD;
     display: flex;
     gap: 8px;
     align-items: center;
     font-size: 13px;
+    min-width: 250px;
+}
+
+.mini-search i {
+    color: var(--text-muted);
 }
 
 .mini-search input {
     border: none;
     outline: none;
     font-size: 13px;
+    width: 100%;
+    color: var(--text-dark);
 }
 
 .kategori-filter {
     display: flex;
     gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 2px;
 }
 
 .kat-btn {
@@ -437,20 +547,21 @@ body {
     border: 1px solid #E2DCD8;
     padding: 8px 18px;
     border-radius: 20px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     font-size: 13px;
     color: #555;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-.kat-btn.active, .kat-btn:hover {
+.kat-btn.active,
+.kat-btn:hover {
     background: var(--text-dark);
     color: var(--white);
     border-color: var(--text-dark);
 }
 
-/* Grid Custom List Menu */
 .grid-produk {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
@@ -459,16 +570,18 @@ body {
 
 .card-produk {
     background: var(--white);
-    border-radius: 12px;
+    border-radius: 13px;
     padding: 12px;
     border: 1px solid var(--border-color);
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(51, 34, 31, 0.03);
 }
 
 .card-produk:hover {
     transform: translateY(-3px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 8px 16px rgba(51, 34, 31, 0.08);
+    border-color: rgba(111, 56, 0, 0.35);
 }
 
 .card-produk.stok-habis {
@@ -477,26 +590,28 @@ body {
 }
 
 .img-placeholder {
-    height: 110px;
-    background: #F4ECE6;
-    border-radius: 8px;
+    height: 115px;
+    background: linear-gradient(135deg, #F4ECE6, #EBDDCE);
+    border-radius: 9px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 32px;
     color: var(--primary-color);
     position: relative;
+    overflow: hidden;
 }
 
 .badge-habis {
     position: absolute;
     background: var(--danger-color);
     color: var(--white);
-    padding: 4px 10px;
+    padding: 5px 11px;
     border-radius: 20px;
     font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    transform: rotate(-12deg);
 }
 
 .card-info {
@@ -505,32 +620,33 @@ body {
 
 .p-code {
     font-size: 9px;
-    font-weight: 700;
-    color: #D36A00;
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    color: var(--warning-color);
+    letter-spacing: 0.6px;
 }
 
 .card-info h4 {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 800;
     margin: 4px 0;
-    line-height: 1.4;
+    line-height: 1.35;
     height: 36px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    color: var(--text-dark);
 }
 
 .p-harga {
-    font-weight: 700;
+    font-weight: 800;
     color: var(--primary-color);
-    font-size: 14px;
+    font-size: 15px;
 }
 
 
 /* ==========================================================================
-   6. AREA STRUKS / BILLING CALCULATOR (KANAN)
+   6. BILLING / STRUK
    ========================================================================== */
 .billing-area {
     flex: 1;
@@ -541,7 +657,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    box-shadow: var(--shadow-soft);
+    min-width: 320px;
+    max-width: 390px;
 }
 
 .customer-info-row {
@@ -557,21 +675,21 @@ body {
 }
 
 .input-billing.small {
-    flex: 0.35;
+    flex: 0.42;
 }
 
 .input-billing label {
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-muted);
-    letter-spacing: 0.5px;
+    letter-spacing: 0.6px;
 }
 
 .input-billing input {
     background: #F6F4F2;
     border: 1px solid #E5E0DB;
     padding: 10px 12px;
-    border-radius: 6px;
+    border-radius: 7px;
     outline: none;
     font-size: 13px;
     color: var(--text-dark);
@@ -580,21 +698,22 @@ body {
 .input-billing input:focus {
     border-color: var(--primary-color);
     background: var(--white);
+    box-shadow: 0 0 0 3px rgba(111, 56, 0, 0.08);
 }
 
 .section-title {
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-muted);
     border-bottom: 1px solid #F1ECE8;
-    padding-bottom: 6px;
-    letter-spacing: 0.5px;
+    padding-bottom: 7px;
+    letter-spacing: 0.6px;
 }
 
-/* List Item Belanja */
 .cart-items-list {
     flex: 1;
     min-height: 160px;
+    max-height: 230px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -606,23 +725,46 @@ body {
     text-align: center;
     color: var(--text-muted);
     font-size: 13px;
-    margin-auto: auto;
-    padding: 40px 0;
+    margin: auto;
+    padding: 35px 0;
 }
 
 .item-cart {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 12px;
     padding-bottom: 12px;
     border-bottom: 1px dashed #EBE5E0;
+}
+
+.cart-code {
+    font-size: 10px;
+    color: var(--warning-color);
+    font-weight: 800;
+}
+
+.cart-name {
+    font-size: 13px;
+    margin: 3px 0;
+    color: var(--text-dark);
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.cart-price {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--primary-color);
+    white-space: nowrap;
+    margin-top: 18px;
 }
 
 .qty-control {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-top: 6px;
+    gap: 10px;
+    margin-top: 7px;
 }
 
 .qty-btn {
@@ -630,12 +772,11 @@ body {
     background: var(--white);
     width: 24px;
     height: 24px;
-    cursor: pointer;
     border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-weight: 700;
+    font-weight: 800;
     color: #555;
     transition: background 0.1s;
 }
@@ -644,7 +785,13 @@ body {
     background: #F0EAE5;
 }
 
-/* Hitungan Ringkasan Nota */
+.qty-number {
+    font-size: 13px;
+    font-weight: 800;
+    min-width: 12px;
+    text-align: center;
+}
+
 .payment-summary {
     background: #FAF8F6;
     padding: 15px;
@@ -664,7 +811,7 @@ body {
 
 .summary-line.diskon {
     color: var(--danger-color);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .total-utama {
@@ -678,10 +825,9 @@ body {
 .text-brown {
     color: var(--primary-color);
     font-size: 22px;
-    font-weight: 800;
+    font-weight: 900;
 }
 
-/* Tombol Metode Bayar */
 .payment-methods {
     display: flex;
     gap: 10px;
@@ -692,16 +838,15 @@ body {
     padding: 11px;
     border: 1px solid #DDD3CB;
     background: var(--white);
-    font-weight: 700;
-    cursor: pointer;
-    border-radius: 6px;
+    font-weight: 800;
+    border-radius: 7px;
     font-size: 13px;
     color: #666;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 8px;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .method-btn.active {
@@ -710,7 +855,10 @@ body {
     border-color: var(--primary-color);
 }
 
-/* Kotak Hitung Tunai */
+.method-btn:hover {
+    border-color: var(--primary-color);
+}
+
 .cash-calculator {
     display: flex;
     flex-direction: column;
@@ -720,24 +868,23 @@ body {
 .kembalian-box {
     background: #EAF7EE;
     padding: 10px 14px;
-    border-radius: 6px;
+    border-radius: 7px;
     color: var(--success-color);
     border: 1px solid #CDEED7;
 }
 
 .kembalian-box label {
     font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
 }
 
 .kembalian-amount {
     font-size: 20px;
-    font-weight: 800;
+    font-weight: 900;
     text-align: right;
 }
 
-/* Action Buttons Bottom */
 .btn-proses {
     background: var(--primary-color);
     color: var(--white);
@@ -745,15 +892,22 @@ body {
     width: 100%;
     padding: 14px;
     border-radius: 8px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 15px;
-    box-shadow: 0 4px 10px rgba(111, 56, 0, 0.15);
-    transition: background 0.2s;
+    font-weight: 900;
+    font-size: 14px;
+    box-shadow: 0 4px 10px rgba(111, 56, 0, 0.16);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
 }
 
 .btn-proses:hover {
     background-color: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.btn-proses:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .btn-reset {
@@ -761,16 +915,19 @@ body {
     color: #665E5A;
     border: none;
     width: 100%;
-    padding: 8px;
-    border-radius: 6px;
-    cursor: pointer;
+    padding: 9px;
+    border-radius: 7px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 800;
+}
+
+.btn-reset:hover {
+    background: #DDD3CB;
 }
 
 
 /* ==========================================================================
-   7. HALAMAN RIWAYAT TRANSAKSI (TABLE LOG)
+   7. HALAMAN RIWAYAT TRANSAKSI
    ========================================================================== */
 .riwayat-container {
     display: flex;
@@ -792,6 +949,7 @@ body {
     display: flex;
     gap: 18px;
     align-items: center;
+    box-shadow: var(--shadow-soft);
 }
 
 .stat-icon {
@@ -799,11 +957,12 @@ body {
     height: 48px;
     background: #F7F2ED;
     color: var(--primary-color);
-    border-radius: 8px;
+    border-radius: 9px;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 22px;
+    flex-shrink: 0;
 }
 
 .stat-info {
@@ -813,13 +972,13 @@ body {
 .stat-title {
     font-size: 12px;
     color: var(--text-muted);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .card-stat h3 {
-    font-size: 20px;
-    font-weight: 700;
-    margin-top: 4px;
+    font-size: 21px;
+    font-weight: 900;
+    margin-top: 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -829,7 +988,8 @@ body {
     font-size: 11px;
     padding: 3px 8px;
     border-radius: 4px;
-    font-weight: 600;
+    font-weight: 800;
+    white-space: nowrap;
 }
 
 .trend.up {
@@ -842,12 +1002,12 @@ body {
     color: #7F8C8D;
 }
 
-/* Card Kontainer Tabel */
 .log-transaksi-box {
     background: var(--white);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     padding: 22px;
+    box-shadow: var(--shadow-soft);
 }
 
 .log-header {
@@ -858,8 +1018,8 @@ body {
 }
 
 .log-header h3 {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 17px;
+    font-weight: 900;
 }
 
 .log-actions {
@@ -873,7 +1033,6 @@ body {
     width: 36px;
     height: 36px;
     border-radius: 8px;
-    cursor: pointer;
     color: #555;
     display: flex;
     justify-content: center;
@@ -885,7 +1044,6 @@ body {
     background: #FAF8F6;
 }
 
-/* Custom Table Style */
 .table-antari {
     width: 100%;
     border-collapse: collapse;
@@ -895,10 +1053,11 @@ body {
     text-align: left;
     padding: 14px 12px;
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 900;
     color: var(--text-muted);
     border-bottom: 2px solid #EBE5E0;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .table-antari td {
@@ -916,14 +1075,14 @@ body {
     background: #EBE5E0;
     padding: 4px 8px;
     border-radius: 5px;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 12px;
     color: var(--text-dark);
 }
 
 .badge-method {
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 900;
     padding: 4px 10px;
     border-radius: 20px;
     letter-spacing: 0.3px;
@@ -945,13 +1104,140 @@ body {
     color: var(--primary-color);
     padding: 5px 12px;
     border-radius: 6px;
-    cursor: pointer;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 800;
     transition: all 0.2s;
 }
 
 .btn-detail:hover {
     background: var(--primary-color);
     color: var(--white);
+}
+
+
+/* ==========================================================================
+   8. RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1100px) {
+    .kasir-layout {
+        flex-direction: column;
+    }
+
+    .billing-area {
+        max-width: none;
+        min-width: 0;
+    }
+
+    .summary-cards {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-wrapper {
+        flex-direction: column;
+    }
+
+    .login-left {
+        min-height: 280px;
+        flex: none;
+    }
+
+    .login-right {
+        flex: 1;
+        padding: 30px 22px;
+    }
+
+    .dashboard-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 18px;
+    }
+
+    .brand p {
+        margin-bottom: 20px;
+    }
+
+    .sidebar-footer {
+        margin-top: 12px;
+    }
+
+    .main-content {
+        overflow: visible;
+    }
+
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 18px;
+    }
+
+    .user-profile {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .avatar-box {
+        border-left: none;
+        padding-left: 0;
+    }
+
+    .content-body {
+        padding: 18px;
+    }
+
+    .daftar-produk-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .mini-search {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .grid-produk {
+        grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    }
+
+    .customer-info-row {
+        flex-direction: column;
+    }
+
+    .payment-methods {
+        flex-direction: column;
+    }
+
+    .table-antari {
+        min-width: 760px;
+    }
+
+    .log-transaksi-box {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-left h1 {
+        font-size: 24px;
+    }
+
+    .form-container h2 {
+        font-size: 23px;
+    }
+
+    .grid-produk {
+        grid-template-columns: 1fr;
+    }
 }
