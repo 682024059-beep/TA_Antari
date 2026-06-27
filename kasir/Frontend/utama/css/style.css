@@ -2003,3 +2003,226 @@ body::before {
             inset 0 1px 0 rgba(255, 255, 255, 1);
     }
 }
+
+/* ==========================================================================
+   12. CLEAR TYPOGRAPHY - FONT JELAS TANPA 3D
+   ========================================================================== */
+
+/* Hilangkan efek bayangan/font 3D */
+body,
+body * {
+    text-shadow: none !important;
+}
+
+/* Font utama dibuat bersih dan mudah dibaca */
+body {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #2B1E1B;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Judul utama */
+.page-title h2,
+.daftar-produk-header h3,
+.log-header h3,
+.form-container h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #241614;
+    letter-spacing: 0.2px;
+}
+
+/* Brand Antari Coffee */
+.sidebar .brand h2,
+.login-left h1 {
+    font-weight: 800;
+    color: #FFFFFF !important;
+    letter-spacing: 0.3px;
+}
+
+/* Subtitle / teks kecil */
+.sidebar .brand p,
+.avatar-box p,
+.small-muted,
+.stat-title,
+.input-billing label,
+.section-title,
+.input-group-antari label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #7A6C67;
+    letter-spacing: 0.5px;
+}
+
+/* Menu sidebar */
+.menu-item {
+    font-size: 14px;
+    font-weight: 700;
+    color: #E8DEDA;
+    letter-spacing: 0.1px;
+}
+
+.menu-item.active,
+.menu-item:hover {
+    color: #FFFFFF;
+}
+
+/* Nama user kasir */
+.avatar-box h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #241614;
+}
+
+/* Nama produk */
+.card-info h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #241614;
+    line-height: 1.35;
+}
+
+/* Kode produk */
+.p-code,
+.cart-code {
+    font-size: 10px;
+    font-weight: 800;
+    color: #B45C09;
+    letter-spacing: 0.4px;
+}
+
+/* Harga produk dan total */
+.p-harga,
+.text-brown,
+.kembalian-amount {
+    font-weight: 800;
+    color: #6F3800;
+    letter-spacing: 0.1px;
+}
+
+.p-harga {
+    font-size: 15px;
+}
+
+.text-brown {
+    font-size: 22px;
+}
+
+.kembalian-amount {
+    font-size: 22px;
+}
+
+/* Teks keranjang */
+.cart-name {
+    font-size: 13px;
+    font-weight: 800;
+    color: #241614;
+}
+
+.cart-price {
+    font-size: 13px;
+    font-weight: 800;
+    color: #6F3800;
+}
+
+/* Summary pembayaran */
+.summary-line {
+    font-size: 13px;
+    font-weight: 600;
+    color: #514743;
+}
+
+.total-utama strong:first-child {
+    font-size: 13px;
+    font-weight: 800;
+    color: #241614;
+}
+
+/* Statistik riwayat */
+.card-stat h3 {
+    font-size: 21px;
+    font-weight: 800;
+    color: #241614;
+}
+
+.trend {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Empty state */
+.empty-state-card h3,
+.empty-history h3,
+.empty-payment p {
+    font-size: 18px;
+    font-weight: 800;
+    color: #241614;
+}
+
+.empty-state-card p,
+.empty-history p,
+.empty-payment small,
+.empty-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6F625D;
+    line-height: 1.7;
+}
+
+/* Button */
+.btn-proses,
+.btn-reset,
+.btn-tambah-code,
+.method-btn,
+.btn-empty-action,
+.btn-detail,
+.btn-icon,
+.kat-btn {
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+/* Input */
+input {
+    font-size: 13px;
+    font-weight: 600;
+    color: #241614 !important;
+}
+
+input::placeholder {
+    color: #9A8D88;
+    font-weight: 500;
+}
+
+/* Tabel riwayat */
+.table-antari th {
+    font-size: 11px;
+    font-weight: 800;
+    color: #6F625D;
+    letter-spacing: 0.4px;
+}
+
+.table-antari td {
+    font-size: 13px;
+    font-weight: 500;
+    color: #342724;
+}
+
+.table-antari td strong {
+    font-weight: 800;
+    color: #241614;
+}
+
+/* Badge */
+.badge-meja,
+.badge-method {
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.stat-icon,
+.empty-icon {
+    font-weight: normal;
+}
