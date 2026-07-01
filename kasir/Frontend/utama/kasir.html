@@ -57,11 +57,6 @@
                 </div>
 
                 <div class="user-profile">
-                    <span>
-                        <i class="fa-regular fa-clock"></i>
-                        <span id="currentTime">--:-- WIB</span>
-                    </span>
-
                     <i class="fa-regular fa-bell icon-bell"></i>
 
                     <div class="avatar-box">
@@ -71,7 +66,6 @@
 
                         <div>
                             <h4>{{ username if username else 'Kasir' }}</h4>
-                            <p>CASHIER SHIFT A</p>
                         </div>
                     </div>
                 </div>
@@ -83,25 +77,6 @@
 
                     <!-- AREA PRODUK -->
                     <section class="produk-area">
-
-                        <!-- SCAN / INPUT KODE -->
-                        <div class="search-bar-container">
-                            <div class="input-scan">
-                                <i class="fa-solid fa-barcode"></i>
-                                <input 
-                                    type="text" 
-                                    id="scan-input"
-                                    placeholder="Masukkan atau scan kode produk..."
-                                    {% if not produk %}disabled{% endif %}>
-
-                                <button 
-                                    type="button" 
-                                    class="btn-tambah-code"
-                                    {% if not produk %}disabled{% endif %}>
-                                    Tambah
-                                </button>
-                            </div>
-                        </div>
 
                         <!-- HEADER PRODUK -->
                         <div class="daftar-produk-header">

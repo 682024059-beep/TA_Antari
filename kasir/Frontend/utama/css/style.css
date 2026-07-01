@@ -939,20 +939,20 @@ img {
 }
 
 .customer-info-row {
-    margin-top: 7px;
-    display: flex;
-    gap: 12px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 120px;
+    gap: 16px;
 }
 
 .input-billing {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
+    min-width: 0;
 }
 
 .input-billing.small {
-    flex: 0.44;
+    width: 120px;
+    min-width: 0;
+    flex: none;
 }
 
 .input-billing label,
@@ -965,16 +965,7 @@ img {
 }
 
 .input-billing input {
-    min-height: 42px;
-    padding: 0 12px;
-    border-radius: 12px;
-    border: 1px solid #E4D8CF;
-    outline: none;
-    background: #F8F1EB;
-    color: var(--text-dark);
-    font-size: 13px;
-    font-weight: 700;
-    transition: 0.2s ease;
+    width: 100%;
 }
 
 .input-billing input:focus {
