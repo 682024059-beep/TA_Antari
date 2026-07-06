@@ -5,30 +5,230 @@
 // Global State Keranjang
 let cart = [];
 let discountPercent = 10;
-let selectedMethod = "CASH";
+
+// Karena metode pembayaran dihapus dari UI,
+// sistem pakai default internal agar backend tidak error.
+let selectedMethod = "QRIS Eksternal";
 
 
 // Format angka ke Rupiah
 function formatRupiah(angka) {
-    return `Rp ${Number(angka || 0).toLocaleString('id-ID')}`;
+    return `Rp ${Number(angka || 0).toLocaleString("id-ID")}`;
 }
+
+
+// ======================================================
+// 0. STYLE POPUP STRUK
+// ======================================================
+
+(function injectReceiptStyle() {
+    if (document.getElementById("receiptModalStyle")) return;
+
+    const style = document.createElement("style");
+    style.id = "receiptModalStyle";
+    style.innerHTML = `
+        .receipt-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(28, 18, 15, 0.55);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 22px;
+        }
+
+        .receipt-modal {
+            width: min(430px, 100%);
+            max-height: 92vh;
+            overflow-y: auto;
+            background: #fffaf7;
+            border-radius: 20px;
+            border: 1px solid #ead8cf;
+            box-shadow: 0 24px 70px rgba(36, 22, 20, 0.28);
+        }
+
+        .receipt-paper {
+            padding: 28px;
+            color: #251916;
+        }
+
+        .receipt-header {
+            text-align: center;
+            padding-bottom: 18px;
+            border-bottom: 1px dashed #d9c6bb;
+        }
+
+        .receipt-header h2 {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+
+        .receipt-header p {
+            color: #8b7b75;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .receipt-meta {
+            padding: 18px 0;
+            border-bottom: 1px dashed #d9c6bb;
+            display: grid;
+            gap: 8px;
+        }
+
+        .receipt-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            font-size: 13px;
+            color: #4f403b;
+        }
+
+        .receipt-line span:first-child {
+            color: #8b7b75;
+            font-weight: 800;
+        }
+
+        .receipt-line strong {
+            text-align: right;
+            font-weight: 900;
+        }
+
+        .receipt-items {
+            padding: 18px 0;
+            border-bottom: 1px dashed #d9c6bb;
+        }
+
+        .receipt-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .receipt-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .receipt-item-name {
+            font-weight: 900;
+            color: #251916;
+        }
+
+        .receipt-item-sub {
+            margin-top: 2px;
+            color: #8b7b75;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .receipt-item-price {
+            font-weight: 900;
+            color: #7a3e08;
+            white-space: nowrap;
+        }
+
+        .receipt-total {
+            padding: 18px 0;
+            display: grid;
+            gap: 10px;
+            border-bottom: 1px dashed #d9c6bb;
+        }
+
+        .receipt-grand {
+            margin-top: 6px;
+            padding-top: 12px;
+            border-top: 1px solid #ead8cf;
+            font-size: 18px;
+        }
+
+        .receipt-grand strong {
+            color: #7a3e08;
+        }
+
+        .receipt-footer {
+            padding-top: 18px;
+            text-align: center;
+            color: #8b7b75;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+        .receipt-actions {
+            display: flex;
+            gap: 12px;
+            padding: 18px 28px 28px;
+        }
+
+        .receipt-btn {
+            flex: 1;
+            min-height: 46px;
+            border: none;
+            border-radius: 14px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .receipt-btn.print {
+            background: linear-gradient(135deg, #7a3e08, #a55c16);
+            color: #ffffff;
+        }
+
+        .receipt-btn.close {
+            background: #eadfd8;
+            color: #4f403b;
+        }
+
+        @media print {
+            body > *:not(.receipt-overlay) {
+                display: none !important;
+            }
+
+            .receipt-overlay {
+                position: static;
+                background: #ffffff;
+                padding: 0;
+                display: block;
+            }
+
+            .receipt-modal {
+                width: 100%;
+                max-height: none;
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+            }
+
+            .receipt-actions {
+                display: none;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+})();
 
 
 // ======================================================
 // 1. LOGIN PAGE
 // ======================================================
 
-const loginForm = document.getElementById('loginForm');
-const loginMessage = document.getElementById('loginMessage');
-const togglePassword = document.getElementById('togglePassword');
+const loginForm = document.getElementById("loginForm");
+const loginMessage = document.getElementById("loginMessage");
+const togglePassword = document.getElementById("togglePassword");
 
 if (loginForm) {
-    loginForm.addEventListener('submit', async function(e) {
+    loginForm.addEventListener("submit", async function(e) {
         e.preventDefault();
 
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const btnLogin = document.getElementById('btn-login-submit');
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const btnLogin = document.getElementById("btn-login-submit");
 
         if (!username || !password) {
             if (loginMessage) {
@@ -42,10 +242,10 @@ if (loginForm) {
         btnLogin.innerHTML = 'Memproses... <i class="fa-solid fa-spinner fa-spin"></i>';
 
         try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
+            const response = await fetch("/api/login", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     username: username,
@@ -55,14 +255,14 @@ if (loginForm) {
 
             const data = await response.json();
 
-            if (data.status === 'success') {
+            if (data.status === "success") {
                 if (loginMessage) {
                     loginMessage.textContent = data.message || "Login berhasil.";
                     loginMessage.className = "login-message success";
                 }
 
                 setTimeout(() => {
-                    window.location.href = data.redirect || '/kasir';
+                    window.location.href = data.redirect || "/kasir";
                 }, 400);
 
             } else {
@@ -94,19 +294,19 @@ if (loginForm) {
 
 // Toggle lihat password
 if (togglePassword) {
-    togglePassword.addEventListener('click', function() {
-        const passwordInput = document.getElementById('password');
+    togglePassword.addEventListener("click", function() {
+        const passwordInput = document.getElementById("password");
 
         if (!passwordInput) return;
 
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            this.classList.remove('fa-eye');
-            this.classList.add('fa-eye-slash');
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            this.classList.remove("fa-eye");
+            this.classList.add("fa-eye-slash");
         } else {
-            passwordInput.type = 'password';
-            this.classList.remove('fa-eye-slash');
-            this.classList.add('fa-eye');
+            passwordInput.type = "password";
+            this.classList.remove("fa-eye-slash");
+            this.classList.add("fa-eye");
         }
     });
 }
@@ -116,23 +316,23 @@ if (togglePassword) {
 // 2. KERANJANG KASIR
 // ======================================================
 
-const gridProduk = document.querySelector('.grid-produk');
-const cartContainer = document.getElementById('cart-items');
-const subtotalEl = document.getElementById('subtotal-val');
-const diskonEl = document.getElementById('diskon-val');
-const totalEl = document.getElementById('total-val');
-const cashInput = document.getElementById('cash-input');
-const changeEl = document.getElementById('change-val');
+const gridProduk = document.querySelector(".grid-produk");
+const cartContainer = document.getElementById("cart-items");
+const subtotalEl = document.getElementById("subtotal-val");
+const diskonEl = document.getElementById("diskon-val");
+const totalEl = document.getElementById("total-val");
+const cashInput = document.getElementById("cash-input");
+const changeEl = document.getElementById("change-val");
 
 
 // Klik produk untuk masuk keranjang
 if (gridProduk) {
-    gridProduk.addEventListener('click', function(e) {
-        const card = e.target.closest('.card-produk');
+    gridProduk.addEventListener("click", function(e) {
+        const card = e.target.closest(".card-produk");
 
         if (!card) return;
 
-        if (card.classList.contains('stok-habis')) {
+        if (card.classList.contains("stok-habis")) {
             alert("Produk ini sedang stok habis.");
             return;
         }
@@ -173,7 +373,7 @@ function updateCartUI() {
         changeEl.innerText = formatRupiah(0);
 
         if (cashInput) {
-            cashInput.value = '';
+            cashInput.value = "";
         }
 
         return;
@@ -187,8 +387,8 @@ function updateCartUI() {
         const itemSubtotal = item.harga * item.qty;
         subtotal += itemSubtotal;
 
-        const div = document.createElement('div');
-        div.className = 'item-cart';
+        const div = document.createElement("div");
+        div.className = "item-cart";
 
         div.innerHTML = `
             <div>
@@ -242,7 +442,7 @@ window.changeQty = function(id, delta) {
 // ======================================================
 
 if (cashInput) {
-    cashInput.addEventListener('input', function() {
+    cashInput.addEventListener("input", function() {
         const total = getTotalFromUI();
         calculateChange(total);
     });
@@ -251,7 +451,7 @@ if (cashInput) {
 
 function getTotalFromUI() {
     if (!totalEl) return 0;
-    return parseInt(totalEl.innerText.replace(/[^\d]/g, '')) || 0;
+    return parseInt(totalEl.innerText.replace(/[^\d]/g, "")) || 0;
 }
 
 
@@ -266,31 +466,125 @@ function calculateChange(totalHarga) {
 
 
 // ======================================================
-// 4. METODE PEMBAYARAN
+// 4. STRUK POPUP
 // ======================================================
 
-const methodButtons = document.querySelectorAll('.method-btn');
+function buildReceiptItems(items) {
+    return items.map(item => {
+        const itemSubtotal = item.harga * item.qty;
 
-if (methodButtons.length > 0) {
-    methodButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-            methodButtons.forEach(b => b.classList.remove('active'));
+        return `
+            <div class="receipt-item">
+                <div>
+                    <div class="receipt-item-name">${item.nama}</div>
+                    <div class="receipt-item-sub">${item.qty} x ${formatRupiah(item.harga)}</div>
+                </div>
+                <div class="receipt-item-price">${formatRupiah(itemSubtotal)}</div>
+            </div>
+        `;
+    }).join("");
+}
 
-            this.classList.add('active');
-            selectedMethod = this.dataset.method || "CASH";
 
-            if (cashInput) {
-                if (selectedMethod === "CASH") {
-                    cashInput.disabled = false;
-                    cashInput.placeholder = "Masukkan nominal uang";
-                } else {
-                    cashInput.value = "";
-                    cashInput.disabled = true;
-                    cashInput.placeholder = "Tidak perlu input tunai";
-                    calculateChange(getTotalFromUI());
-                }
-            }
-        });
+function showReceiptPopup(transaksi) {
+    const oldModal = document.querySelector(".receipt-overlay");
+    if (oldModal) oldModal.remove();
+
+    const overlay = document.createElement("div");
+    overlay.className = "receipt-overlay";
+
+    overlay.innerHTML = `
+        <div class="receipt-modal">
+            <div class="receipt-paper">
+                <div class="receipt-header">
+                    <h2>Antari Coffee</h2>
+                    <p>Struk Transaksi Kasir</p>
+                </div>
+
+                <div class="receipt-meta">
+                    <div class="receipt-line">
+                        <span>No Transaksi</span>
+                        <strong>${transaksi.no}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Tanggal</span>
+                        <strong>${transaksi.tanggal}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Waktu</span>
+                        <strong>${transaksi.waktu}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Kasir</span>
+                        <strong>${transaksi.kasir}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Customer</span>
+                        <strong>${transaksi.customer}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Meja</span>
+                        <strong>${transaksi.meja}</strong>
+                    </div>
+                </div>
+
+                <div class="receipt-items">
+                    ${buildReceiptItems(transaksi.items)}
+                </div>
+
+                <div class="receipt-total">
+                    <div class="receipt-line">
+                        <span>Subtotal</span>
+                        <strong>${formatRupiah(transaksi.subtotal)}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Diskon (${transaksi.diskon_persen}%)</span>
+                        <strong>- ${formatRupiah(transaksi.diskon)}</strong>
+                    </div>
+                    <div class="receipt-line receipt-grand">
+                        <span>Total</span>
+                        <strong>${formatRupiah(transaksi.total)}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Dibayar</span>
+                        <strong>${formatRupiah(transaksi.bayar)}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Kembalian</span>
+                        <strong>${formatRupiah(transaksi.kembalian)}</strong>
+                    </div>
+                    <div class="receipt-line">
+                        <span>Pembayaran</span>
+                        <strong>${transaksi.metode}</strong>
+                    </div>
+                </div>
+
+                <div class="receipt-footer">
+                    <p>Terima kasih telah berkunjung.</p>
+                    <p>Simpan struk ini sebagai bukti transaksi.</p>
+                </div>
+            </div>
+
+            <div class="receipt-actions">
+                <button type="button" class="receipt-btn close" id="closeReceiptBtn">
+                    Tutup
+                </button>
+                <button type="button" class="receipt-btn print" id="printReceiptBtn">
+                    Cetak Struk
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    document.getElementById("closeReceiptBtn").addEventListener("click", function() {
+        overlay.remove();
+        resetCart();
+    });
+
+    document.getElementById("printReceiptBtn").addEventListener("click", function() {
+        window.print();
     });
 }
 
@@ -299,59 +593,92 @@ if (methodButtons.length > 0) {
 // 5. PROSES PEMBAYARAN
 // ======================================================
 
-const btnProses = document.getElementById('btn-proses-bayar');
+const btnProses = document.getElementById("btn-proses-bayar");
 
 if (btnProses) {
-    btnProses.addEventListener('click', async function() {
+    btnProses.addEventListener("click", async function() {
         if (cart.length === 0) {
             alert("Keranjang belanja masih kosong!");
             return;
         }
 
-        const custNameInput = document.getElementById('cust-name');
-        const custTableInput = document.getElementById('cust-table');
+        const custNameInput = document.getElementById("cust-name");
+        const custTableInput = document.getElementById("cust-table");
+        const usernameEl = document.querySelector(".avatar-box h4");
 
         const custName = custNameInput ? custNameInput.value.trim() || "General Customer" : "General Customer";
         const custTable = custTableInput ? custTableInput.value.trim() || "TA" : "TA";
+        const kasirName = usernameEl ? usernameEl.innerText.trim() || "Kasir" : "Kasir";
 
-        const totalHarga = getTotalFromUI();
-        const cashPaid = cashInput ? parseInt(cashInput.value) || 0 : 0;
+        const subtotal = cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
+        const diskon = Math.round(subtotal * (discountPercent / 100));
+        const totalHarga = subtotal - diskon;
 
-        if (selectedMethod === "CASH" && cashPaid < totalHarga) {
-            alert("Uang tunai yang dibayarkan masih kurang!");
-            return;
+        let cashPaid = cashInput ? parseInt(cashInput.value) || 0 : 0;
+
+        // Jika jumlah dibayar kosong, dianggap QRIS/cashless eksternal.
+        // Maka otomatis lunas sesuai total.
+        let paymentLabel = "QRIS Eksternal";
+        let finalBayar = totalHarga;
+        let finalKembalian = 0;
+
+        // Jika kasir mengisi nominal, sistem menganggap pembayaran tunai.
+        if (cashPaid > 0) {
+            if (cashPaid < totalHarga) {
+                alert("Jumlah dibayar masih kurang!");
+                return;
+            }
+
+            paymentLabel = "Cash";
+            finalBayar = cashPaid;
+            finalKembalian = cashPaid - totalHarga;
         }
 
+        const now = new Date();
+        const tanggal = now.toLocaleDateString("id-ID");
+        const waktu = now.toLocaleTimeString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        });
+
+        const noTransaksiLocal = `TRX-${now.getTime().toString().slice(-6)}`;
+
         const transaksi = {
+            no: noTransaksiLocal,
             customer: custName,
             meja: custTable,
-            items: cart,
-            subtotal: cart.reduce((sum, item) => sum + (item.harga * item.qty), 0),
+            items: cart.map(item => ({ ...item })),
+            subtotal: subtotal,
+            diskon: diskon,
             diskon_persen: discountPercent,
             total: totalHarga,
-            bayar: selectedMethod === "CASH" ? cashPaid : totalHarga,
-            kembalian: selectedMethod === "CASH" ? cashPaid - totalHarga : 0,
-            metode: selectedMethod
+            bayar: finalBayar,
+            kembalian: finalKembalian,
+            metode: paymentLabel,
+            tanggal: tanggal,
+            waktu: waktu,
+            kasir: kasirName
         };
 
         btnProses.disabled = true;
         btnProses.innerText = "Memproses...";
 
         try {
-            const response = await fetch('/api/transaksi', {
-                method: 'POST',
+            const response = await fetch("/api/transaksi", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json'
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify(transaksi)
             });
 
             const data = await response.json();
 
-            if (data.status === 'success') {
-                alert(data.message || "Pembayaran berhasil diproses!");
+            if (data.status === "success") {
+                transaksi.no = data.no || data.no_transaksi || data.id_transaksi || transaksi.no;
 
-                resetCart();
+                showReceiptPopup(transaksi);
             } else {
                 alert(data.message || "Transaksi gagal diproses.");
             }
@@ -372,10 +699,10 @@ if (btnProses) {
 // 6. RESET KERANJANG
 // ======================================================
 
-const btnReset = document.getElementById('btn-reset-cart');
+const btnReset = document.getElementById("btn-reset-cart");
 
 if (btnReset) {
-    btnReset.addEventListener('click', function() {
+    btnReset.addEventListener("click", function() {
         resetCart();
     });
 }
@@ -384,13 +711,13 @@ if (btnReset) {
 function resetCart() {
     cart = [];
 
-    if (cashInput) cashInput.value = '';
+    if (cashInput) cashInput.value = "";
 
-    const custNameInput = document.getElementById('cust-name');
-    const custTableInput = document.getElementById('cust-table');
+    const custNameInput = document.getElementById("cust-name");
+    const custTableInput = document.getElementById("cust-table");
 
-    if (custNameInput) custNameInput.value = '';
-    if (custTableInput) custTableInput.value = '';
+    if (custNameInput) custNameInput.value = "";
+    if (custTableInput) custTableInput.value = "";
 
     updateCartUI();
 }
