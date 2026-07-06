@@ -1707,3 +1707,52 @@ img {
         grid-template-columns: 1fr;
     }
 }
+
+/* FILTER TANGGAL RIWAYAT TRANSAKSI */
+.filter-date-form {
+    width: 100%;
+}
+
+.filter-date-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+    gap: 16px;
+    align-items: end;
+}
+
+.filter-date-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-btn {
+    min-width: 150px;
+    min-height: 44px;
+    padding: 0 18px;
+    font-size: 12px;
+}
+
+.filter-reset {
+    min-width: 90px;
+    min-height: 44px;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 900px) {
+    .filter-date-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-date-actions {
+        width: 100%;
+    }
+
+    .filter-btn,
+    .filter-reset {
+        width: 100%;
+    }
+}

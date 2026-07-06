@@ -57,11 +57,6 @@
                 </div>
 
                 <div class="user-profile">
-                    <span>
-                        <i class="fa-regular fa-clock"></i>
-                        <span id="currentTime">--:-- WIB</span>
-                    </span>
-
                     <i class="fa-regular fa-bell icon-bell"></i>
 
                     <div class="avatar-box">
@@ -71,7 +66,6 @@
 
                         <div>
                             <h4>{{ username if username else 'Kasir' }}</h4>
-                            <p>CASHIER SHIFT A</p>
                         </div>
                     </div>
                 </div>
@@ -128,6 +122,48 @@
 
                     </div>
 
+                    <!-- FILTER TANGGAL -->
+                    <div class="log-transaksi-box">
+                        <div class="log-header">
+                            <div>
+                                <h3>Filter Tanggal Transaksi</h3>
+                                <p class="small-muted">
+                                    Pilih rentang tanggal untuk melihat transaksi pada periode tertentu.
+                                </p>
+                            </div>
+                        </div>
+
+                        <form class="filter-date-form" method="GET" action="/riwayat">
+                            <div class="filter-date-grid">
+                                <div class="input-billing">
+                                    <label>DARI TANGGAL</label>
+                                    <input 
+                                        type="date" 
+                                        name="tanggal_mulai"
+                                        value="{{ request.args.get('tanggal_mulai', '') }}">
+                                </div>
+
+                                <div class="input-billing">
+                                    <label>SAMPAI TANGGAL</label>
+                                    <input 
+                                        type="date" 
+                                        name="tanggal_selesai"
+                                        value="{{ request.args.get('tanggal_selesai', '') }}">
+                                </div>
+
+                                <div class="filter-date-actions">
+                                    <button type="submit" class="btn-proses filter-btn">
+                                        Terapkan Filter
+                                    </button>
+
+                                    <a href="/riwayat" class="btn-reset filter-reset">
+                                        Reset
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- LOG TRANSAKSI -->
                     <div class="log-transaksi-box">
                         <div class="log-header">
@@ -139,10 +175,6 @@
                             </div>
 
                             <div class="log-actions">
-                                <button type="button" class="btn-icon" title="Filter transaksi">
-                                    <i class="fa-solid fa-sliders"></i>
-                                </button>
-
                                 <button type="button" class="btn-icon" title="Export laporan">
                                     <i class="fa-solid fa-download"></i>
                                 </button>
@@ -154,11 +186,11 @@
                             <thead>
                                 <tr>
                                     <th>No. Transaksi</th>
+                                    <th>Tanggal</th>
                                     <th>Nama Customer</th>
                                     <th>Meja</th>
                                     <th>Produk</th>
                                     <th>Total</th>
-                                    <th>Metode</th>
                                     <th>Waktu</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -169,6 +201,10 @@
                                 <tr>
                                     <td>
                                         <strong>{{ t.no }}</strong>
+                                    </td>
+
+                                    <td>
+                                        {{ t.tanggal if t.tanggal else '-' }}
                                     </td>
 
                                     <td>{{ t.customer }}</td>
@@ -183,12 +219,6 @@
                                         <strong>
                                             Rp {{ "{:,}".format(t.total).replace(',', '.') }}
                                         </strong>
-                                    </td>
-
-                                    <td>
-                                        <span class="badge-method {{ t.metode.lower() }}">
-                                            {{ t.metode }}
-                                        </span>
                                     </td>
 
                                     <td>{{ t.waktu }}</td>
