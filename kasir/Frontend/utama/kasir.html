@@ -206,31 +206,6 @@
                             </div>
                         </div>
 
-                        <!-- PAYMENT METHOD -->
-                        <div>
-                            <h3 class="section-title">METODE PEMBAYARAN</h3>
-
-                            <div class="payment-methods">
-                                {% if metode_pembayaran %}
-                                    {% for metode in metode_pembayaran %}
-                                    <button 
-                                        type="button" 
-                                        class="method-btn {{ 'active' if loop.first else '' }}"
-                                        data-method="{{ metode.nama }}">
-                                        <i class="{{ metode.icon if metode.icon else 'fa-solid fa-wallet' }}"></i>
-                                        {{ metode.nama }}
-                                    </button>
-                                    {% endfor %}
-                                {% else %}
-                                    <div class="empty-payment">
-                                        <i class="fa-solid fa-credit-card"></i>
-                                        <p>Belum ada metode pembayaran</p>
-                                        <small>Metode pembayaran akan ditambahkan melalui halaman admin.</small>
-                                    </div>
-                                {% endif %}
-                            </div>
-                        </div>
-
                         <!-- CASH CALCULATOR -->
                         <div class="cash-calculator">
                             <div class="input-billing">
@@ -238,8 +213,7 @@
                                 <input 
                                     type="number" 
                                     id="cash-input" 
-                                    placeholder="Rp 100.000"
-                                    {% if not metode_pembayaran %}disabled{% endif %}>
+                                    placeholder="Rp 100.000">
                             </div>
 
                             <div class="kembalian-box">
@@ -253,7 +227,7 @@
                             type="button" 
                             class="btn-proses" 
                             id="btn-proses-bayar"
-                            {% if not produk or not metode_pembayaran %}disabled{% endif %}>
+                            {% if not produk %}disabled{% endif %}>
                             Proses Pembayaran
                         </button>
 
