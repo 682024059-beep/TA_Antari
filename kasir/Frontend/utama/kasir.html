@@ -117,77 +117,44 @@
                         </div>
 
                         <!-- GRID PRODUK -->
-                        <div class="grid-produk">
+                        <!-- GRID PRODUK -->
+<div class="grid-produk">
+    {% if produk %}
+        {% for p in produk %}
+        <div 
+            class="card-produk"
+            data-id="{{ p.kode }}"
+            data-nama="{{ p.nama }}"
+            data-harga="{{ p.harga }}"
+            data-kategori="{{ p.kategori }}"
+        >
+            <div class="img-placeholder">
+                <i class="fa-solid fa-mug-hot"></i>
+            </div>
 
-                            <div 
-                                class="card-produk"
-                                data-id="COF-001"
-                                data-nama="Aren Latte Ice"
-                                data-harga="25000"
-                                data-kategori="Coffee">
-                                <div class="img-placeholder">
-                                    <i class="fa-solid fa-mug-hot"></i>
-                                </div>
+            <div class="card-info">
+                <span class="p-code">{{ p.kode }}</span>
+                <h4>{{ p.nama }}</h4>
+                <p class="p-harga">
+                    Rp {{ "{:,}".format(p.harga).replace(',', '.') }}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state-card">
+            <div class="empty-icon">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
 
-                                <div class="card-info">
-                                    <span class="p-code">COF-001</span>
-                                    <h4>Aren Latte Ice</h4>
-                                    <p class="p-harga">Rp 25.000</p>
-                                </div>
-                            </div>
+            <h3>Belum ada produk</h3>
 
-                            <div 
-                                class="card-produk"
-                                data-id="COF-002"
-                                data-nama="Cappuccino Hot"
-                                data-harga="28000"
-                                data-kategori="Coffee">
-                                <div class="img-placeholder">
-                                    <i class="fa-solid fa-mug-hot"></i>
-                                </div>
-
-                                <div class="card-info">
-                                    <span class="p-code">COF-002</span>
-                                    <h4>Cappuccino Hot</h4>
-                                    <p class="p-harga">Rp 28.000</p>
-                                </div>
-                            </div>
-
-                            <div 
-                                class="card-produk"
-                                data-id="COF-003"
-                                data-nama="Matcha Latte"
-                                data-harga="30000"
-                                data-kategori="Non Coffee">
-                                <div class="img-placeholder">
-                                    <i class="fa-solid fa-leaf"></i>
-                                </div>
-
-                                <div class="card-info">
-                                    <span class="p-code">COF-003</span>
-                                    <h4>Matcha Latte</h4>
-                                    <p class="p-harga">Rp 30.000</p>
-                                </div>
-                            </div>
-
-                            <div 
-                                class="card-produk"
-                                data-id="PST-001"
-                                data-nama="Butter Croissant"
-                                data-harga="22000"
-                                data-kategori="Pastry">
-                                <div class="img-placeholder">
-                                    <i class="fa-solid fa-cookie-bite"></i>
-                                </div>
-
-                                <div class="card-info">
-                                    <span class="p-code">PST-001</span>
-                                    <h4>Butter Croissant</h4>
-                                    <p class="p-harga">Rp 22.000</p>
-                                </div>
-                            </div>
-
-                        </div>
+            <p>
+                Produk akan tampil di halaman kasir setelah ditambahkan melalui halaman admin.
+            </p>
+        </div>
+    {% endif %}
+</div>
                     </section>
 
                     <!-- AREA BILLING -->

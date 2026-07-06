@@ -4,7 +4,7 @@
 
 let cart = [];
 let discountPercent = 0;
-let selectedMethod = "Cash";
+let selectedMethod = "";
 
 function formatRupiah(angka) {
     return `Rp ${Number(angka || 0).toLocaleString("id-ID")}`;
@@ -307,6 +307,7 @@ const custNameInput = document.getElementById("cust-name");
 const btnProses = document.getElementById("btn-proses-bayar");
 const btnReset = document.getElementById("btn-reset-cart");
 const diskonRow = diskonEl ? diskonEl.closest(".summary-line") : null;
+const methodButtons = document.querySelectorAll(".method-btn");
 
 // ======================================================
 // 3. VALIDASI DAN HELPER
@@ -361,6 +362,68 @@ function updateDiscountDisplay() {
     }
 }
 
+function updatePaymentMethodUI() {
+    methodButtons.forEach(function(button) {
+        const method = button.dataset.method;
+
+        if (method === selectedMethod) {
+            button.classList.add("active");
+        } else {
+            button.classList.remove("active");
+        }
+    });
+
+    const totalHarga = getTotalFromUI();
+
+    if (cashInput) {
+        if (selectedMethod === "QRIS") {
+            cashInput.value = totalHarga > 0 ? totalHarga : "";
+            cashInput.disabled = true;
+            calculateChange(totalHarga);
+        } else {
+            cashInput.disabled = false;
+        }
+    }
+}
+
+function selectPaymentMethod(method) {
+    selectedMethod = method;
+
+    if (selectedMethod === "Cash") {
+        if (cashInput) {
+            cashInput.disabled = false;
+            cashInput.value = "";
+        }
+    }
+
+    if (selectedMethod === "QRIS") {
+        const totalHarga = getTotalFromUI();
+
+        if (cashInput) {
+            cashInput.value = totalHarga > 0 ? totalHarga : "";
+            cashInput.disabled = true;
+        }
+
+        calculateChange(totalHarga);
+    }
+
+    updatePaymentMethodUI();
+    validatePaymentButton();
+}
+
+function resetPaymentMethod() {
+    selectedMethod = "";
+
+    methodButtons.forEach(function(button) {
+        button.classList.remove("active");
+    });
+
+    if (cashInput) {
+        cashInput.disabled = false;
+        cashInput.value = "";
+    }
+}
+
 function isPaymentComplete(showAlert = false) {
     const namaCustomer = custNameInput ? custNameInput.value.trim() : "";
     const totalHarga = getTotalFromUI();
@@ -381,14 +444,28 @@ function isPaymentComplete(showAlert = false) {
         return false;
     }
 
-    if (jumlahDibayar <= 0) {
-        if (showAlert) alert("Jumlah dibayar wajib diisi!");
+    if (!selectedMethod) {
+        if (showAlert) alert("Pilih metode pembayaran Cash atau QRIS!");
         return false;
     }
 
-    if (jumlahDibayar < totalHarga) {
-        if (showAlert) alert("Jumlah dibayar masih kurang!");
-        return false;
+    if (selectedMethod === "Cash") {
+        if (jumlahDibayar <= 0) {
+            if (showAlert) alert("Jumlah dibayar wajib diisi!");
+            return false;
+        }
+
+        if (jumlahDibayar < totalHarga) {
+            if (showAlert) alert("Jumlah dibayar masih kurang!");
+            return false;
+        }
+    }
+
+    if (selectedMethod === "QRIS") {
+        if (totalHarga <= 0) {
+            if (showAlert) alert("Total QRIS belum valid!");
+            return false;
+        }
     }
 
     return true;
@@ -452,6 +529,7 @@ function updateCartUI() {
         }
 
         updateDiscountDisplay();
+        updatePaymentMethodUI();
         validatePaymentButton();
         return;
     }
@@ -497,8 +575,13 @@ function updateCartUI() {
     diskonEl.innerText = "- " + formatRupiah(diskon);
     totalEl.innerText = formatRupiah(total);
 
+    if (selectedMethod === "QRIS" && cashInput) {
+        cashInput.value = total;
+    }
+
     calculateChange(total);
     updateDiscountDisplay();
+    updatePaymentMethodUI();
     validatePaymentButton();
 }
 
@@ -532,8 +615,20 @@ if (custNameInput) {
     custNameInput.addEventListener("input", validatePaymentButton);
 }
 
+methodButtons.forEach(function(button) {
+    button.addEventListener("click", function() {
+        const method = button.dataset.method;
+        selectPaymentMethod(method);
+    });
+});
+
 function calculateChange(totalHarga) {
     if (!cashInput || !changeEl) return;
+
+    if (selectedMethod === "QRIS") {
+        changeEl.innerText = formatRupiah(0);
+        return;
+    }
 
     const cashPaid = getCashPaidValue();
     const change = cashPaid - totalHarga;
@@ -691,11 +786,19 @@ if (btnProses) {
             : 0;
 
         const totalHarga = subtotal - diskon;
-        const cashPaid = getCashPaidValue();
 
-        const paymentLabel = "Cash";
-        const finalBayar = cashPaid;
-        const finalKembalian = cashPaid - totalHarga;
+        let finalBayar = 0;
+        let finalKembalian = 0;
+
+        if (selectedMethod === "QRIS") {
+            finalBayar = totalHarga;
+            finalKembalian = 0;
+        } else {
+            finalBayar = getCashPaidValue();
+            finalKembalian = finalBayar - totalHarga;
+        }
+
+        const paymentLabel = selectedMethod;
 
         const now = new Date();
         const tanggal = now.toLocaleDateString("id-ID");
@@ -766,9 +869,16 @@ if (btnReset) {
 function resetCart() {
     cart = [];
 
-    if (cashInput) cashInput.value = "";
-    if (custNameInput) custNameInput.value = "";
+    if (cashInput) {
+        cashInput.disabled = false;
+        cashInput.value = "";
+    }
 
+    if (custNameInput) {
+        custNameInput.value = "";
+    }
+
+    resetPaymentMethod();
     updateCartUI();
     validatePaymentButton();
 }
@@ -780,4 +890,5 @@ function resetCart() {
 preventMinusCashInput();
 updateCartUI();
 updateDiscountDisplay();
+updatePaymentMethodUI();
 validatePaymentButton();
