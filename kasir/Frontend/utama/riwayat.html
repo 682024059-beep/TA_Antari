@@ -182,7 +182,6 @@
                                     <th>No. Transaksi</th>
                                     <th>Tanggal</th>
                                     <th>Nama Customer</th>
-                                    <th>Meja</th>
                                     <th>Produk</th>
                                     <th>Total</th>
                                     <th>Waktu</th>
@@ -201,13 +200,13 @@
                                         {{ t.tanggal if t.tanggal else '-' }}
                                     </td>
 
-                                    <td>{{ t.customer }}</td>
-
                                     <td>
-                                        <span class="badge-meja">{{ t.meja }}</span>
+                                        {{ t.customer }}
                                     </td>
 
-                                    <td>{{ t.produk }}</td>
+                                    <td>
+                                        {{ t.produk }}
+                                    </td>
 
                                     <td>
                                         <strong>
@@ -215,10 +214,20 @@
                                         </strong>
                                     </td>
 
-                                    <td>{{ t.waktu }}</td>
+                                    <td>
+                                        {{ t.waktu }}
+                                    </td>
 
                                     <td>
-                                        <button type="button" class="btn-detail">
+                                        <button 
+                                            type="button" 
+                                            class="btn-detail btn-detail-riwayat"
+                                            data-no="{{ t.no }}"
+                                            data-tanggal="{{ t.tanggal if t.tanggal else '-' }}"
+                                            data-customer="{{ t.customer }}"
+                                            data-produk="{{ t.produk }}"
+                                            data-total="Rp {{ "{:,}".format(t.total).replace(',', '.') }}"
+                                            data-waktu="{{ t.waktu }}">
                                             Detail
                                         </button>
                                     </td>
@@ -251,6 +260,105 @@
             </div>
         </main>
     </div>
+
+    <!-- POPUP DETAIL TRANSAKSI -->
+    <div class="receipt-overlay" id="riwayatDetailModal" style="display: none;">
+        <div class="receipt-modal">
+            <div class="receipt-paper">
+                <div class="receipt-header">
+                    <h2>Antari Coffee</h2>
+                    <p>Detail Transaksi</p>
+                </div>
+
+                <div class="receipt-meta">
+                    <div class="receipt-line">
+                        <span>No Transaksi</span>
+                        <strong id="detailNo">-</strong>
+                    </div>
+
+                    <div class="receipt-line">
+                        <span>Tanggal</span>
+                        <strong id="detailTanggal">-</strong>
+                    </div>
+
+                    <div class="receipt-line">
+                        <span>Waktu</span>
+                        <strong id="detailWaktu">-</strong>
+                    </div>
+
+                    <div class="receipt-line">
+                        <span>Customer</span>
+                        <strong id="detailCustomer">-</strong>
+                    </div>
+                </div>
+
+                <div class="receipt-items">
+                    <div class="receipt-item">
+                        <div>
+                            <div class="receipt-item-name" id="detailProduk">-</div>
+                            <div class="receipt-item-sub">Produk transaksi</div>
+                        </div>
+
+                        <div class="receipt-item-price" id="detailTotalProduk">-</div>
+                    </div>
+                </div>
+
+                <div class="receipt-total">
+                    <div class="receipt-line receipt-grand">
+                        <span>Total</span>
+                        <strong id="detailTotal">-</strong>
+                    </div>
+                </div>
+
+                <div class="receipt-footer">
+                    <p>Simpan detail ini sebagai bukti transaksi.</p>
+                </div>
+            </div>
+
+            <div class="receipt-actions">
+                <button type="button" class="receipt-btn close" id="closeRiwayatDetail">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT POPUP DETAIL -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modal = document.getElementById("riwayatDetailModal");
+            const closeBtn = document.getElementById("closeRiwayatDetail");
+            const detailButtons = document.querySelectorAll(".btn-detail-riwayat");
+
+            detailButtons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    document.getElementById("detailNo").innerText = button.dataset.no || "-";
+                    document.getElementById("detailTanggal").innerText = button.dataset.tanggal || "-";
+                    document.getElementById("detailWaktu").innerText = button.dataset.waktu || "-";
+                    document.getElementById("detailCustomer").innerText = button.dataset.customer || "-";
+                    document.getElementById("detailProduk").innerText = button.dataset.produk || "-";
+                    document.getElementById("detailTotalProduk").innerText = button.dataset.total || "-";
+                    document.getElementById("detailTotal").innerText = button.dataset.total || "-";
+
+                    modal.style.display = "flex";
+                });
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener("click", function () {
+                    modal.style.display = "none";
+                });
+            }
+
+            if (modal) {
+                modal.addEventListener("click", function (e) {
+                    if (e.target === modal) {
+                        modal.style.display = "none";
+                    }
+                });
+            }
+        });
+    </script>
 
     <!-- JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

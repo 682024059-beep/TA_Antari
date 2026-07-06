@@ -1766,3 +1766,9 @@ img {
     text-transform: uppercase;
     line-height: 1.2;
 }
+
+/* Customer row ketika input meja dihapus */
+.customer-info-row.single {
+    display: grid;
+    grid-template-columns: 1fr;
+}
