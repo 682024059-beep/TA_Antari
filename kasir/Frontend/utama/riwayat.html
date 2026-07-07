@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Transaksi - Antari Coffee</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>Antari Coffee</h2>
+                <p>CASHIER DASHBOARD</p>
+            </div>
+
+            <nav class="menu">
+                <a href="/kasir" class="menu-item">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Take Order
+                </a>
+
+                <a href="/riwayat" class="menu-item active">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Riwayat Transaksi
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/logout" class="menu-item logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Keluar
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-title">
+                    <h2>Riwayat Transaksi</h2>
+                </div>
+
+                <div class="user-profile">
+                    <i class="fa-regular fa-bell icon-bell"></i>
+
+                    <div class="avatar-box">
+                        <div class="avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+
+                        <div>
+                            <h4>{{ username if username else 'Kasir' }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- BODY -->
+            <div class="content-body">
+                <div class="riwayat-container">
+
+                    <!-- SUMMARY CARDS -->
+                    <div class="summary-cards">
+
+                        <div class="card-stat">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+
+                            <div class="stat-info">
+                                <span class="stat-title">Total Transaksi</span>
+                                <h3>
+                                    {{ total_transaksi if total_transaksi else 0 }}
+                                    <span class="trend stable">Hari ini</span>
+                                </h3>
+                            </div>
+                        </div>
+
+                        <div class="card-stat">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-wallet"></i>
+                            </div>
+
+                            <div class="stat-info">
+                                <span class="stat-title">Total Pendapatan</span>
+                                <h3>
+                                    Rp {{ "{:,}".format(total_pendapatan if total_pendapatan else 0).replace(',', '.') }}
+                                    <span class="trend stable">Terkini</span>
+                                </h3>
+                            </div>
+                        </div>
+
+                        <div class="card-stat">
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+
+                            <div class="stat-info">
+                                <span class="stat-title">Rata-rata per Transaksi</span>
+                                <h3>
+                                    Rp {{ "{:,}".format(rata_rata if rata_rata else 0).replace(',', '.') }}
+                                    <span class="trend stable">Stabil</span>
+                                </h3>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- FILTER TANGGAL -->
+                    <div class="log-transaksi-box">
+                        <div class="log-header">
+                            <div>
+                                <h3>Filter Tanggal Transaksi</h3>
+                                <p class="small-muted">
+                                    Pilih rentang tanggal untuk melihat transaksi pada periode tertentu.
+                                </p>
+                            </div>
+                        </div>
+
+                        <form class="filter-date-form" method="GET" action="/riwayat">
+                            <div class="filter-date-grid">
+                                <div class="input-billing">
+                                    <label>DARI TANGGAL</label>
+                                    <input
+                                        type="date"
+                                        name="tanggal_mulai"
+                                        value="{{ request.args.get('tanggal_mulai', '') }}">
+                                </div>
+
+                                <div class="input-billing">
+                                    <label>SAMPAI TANGGAL</label>
+                                    <input
+                                        type="date"
+                                        name="tanggal_selesai"
+                                        value="{{ request.args.get('tanggal_selesai', '') }}">
+                                </div>
+
+                                <div class="filter-date-actions">
+                                    <button type="submit" class="btn-proses filter-btn">
+                                        cek
+                                    </button>
+
+                                    <a href="/riwayat" class="btn-reset filter-reset">
+                                        Reset
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- LOG TRANSAKSI -->
+                    <div class="log-transaksi-box">
+                        <div class="log-header">
+                            <div>
+                                <h3>Log Transaksi Terbaru</h3>
+                                <p class="small-muted">
+                                    Riwayat transaksi akan muncul setelah kasir memproses pembayaran.
+                                </p>
+                            </div>
+                        </div>
+
+                        {% if transaksi %}
+                        <table class="table-antari">
+                            <thead>
+                                <tr>
+                                    <th>No. Transaksi</th>
+                                    <th>Tanggal</th>
+                                    <th>Nama Customer</th>
+                                    <th>Produk</th>
+                                    <th>Total</th>
+                                    <th>Metode</th>
+                                    <th>Waktu</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for t in transaksi %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ t.no }}</strong>
+                                    </td>
+
+                                    <td>
+                                        {{ t.tanggal if t.tanggal else '-' }}
+                                    </td>
+
+                                    <td>
+                                        {{ t.customer if t.customer else '-' }}
+                                    </td>
+
+                                    <td>
+                                        {{ t.produk if t.produk else '-' }}
+                                    </td>
+
+                                    <td>
+                                        <strong>
+                                            Rp {{ "{:,}".format(t.total if t.total else 0).replace(',', '.') }}
+                                        </strong>
+                                    </td>
+
+                                    <td>
+                                        <span class="badge-method {% if t.metode == 'Cash' %}cash{% elif t.metode == 'QRIS' %}cashless{% endif %}">
+                                            {{ t.metode if t.metode else '-' }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        {{ t.waktu if t.waktu else '-' }}
+                                    </td>
+
+                                    <td>
+                                        <button
+                                            type="button"
+                                            class="btn-detail btn-detail-riwayat"
+                                            data-no="{{ t.no }}"
+                                            data-tanggal="{{ t.tanggal if t.tanggal else '-' }}"
+                                            data-customer="{{ t.customer if t.customer else '-' }}"
+                                            data-produk="{{ t.produk if t.produk else '-' }}"
+                                            data-total="Rp {{ "{:,}".format(t.total if t.total else 0).replace(',', '.') }}"
+                                            data-metode="{{ t.metode if t.metode else '-' }}"
+                                            data-waktu="{{ t.waktu if t.waktu else '-' }}">
+                                            Detail
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div class="empty-history">
+                            <div class="empty-icon">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+
+                            <h3>Belum ada transaksi</h3>
+
+                            <p>
+                                Saat ini belum ada transaksi yang tercatat. Setelah kasir memproses pembayaran,
+                                data transaksi akan tampil di halaman ini.
+                            </p>
+
+                            <a href="/kasir" class="btn-empty-action">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                Mulai Transaksi
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- POPUP DETAIL TRANSAKSI -->
+    <div class="receipt-overlay" id="riwayatDetailModal" style="display: none;">
+        <div class="receipt-modal">
+            <div class="receipt-paper">
+                <div class="receipt-header">
+                    <h2>Antari Coffee</h2>
+                    <p>Detail Transaksi</p>
+                </div>
+
+                <div class="receipt-meta">
+                    <div class="receipt-line">
+                        <span>No Transaksi</span>
+                        <strong id="detailNo">-</strong>
+                    </div>
+
+                    <div class="receipt-line">
+                        <span>Tanggal</span>
+                        <strong id="detailTanggal">-</strong>
+                    </div>
+
+                    <div class="receipt-line">
+                        <span>Waktu</span>
+                        <strong id="detailWaktu">-</strong>
+                    </div>
+
+                    <div class="receipt-line">
+                        <span>Customer</span>
+                        <strong id="detailCustomer">-</strong>
+                    </div>
+
+                    <div class="receipt-line">
+                        <span>Pembayaran</span>
+                        <strong id="detailMetode">-</strong>
+                    </div>
+                </div>
+
+                <div class="receipt-items">
+                    <div class="receipt-item">
+                        <div>
+                            <div class="receipt-item-name" id="detailProduk">-</div>
+                            <div class="receipt-item-sub">Produk transaksi</div>
+                        </div>
+
+                        <div class="receipt-item-price" id="detailTotalProduk">-</div>
+                    </div>
+                </div>
+
+                <div class="receipt-total">
+                    <div class="receipt-line receipt-grand">
+                        <span>Total</span>
+                        <strong id="detailTotal">-</strong>
+                    </div>
+                </div>
+
+                <div class="receipt-footer">
+                    <p>Simpan detail ini sebagai bukti transaksi.</p>
+                </div>
+            </div>
+
+            <div class="receipt-actions">
+                <button type="button" class="receipt-btn close" id="closeRiwayatDetail">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT POPUP DETAIL -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modal = document.getElementById("riwayatDetailModal");
+            const closeBtn = document.getElementById("closeRiwayatDetail");
+            const detailButtons = document.querySelectorAll(".btn-detail-riwayat");
+
+            detailButtons.forEach(function (button) {
+                button.addEventListener("click", function () {
+                    document.getElementById("detailNo").innerText = button.dataset.no || "-";
+                    document.getElementById("detailTanggal").innerText = button.dataset.tanggal || "-";
+                    document.getElementById("detailWaktu").innerText = button.dataset.waktu || "-";
+                    document.getElementById("detailCustomer").innerText = button.dataset.customer || "-";
+                    document.getElementById("detailMetode").innerText = button.dataset.metode || "-";
+                    document.getElementById("detailProduk").innerText = button.dataset.produk || "-";
+                    document.getElementById("detailTotalProduk").innerText = button.dataset.total || "-";
+                    document.getElementById("detailTotal").innerText = button.dataset.total || "-";
+
+                    modal.style.display = "flex";
+                });
+            });
+
+            if (closeBtn) {
+                closeBtn.addEventListener("click", function () {
+                    modal.style.display = "none";
+                });
+            }
+
+            if (modal) {
+                modal.addEventListener("click", function (e) {
+                    if (e.target === modal) {
+                        modal.style.display = "none";
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

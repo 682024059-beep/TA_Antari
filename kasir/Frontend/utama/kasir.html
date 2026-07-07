@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Kasir - Antari Coffee</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="brand">
+                <h2>Antari Coffee</h2>
+                <p>CASHIER DASHBOARD</p>
+            </div>
+
+            <nav class="menu">
+                <a href="/kasir" class="menu-item active">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    Take Order
+                </a>
+
+                <a href="/riwayat" class="menu-item">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    Riwayat Transaksi
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/logout" class="menu-item logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    Keluar
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="page-title">
+                    <h2>Menu Kasir</h2>
+                </div>
+
+                <div class="user-profile">
+                    <i class="fa-regular fa-bell icon-bell"></i>
+
+                    <div class="avatar-box">
+                        <div class="avatar">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+
+                        <div>
+                            <h4>{{ username if username else 'Kasir' }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- BODY -->
+            <div class="content-body">
+                <div class="kasir-layout">
+
+                    <!-- AREA PRODUK -->
+                    <section class="produk-area">
+
+                        <!-- HEADER PRODUK -->
+                        <div class="daftar-produk-header">
+                            <div>
+                                <h3>Daftar Produk</h3>
+                                <p class="small-muted">
+                                    Produk akan tampil setelah ditambahkan oleh admin.
+                                </p>
+                            </div>
+
+                            <div class="mini-search">
+                                <i class="fa-solid fa-search"></i>
+                                <input 
+                                    type="text" 
+                                    id="searchProduk"
+                                    placeholder="Cari menu..."
+                                    {% if not produk %}disabled{% endif %}>
+                            </div>
+                        </div>
+
+                        <!-- FILTER KATEGORI -->
+                        <div class="kategori-filter">
+                            <button type="button" class="kat-btn active" data-category="semua">
+                                Semua
+                            </button>
+
+                            {% if kategori_produk %}
+                                {% for kategori in kategori_produk %}
+                                <button type="button" class="kat-btn" data-category="{{ kategori }}">
+                                    {{ kategori }}
+                                </button>
+                                {% endfor %}
+                            {% else %}
+                                <button type="button" class="kat-btn" disabled>
+                                    Belum ada kategori
+                                </button>
+                            {% endif %}
+                        </div>
+
+                        <!-- GRID PRODUK -->
+                        <!-- GRID PRODUK -->
+<div class="grid-produk">
+    {% if produk %}
+        {% for p in produk %}
+        <div 
+            class="card-produk"
+            data-id="{{ p.kode }}"
+            data-nama="{{ p.nama }}"
+            data-harga="{{ p.harga }}"
+            data-kategori="{{ p.kategori }}"
+        >
+            <div class="img-placeholder">
+                <i class="fa-solid fa-mug-hot"></i>
+            </div>
+
+            <div class="card-info">
+                <span class="p-code">{{ p.kode }}</span>
+                <h4>{{ p.nama }}</h4>
+                <p class="p-harga">
+                    Rp {{ "{:,}".format(p.harga).replace(',', '.') }}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state-card">
+            <div class="empty-icon">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+
+            <h3>Belum ada produk</h3>
+
+            <p>
+                Produk akan tampil di halaman kasir setelah ditambahkan melalui halaman admin.
+            </p>
+        </div>
+    {% endif %}
+</div>
+                    </section>
+
+                    <!-- AREA BILLING -->
+                    <aside class="billing-area">
+
+                        <!-- CUSTOMER INFO -->
+                        <div class="customer-info-row">
+                            <div class="input-billing">
+                                <label>NAMA CUSTOMER</label>
+                                <input 
+                                    type="text" 
+                                    id="cust-name" 
+                                    placeholder="Contoh: Andri Wijaya">
+                            </div>
+                        </div>
+
+                        <!-- CART -->
+                        <h3 class="section-title">DETAIL PESANAN</h3>
+
+                        <div class="cart-items-list" id="cart-items">
+                            <p class="empty-text">Belum ada menu yang dipilih</p>
+                        </div>
+
+                        <!-- SUMMARY -->
+                        <div class="payment-summary">
+                            <div class="summary-line">
+                                <span>Subtotal</span>
+                                <span id="subtotal-val">Rp 0</span>
+                            </div>
+
+                            <div class="summary-line diskon">
+                                <span>Diskon</span>
+                                <span id="diskon-val">- Rp 0</span>
+                            </div>
+
+                            <div class="summary-line total-utama">
+                                <strong>TOTAL HARGA</strong>
+                                <strong id="total-val" class="text-brown">Rp 0</strong>
+                            </div>
+                        </div>
+
+                        <!-- METODE PEMBAYARAN -->
+                        <div class="payment-method-section">
+                            <h3 class="section-title">METODE PEMBAYARAN</h3>
+
+                            <div class="payment-methods" id="payment-methods">
+                                <button 
+                                    type="button" 
+                                    class="method-btn" 
+                                    data-method="Cash"
+                                    id="method-cash">
+                                    <i class="fa-solid fa-money-bill-wave"></i>
+                                    Cash
+                                </button>
+
+                                <button 
+                                    type="button" 
+                                    class="method-btn" 
+                                    data-method="QRIS"
+                                    id="method-qris">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                    QRIS
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- CASH CALCULATOR -->
+                        <div class="cash-calculator">
+                            <div class="input-billing">
+                                <label>JUMLAH DIBAYAR</label>
+                                <input 
+                                    type="number" 
+                                    id="cash-input" 
+                                    placeholder="Rp 100.000"
+                                    min="0"
+                                    step="1000"
+                                    onkeydown="return event.key !== '-' && event.key !== 'e' && event.key !== '+'">
+                            </div>
+
+                            <div class="kembalian-box">
+                                <label>KEMBALIAN</label>
+                                <div class="kembalian-amount" id="change-val">Rp 0</div>
+                            </div>
+                        </div>
+
+                        <!-- ACTION -->
+                        <button 
+                            type="button" 
+                            class="btn-proses" 
+                            id="btn-proses-bayar"
+                            disabled>
+                            Proses Pembayaran
+                        </button>
+
+                        <button type="button" class="btn-reset" id="btn-reset-cart">
+                            Reset
+                        </button>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
