@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Produk — Antari</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+  <div class="main-shell">
+    <div id="topbar-placeholder"></div>
+
+    <main class="content">
+
+      <div class="stat-grid" id="produk-stats" style="grid-template-columns:repeat(3,1fr);"></div>
+
+      <div class="panel">
+        <div class="panel__header">
+          <div>
+            <h3>Daftar Produk</h3>
+            <div class="hint" id="produk-count"></div>
+          </div>
+          <button class="btn btn-primary" id="btn-add-produk"></button>
+        </div>
+        <div class="panel__body">
+          <div class="flex-between mb-16" style="flex-wrap:wrap; gap:12px;">
+            <div class="cat-tabs" id="kategori-tabs" style="margin-bottom:0;"></div>
+            <div class="topbar__search" style="width:260px;">
+              <span id="icon-search"></span>
+              <input type="text" class="input" id="search-produk" placeholder="Cari nama atau kode produk...">
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Produk</th><th>Kode</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Status Stok</th><th>Status</th><th class="text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="produk-tbody"></tbody>
+            </table>
+          </div>
+          <div id="produk-empty"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal Tambah/Edit Produk -->
+<div class="modal-overlay" id="modal-produk">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 id="modal-produk-title">Tambah Produk</h3>
+      <button class="modal__close" id="close-modal-produk"></button>
+    </div>
+    <div class="modal__body">
+      <form id="form-produk">
+        <input type="hidden" id="f-kode-original">
+        <div class="field">
+          <label>Nama Produk <span class="req">*</span></label>
+          <input class="input" type="text" id="f-nama" placeholder="mis. Kopi Susu Gula Aren" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Kategori <span class="req">*</span></label>
+            <select class="input" id="f-kategori" required>
+              <option value="Kopi">Kopi</option>
+              <option value="Non-Kopi">Non-Kopi</option>
+              <option value="Makanan">Makanan</option>
+              <option value="Snack">Snack</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select class="input" id="f-status">
+              <option value="Aktif">Aktif</option>
+              <option value="Nonaktif">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Harga (Rp) <span class="req">*</span></label>
+            <input class="input" type="number" id="f-harga" min="0" step="500" placeholder="20000" required>
+          </div>
+          <div class="field">
+            <label id="f-stok-label">Stok Awal <span class="req">*</span></label>
+            <input class="input" type="number" id="f-stok" min="0" placeholder="0" required>
+          </div>
+        </div>
+        <p class="helper-text" id="kode-preview"></p>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn-secondary" id="cancel-produk">Batal</button>
+      <button class="btn btn-primary" id="save-produk">Simpan Produk</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Perbarui Stok (cepat) -->
+<div class="modal-overlay" id="modal-stok">
+  <div class="modal">
+    <div class="modal__header">
+      <h3>Perbarui Stok</h3>
+      <button class="modal__close" id="close-modal-stok"></button>
+    </div>
+    <div class="modal__body">
+      <div class="flex-gap mb-16">
+        <div class="prod-swatch" id="stok-modal-icon" style="width:46px;height:46px;font-size:22px;"></div>
+        <div>
+          <div class="cell-strong" id="stok-modal-nama" style="font-size:15px;"></div>
+          <div class="cell-muted" id="stok-modal-kode" style="font-size:12px;"></div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Stok saat ini</label>
+        <div class="cell-strong" id="stok-modal-current" style="font-size:20px;"></div>
+      </div>
+
+      <div class="toggle-group mb-16">
+        <button type="button" class="active" data-mode="tambah">Tambah Stok</button>
+        <button type="button" data-mode="kurangi">Kurangi Stok</button>
+        <button type="button" data-mode="set">Set Manual</button>
+      </div>
+
+      <div class="field">
+        <label id="stok-input-label">Jumlah Penambahan</label>
+        <input class="input" type="number" id="f-jumlah-stok" min="0" placeholder="0">
+      </div>
+      <p class="helper-text" id="stok-preview"></p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn-secondary" id="cancel-stok">Batal</button>
+      <button class="btn btn-primary" id="save-stok">Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="input-foto-produk" accept="image/*" style="display:none;">
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/dataService.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  const session = renderLayout('produk');
+  if(session){
+
+    document.getElementById('btn-add-produk').innerHTML = ICONS.plus + '<span>Tambah Produk</span>';
+    document.getElementById('close-modal-produk').innerHTML = ICONS.close;
+    document.getElementById('close-modal-stok').innerHTML = ICONS.close;
+    document.getElementById('icon-search').outerHTML = ICONS.search;
+
+    let activeKategori = 'Semua';
+    let searchTerm = '';
+    let produkCache = [];
+    let fotoUploadKode = null;
+    const THRESHOLD = 8;
+
+    function stokStatus(stok){
+      if(stok === 0) return { label:'Habis', cls:'badge-danger' };
+      if(stok <= THRESHOLD) return { label:'Menipis', cls:'badge-warning' };
+      return { label:'Aman', cls:'badge-success' };
+    }
+
+    async function refreshProduk(){
+      produkCache = await DataService.getProduk();
+    }
+
+    function renderStats(){
+      const aman = produkCache.filter(p=>p.stok>THRESHOLD).length;
+      const menipis = produkCache.filter(p=>p.stok>0 && p.stok<=THRESHOLD).length;
+      const habis = produkCache.filter(p=>p.stok===0).length;
+      const stats = [
+        { label:'Stok Aman', value: aman, icon:'archive', tone:'tone-success' },
+        { label:'Stok Menipis', value: menipis, icon:'alert', tone:'tone-warning' },
+        { label:'Stok Habis', value: habis, icon:'alert', tone:'tone-danger' },
+      ];
+      document.getElementById('produk-stats').innerHTML = stats.map(s=>`
+        <div class="stat-card">
+          <div class="stat-card__top">
+            <span class="stat-card__label">${s.label}</span>
+            <div class="stat-card__icon ${s.tone}">${ICONS[s.icon]}</div>
+          </div>
+          <div class="stat-card__value">${s.value} produk</div>
+        </div>
+      `).join('');
+    }
+
+    function renderKategoriTabs(){
+      const kategoris = ['Semua','Kopi','Non-Kopi','Makanan','Snack'];
+      document.getElementById('kategori-tabs').innerHTML = kategoris.map(k=>`
+        <button class="cat-tab ${activeKategori===k?'active':''}" data-k="${k}">${k}</button>
+      `).join('');
+      document.querySelectorAll('.cat-tab').forEach(btn=>{
+        btn.addEventListener('click', ()=>{ activeKategori = btn.dataset.k; renderTable(); renderKategoriTabs(); });
+      });
+    }
+
+    function renderTable(){
+      let list = produkCache;
+      if(activeKategori !== 'Semua') list = list.filter(p=>p.kategori===activeKategori);
+      if(searchTerm) list = list.filter(p=> p.nama.toLowerCase().includes(searchTerm.toLowerCase()) || p.kode.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      document.getElementById('produk-count').textContent = `${list.length} dari ${produkCache.length} produk ditampilkan`;
+
+      const tbody = document.getElementById('produk-tbody');
+      const emptyEl = document.getElementById('produk-empty');
+      if(!list.length){
+        tbody.innerHTML = '';
+        emptyEl.innerHTML = `<div class="empty-state">${ICONS.inbox}<h4>Produk tidak ditemukan</h4><p>Coba ubah kata kunci pencarian atau filter kategori.</p></div>`;
+        return;
+      }
+      emptyEl.innerHTML = '';
+      tbody.innerHTML = list.map(p=>{
+        const s = stokStatus(p.stok);
+        const thumb = p.foto_url
+          ? `<img src="${p.foto_url}" alt="${p.nama}" style="width:38px;height:38px;object-fit:cover;border-radius:9px;">`
+          : `<div class="prod-swatch">${KATEGORI_ICON[p.kategori]||'🍽️'}</div>`;
+        return `
+        <tr>
+          <td>
+            <div class="flex-gap">
+              ${thumb}
+              <span class="cell-strong">${p.nama}</span>
+            </div>
+          </td>
+          <td class="cell-muted">${p.kode}</td>
+          <td>${p.kategori}</td>
+          <td class="cell-strong">${formatRupiah(p.harga)}</td>
+          <td class="cell-strong">${p.stok} unit</td>
+          <td><span class="badge ${s.cls}"><span class="dotb" style="background:currentColor"></span>${s.label}</span></td>
+          <td><span class="badge ${p.status==='Aktif'?'badge-success':'badge-neutral'}"><span class="dotb" style="background:currentColor"></span>${p.status}</span></td>
+          <td>
+            <div class="row-actions">
+              <button class="btn btn-secondary btn-icon" data-foto="${p.kode}" title="Unggah Foto">📷</button>
+              <button class="btn btn-secondary btn-icon" data-stok="${p.kode}" title="Perbarui Stok">${ICONS.archive}</button>
+              <button class="btn btn-secondary btn-icon" data-edit="${p.kode}" title="Ubah Produk">${ICONS.edit}</button>
+              <button class="btn btn-outline-danger btn-icon" data-del="${p.kode}" title="Hapus">${ICONS.trash}</button>
+            </div>
+          </td>
+        </tr>
+      `;}).join('');
+
+      tbody.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click', ()=>openEdit(b.dataset.edit)));
+      tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>confirmDelete(b.dataset.del)));
+      tbody.querySelectorAll('[data-stok]').forEach(b=>b.addEventListener('click', ()=>openStokModal(b.dataset.stok)));
+      tbody.querySelectorAll('[data-foto]').forEach(b=>b.addEventListener('click', ()=>{
+        fotoUploadKode = b.dataset.foto;
+        document.getElementById('input-foto-produk').click();
+      }));
+    }
+
+    document.getElementById('input-foto-produk').addEventListener('change', async (e)=>{
+      const file = e.target.files[0];
+      e.target.value = '';
+      if(!file || !fotoUploadKode) return;
+      try{
+        await DataService.uploadFotoProduk(fotoUploadKode, file);
+        showToast('Foto produk berhasil diperbarui.', 'success');
+        await refreshProduk(); renderTable();
+      }catch(err){
+        showToast(err.message || 'Gagal mengunggah foto produk.', 'danger');
+      }
+    });
+
+    function confirmDelete(kode){
+      const p = produkCache.find(x=>x.kode===kode);
+      openConfirm('Hapus produk ini?', `"${p.nama}" akan dihapus permanen dari daftar produk.`, async ()=>{
+        try{
+          await DataService.deleteProduk(kode);
+          showToast('Produk berhasil dihapus.', 'success');
+          await refreshProduk(); renderStats(); renderTable();
+        }catch(err){
+          showToast(err.message || 'Gagal menghapus produk.', 'danger');
+        }
+      });
+    }
+
+    function openAdd(){
+      document.getElementById('modal-produk-title').textContent = 'Tambah Produk';
+      document.getElementById('form-produk').reset();
+      document.getElementById('f-kode-original').value = '';
+      document.getElementById('f-kategori').value = 'Kopi';
+      document.getElementById('f-stok-label').innerHTML = 'Stok Awal <span class="req">*</span>';
+      document.getElementById('kode-preview').textContent = 'Kode produk akan dibuat otomatis oleh sistem.';
+      openModal('modal-produk');
+    }
+    function openEdit(kode){
+      const p = produkCache.find(x=>x.kode===kode);
+      document.getElementById('modal-produk-title').textContent = 'Ubah Produk';
+      document.getElementById('f-kode-original').value = p.kode;
+      document.getElementById('f-nama').value = p.nama;
+      document.getElementById('f-kategori').value = p.kategori;
+      document.getElementById('f-status').value = p.status;
+      document.getElementById('f-harga').value = p.harga;
+      document.getElementById('f-stok').value = p.stok;
+      document.getElementById('f-stok-label').innerHTML = 'Stok <span class="req">*</span>';
+      document.getElementById('kode-preview').textContent = `Kode produk: ${p.kode}`;
+      openModal('modal-produk');
+    }
+
+    document.getElementById('btn-add-produk').addEventListener('click', openAdd);
+    document.getElementById('close-modal-produk').addEventListener('click', ()=>closeModal('modal-produk'));
+    document.getElementById('cancel-produk').addEventListener('click', ()=>closeModal('modal-produk'));
+
+    document.getElementById('save-produk').addEventListener('click', async ()=>{
+      const form = document.getElementById('form-produk');
+      if(!form.reportValidity()) return;
+      const kodeOriginal = document.getElementById('f-kode-original').value;
+      const data = {
+        nama: document.getElementById('f-nama').value.trim(),
+        kategori: document.getElementById('f-kategori').value,
+        status: document.getElementById('f-status').value,
+        harga: parseInt(document.getElementById('f-harga').value,10),
+        stok: parseInt(document.getElementById('f-stok').value,10),
+      };
+      const btn = document.getElementById('save-produk');
+      btn.disabled = true;
+      try{
+        if(kodeOriginal){
+          await DataService.updateProduk(kodeOriginal, data);
+          showToast('Perubahan produk berhasil disimpan.', 'success');
+        }else{
+          await DataService.addProduk(data);
+          showToast('Produk baru berhasil ditambahkan.', 'success');
+        }
+        closeModal('modal-produk');
+        await refreshProduk(); renderStats(); renderTable();
+      }catch(err){
+        showToast(err.message || 'Gagal menyimpan produk.', 'danger');
+      }finally{
+        btn.disabled = false;
+      }
+    });
+
+   const localSearch = document.getElementById('search-produk');
+const globalSearch = document.getElementById('global-search');
+
+localSearch.addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+
+  if(globalSearch){
+    globalSearch.value = searchTerm;
+  }
+
+  renderTable();
+});
+
+if(globalSearch){
+  globalSearch.placeholder = 'Cari nama atau kode produk...';
+
+  globalSearch.addEventListener('input', (e)=>{
+    searchTerm = e.target.value;
+
+    if(localSearch){
+      localSearch.value = searchTerm;
+    }
+
+    renderTable();
+  });
+}
+
+    /* ---------- Perbarui Stok (cepat) ---------- */
+    let currentKode = null;
+    let mode = 'tambah';
+
+    function openStokModal(kode){
+      const p = produkCache.find(x=>x.kode===kode);
+      currentKode = kode;
+      mode = 'tambah';
+      document.querySelectorAll('#modal-stok .toggle-group button').forEach(b=>b.classList.toggle('active', b.dataset.mode==='tambah'));
+      document.getElementById('stok-modal-icon').textContent = KATEGORI_ICON[p.kategori]||'🍽️';
+      document.getElementById('stok-modal-nama').textContent = p.nama;
+      document.getElementById('stok-modal-kode').textContent = p.kode + ' · ' + p.kategori;
+      document.getElementById('stok-modal-current').textContent = p.stok + ' unit';
+      document.getElementById('f-jumlah-stok').value = '';
+      document.getElementById('stok-input-label').textContent = 'Jumlah Penambahan';
+      document.getElementById('stok-preview').textContent = '';
+      openModal('modal-stok');
+    }
+
+    document.querySelectorAll('#modal-stok .toggle-group button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('#modal-stok .toggle-group button').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        mode = btn.dataset.mode;
+        const labelMap = { tambah:'Jumlah Penambahan', kurangi:'Jumlah Pengurangan', set:'Jumlah Stok Baru' };
+        document.getElementById('stok-input-label').textContent = labelMap[mode];
+      });
+    });
+
+    document.getElementById('f-jumlah-stok').addEventListener('input', updatePreview);
+    function updatePreview(){
+      const p = produkCache.find(x=>x.kode===currentKode);
+      const val = parseInt(document.getElementById('f-jumlah-stok').value,10) || 0;
+      let hasil = p.stok;
+      if(mode==='tambah') hasil = p.stok + val;
+      if(mode==='kurangi') hasil = Math.max(0, p.stok - val);
+      if(mode==='set') hasil = val;
+      document.getElementById('stok-preview').textContent = `Stok setelah perubahan: ${hasil} unit`;
+    }
+
+    document.getElementById('close-modal-stok').addEventListener('click', ()=>closeModal('modal-stok'));
+    document.getElementById('cancel-stok').addEventListener('click', ()=>closeModal('modal-stok'));
+    document.getElementById('save-stok').addEventListener('click', async ()=>{
+      const val = parseInt(document.getElementById('f-jumlah-stok').value,10);
+      if(isNaN(val) || val < 0){ showToast('Masukkan jumlah yang valid.', 'danger'); return; }
+      const btn = document.getElementById('save-stok');
+      btn.disabled = true;
+      try{
+        await DataService.adjustStok(currentKode, mode, val);
+        showToast('Stok produk berhasil diperbarui.', 'success');
+        closeModal('modal-stok');
+        await refreshProduk(); renderStats(); renderTable();
+      }catch(err){
+        showToast(err.message || 'Gagal memperbarui stok.', 'danger');
+      }finally{
+        btn.disabled = false;
+      }
+    });
+
+    (async function init(){
+      try{
+        await refreshProduk();
+        renderStats();
+        renderKategoriTabs();
+        renderTable();
+      }catch(err){
+        showToast(err.message || 'Gagal memuat data produk.', 'danger');
+      }
+    })();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Penjualan — Antari</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+  <div class="main-shell">
+    <div id="topbar-placeholder"></div>
+
+    <main class="content">
+
+      <div class="panel mb-16">
+        <div class="panel__body">
+          <div class="flex-between" style="flex-wrap:wrap; gap:12px;">
+            <div class="flex-gap" style="flex-wrap:wrap; gap:12px;">
+              <div class="field" style="margin-bottom:0;">
+                <label>Dari Tanggal</label>
+                <input class="input" type="date" id="f-start">
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label>Sampai Tanggal</label>
+                <input class="input" type="date" id="f-end">
+              </div>
+              <div class="field" style="margin-bottom:0;">
+                <label>Periode Cepat</label>
+                <select class="input" id="f-quick">
+                  <option value="7">7 Hari Terakhir</option>
+                  <option value="30">30 Hari Terakhir</option>
+                  <option value="all">Semua Data</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex-gap">
+              <button class="btn btn-secondary" id="btn-export"></button>
+              <button class="btn btn-primary" id="btn-print"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="print-area">
+        <div class="stat-grid" id="laporan-stats" style="grid-template-columns:repeat(3,1fr);"></div>
+
+        <div class="panel-grid-2">
+          <div class="panel">
+            <div class="panel__header">
+              <div><h3>Tren Pendapatan</h3><div class="hint">Total pendapatan per hari pada periode terpilih</div></div>
+            </div>
+            <div class="panel__body"><div class="mini-chart" id="laporan-chart"></div></div>
+          </div>
+          <div class="panel">
+            <div class="panel__header"><div><h3>Produk Terlaris</h3><div class="hint">Berdasarkan periode terpilih</div></div></div>
+            <div class="panel__body" id="laporan-top"></div>
+          </div>
+        </div>
+
+        <div class="panel mt-24">
+          <div class="panel__header">
+            <div><h3>Rincian Transaksi</h3><div class="hint" id="laporan-count"></div></div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>ID Transaksi</th><th>Tanggal</th><th>Kasir</th><th>Metode</th><th class="text-right">Subtotal</th><th class="text-right">Diskon</th><th class="text-right">Total</th></tr></thead>
+              <tbody id="laporan-tbody"></tbody>
+            </table>
+          </div>
+          <div id="laporan-empty"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/dataService.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  const session = renderLayout('laporan');
+  if(session){
+    document.getElementById('btn-export').innerHTML = ICONS.download + '<span>Export CSV</span>';
+    document.getElementById('btn-print').innerHTML = ICONS.printer + '<span>Cetak Laporan</span>';
+
+    let lastList = [];
+    let searchTerm = '';
+
+    function applyQuickRange(){
+      const q = document.getElementById('f-quick').value;
+      if(q === 'all'){
+        document.getElementById('f-start').value = '';
+        document.getElementById('f-end').value = '';
+      }else{
+        document.getElementById('f-start').value = dateOffset(-parseInt(q,10)+1);
+        document.getElementById('f-end').value = dateOffset(0);
+      }
+    }
+
+    async function currentList(){
+      const start = document.getElementById('f-start').value;
+      const end = document.getElementById('f-end').value;
+      return DataService.getTransaksi(start || undefined, end || undefined);
+    }
+
+    async function render(){
+      let list;
+      try{
+        list = await currentList();
+        if(searchTerm){
+        const q = searchTerm.toLowerCase();
+        list = list.filter(t =>
+        t.id.toLowerCase().includes(q) ||
+        t.kasir_username.toLowerCase().includes(q) ||
+        t.metode.toLowerCase().includes(q)
+    );
+}
+      }catch(err){
+        showToast(err.message || 'Gagal memuat laporan.', 'danger');
+        return;
+      }
+      lastList = list;
+      const totalPendapatan = list.reduce((s,t)=>s+Number(t.total),0);
+      const totalTransaksi = list.length;
+      const rataRata = totalTransaksi ? Math.round(totalPendapatan/totalTransaksi) : 0;
+
+      document.getElementById('laporan-stats').innerHTML = [
+        { label:'Total Pendapatan', value: formatRupiah(totalPendapatan), icon:'wallet', tone:'tone-success' },
+        { label:'Total Transaksi', value: totalTransaksi, icon:'receipt', tone:'tone-info' },
+        { label:'Rata-rata per Transaksi', value: formatRupiah(rataRata), icon:'trend', tone:'tone-accent' },
+      ].map(s=>`
+        <div class="stat-card">
+          <div class="stat-card__top"><span class="stat-card__label">${s.label}</span><div class="stat-card__icon ${s.tone}">${ICONS[s.icon]}</div></div>
+          <div class="stat-card__value">${s.value}</div>
+        </div>`).join('');
+
+      // chart: group by date present in list
+      const byDate = {};
+      list.forEach(t=>{ const d = String(t.tanggal).slice(0,10); byDate[d] = (byDate[d]||0) + Number(t.total); });
+      const dates = Object.keys(byDate).sort();
+      const max = Math.max(...Object.values(byDate), 1);
+      document.getElementById('laporan-chart').innerHTML = dates.length ? dates.map(d=>{
+        const h = Math.max(6, Math.round((byDate[d]/max)*130));
+        const lbl = new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'2-digit',month:'short'});
+        return `<div class="bar-col" title="${formatRupiah(byDate[d])}"><div class="bar" style="height:${h}px"></div><div class="lbl">${lbl}</div></div>`;
+      }).join('') : `<div class="empty-state">${ICONS.inbox}<p>Tidak ada data pada periode ini.</p></div>`;
+
+      // top produk
+      const qtyMap = {};
+      list.forEach(t=>(t.items||[]).forEach(it=>{
+        qtyMap[it.kode_produk] = qtyMap[it.kode_produk] || { nama:it.nama, qty:0, total:0 };
+        qtyMap[it.kode_produk].qty += Number(it.qty); qtyMap[it.kode_produk].total += Number(it.subtotal);
+      }));
+      const topList = Object.values(qtyMap).sort((a,b)=>b.qty-a.qty).slice(0,5);
+      document.getElementById('laporan-top').innerHTML = topList.length ? topList.map((p,i)=>`
+        <div class="top-prod-row">
+          <div class="rank">${i+1}</div>
+          <div class="info"><div class="n">${p.nama}</div><div class="s">${p.qty} terjual</div></div>
+          <div class="amt">${formatRupiah(p.total)}</div>
+        </div>`).join('') : `<div class="empty-state"><p>Belum ada data.</p></div>`;
+
+      document.getElementById('laporan-count').textContent = `${list.length} transaksi pada periode terpilih`;
+      const tbody = document.getElementById('laporan-tbody');
+      const emptyEl = document.getElementById('laporan-empty');
+      if(!list.length){
+        tbody.innerHTML = '';
+        emptyEl.innerHTML = `<div class="empty-state">${ICONS.inbox}<h4>Belum ada transaksi</h4><p>Ubah rentang tanggal untuk melihat data lain.</p></div>`;
+        return;
+      }
+      emptyEl.innerHTML = '';
+      tbody.innerHTML = list.map(t=>`
+        <tr>
+          <td class="cell-strong">${t.id}</td>
+          <td>${formatTanggal(t.tanggal)}</td>
+          <td>${t.kasir_username}</td>
+          <td><span class="badge ${t.metode==='Tunai'?'badge-warning':'badge-info'}">${t.metode}</span></td>
+          <td class="text-right">${formatRupiah(t.subtotal)}</td>
+          <td class="text-right">- ${formatRupiah(t.diskon_nominal)}</td>
+          <td class="text-right cell-strong">${formatRupiah(t.total)}</td>
+        </tr>`).join('');
+    }
+
+    document.getElementById('f-quick').addEventListener('change', ()=>{ applyQuickRange(); render(); });
+    document.getElementById('f-start').addEventListener('change', render);
+    document.getElementById('f-end').addEventListener('change', render);
+
+    document.getElementById('btn-print').addEventListener('click', ()=>window.print());
+
+    document.getElementById('btn-export').addEventListener('click', ()=>{
+      const list = lastList;
+      if(!list.length){ showToast('Tidak ada data untuk diekspor.', 'danger'); return; }
+      let csv = 'ID Transaksi,Tanggal,Waktu,Kasir,Metode,Subtotal,Diskon,Total\n';
+      list.forEach(t=>{
+        csv += `${t.id},${t.tanggal},${t.waktu},${t.kasir_username},${t.metode},${t.subtotal},${t.diskon_nominal},${t.total}\n`;
+      });
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `laporan-penjualan-antari-${dateOffset(0)}.csv`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Laporan berhasil diekspor ke CSV.', 'success');
+    });
+
+    const globalSearch = document.getElementById('global-search');
+
+    if(globalSearch){
+    globalSearch.placeholder = 'Cari ID transaksi, kasir, metode...';
+
+    globalSearch.addEventListener('input', (e)=>{
+    searchTerm = e.target.value;
+    render();
+    });
+  }
+    document.getElementById('f-quick').value = '7';
+    applyQuickRange();
+    render();
+  }
+</script>
+</body>
+</html>

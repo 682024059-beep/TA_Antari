@@ -1,0 +1,48 @@
+ANTARI_ADMIN_FLASK/
+|-- app.py
+|-- config.py
+|-- db_conn.py
+|-- wsgi.py
+|-- requirements.txt
+|-- vercel.json
+|-- .env.example
+|-- .gitignore
+|-- Backend/
+|   |-- Admin/
+|   |   |-- auth.py
+|   |   |-- produk.py
+|   |   |-- diskon.py
+|   |   |-- transaksi.py
+|   |   |-- laporan.py
+|   |   |-- notifikasi.py
+|   |   |-- profil.py
+|   |   |-- __init__.py
+|   |-- Utils/
+|   |   |-- auth.py
+|   |   |-- cloudinary_util.py
+|   |   |-- notify.py
+|   |   |-- resend_util.py
+|   |   |-- __init__.py
+|   |-- __init__.py
+|-- Frontend/
+|   |-- Admin/
+|   |   |-- login.html
+|   |   |-- dashboard.html
+|   |   |-- produk.html
+|   |   |-- diskon.html
+|   |   |-- riwayat.html
+|   |   |-- laporan.html
+|   |   |-- profil.html
+|   |   |-- css/
+|   |   |   |-- style.css
+|   |   |-- js/
+|   |   |   |-- api.js
+|   |   |   |-- auth.js
+|   |   |   |-- data.js
+|   |   |   |-- dataService.js
+|   |   |   |-- icons.js
+|   |   |   |-- layout.js
+|   |   |   |-- ui.js
+|-- db/
+|   |-- schema.sql
+|   |-- seed.py

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengelolaan Diskon — Antari</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+  <div class="main-shell">
+    <div id="topbar-placeholder"></div>
+
+    <main class="content">
+      <div class="panel">
+        <div class="panel__header">
+          <div>
+            <h3>Program Diskon</h3>
+            <div class="hint" id="diskon-count"></div>
+          </div>
+          <button class="btn btn-primary" id="btn-add-diskon"></button>
+        </div>
+        <div class="panel__body">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Nama Diskon</th><th>Jenis</th><th>Nilai</th><th>Periode</th><th>Status</th><th class="text-right">Aksi</th></tr>
+              </thead>
+              <tbody id="diskon-tbody"></tbody>
+            </table>
+          </div>
+          <div id="diskon-empty"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal Tambah/Edit Diskon -->
+<div class="modal-overlay" id="modal-diskon">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 id="modal-diskon-title">Tambah Diskon</h3>
+      <button class="modal__close" id="close-modal-diskon"></button>
+    </div>
+    <div class="modal__body">
+      <form id="form-diskon">
+        <input type="hidden" id="f-id-original">
+        <div class="field">
+          <label>Nama Diskon <span class="req">*</span></label>
+          <input class="input" type="text" id="f-nama-diskon" placeholder="mis. Promo Jam Siang" required>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Jenis Diskon</label>
+            <select class="input" id="f-jenis">
+              <option value="Persen">Persen (%)</option>
+              <option value="Nominal">Nominal (Rp)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Nilai <span class="req">*</span></label>
+            <input class="input" type="number" id="f-nilai" min="0" placeholder="10" required>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Tanggal Mulai <span class="req">*</span></label>
+            <input class="input" type="date" id="f-mulai" required>
+          </div>
+          <div class="field">
+            <label>Tanggal Selesai <span class="req">*</span></label>
+            <input class="input" type="date" id="f-selesai" required>
+          </div>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select class="input" id="f-status-diskon">
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn-secondary" id="cancel-diskon">Batal</button>
+      <button class="btn btn-primary" id="save-diskon">Simpan Diskon</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/dataService.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  const session = renderLayout('diskon');
+  if(session){
+    document.getElementById('btn-add-diskon').innerHTML = ICONS.plus + '<span>Tambah Diskon</span>';
+    document.getElementById('close-modal-diskon').innerHTML = ICONS.close;
+
+    let diskonCache = [];
+let searchTerm = '';
+
+    async function refreshDiskon(){
+      diskonCache = await DataService.getDiskon();
+    }
+
+    function renderTable(){
+      let list = diskonCache;
+
+if(searchTerm){
+  const q = searchTerm.toLowerCase();
+  list = list.filter(d =>
+    d.id.toLowerCase().includes(q) ||
+    d.nama.toLowerCase().includes(q) ||
+    d.jenis.toLowerCase().includes(q) ||
+    d.status.toLowerCase().includes(q)
+  );
+}
+
+document.getElementById('diskon-count').textContent = `${list.length} dari ${diskonCache.length} program diskon ditampilkan`;
+      const tbody = document.getElementById('diskon-tbody');
+      const emptyEl = document.getElementById('diskon-empty');
+      if(!list.length){
+        tbody.innerHTML='';
+        emptyEl.innerHTML = `<div class="empty-state">${ICONS.inbox}<h4>Belum ada diskon</h4><p>Tambahkan program diskon pertama Anda.</p></div>`;
+        return;
+      }
+      emptyEl.innerHTML = '';
+      tbody.innerHTML = list.map(d=>{
+        const berlaku = DataService.isDiskonBerlaku(d);
+        const nilaiText = d.jenis === 'Persen' ? `${d.nilai}%` : formatRupiah(d.nilai);
+        return `<tr>
+          <td class="cell-strong">${d.nama}</td>
+          <td><span class="badge badge-neutral">${d.jenis}</span></td>
+          <td class="cell-strong">${nilaiText}</td>
+          <td class="cell-muted">${formatTanggal(d.mulai)} — ${formatTanggal(d.selesai)}</td>
+          <td>
+            <span class="badge ${d.status==='Aktif' ? (berlaku?'badge-success':'badge-warning') : 'badge-neutral'}">
+              <span class="dotb" style="background:currentColor"></span>${d.status==='Aktif' ? (berlaku?'Berlaku':'Belum/Berakhir') : 'Nonaktif'}
+            </span>
+          </td>
+          <td>
+            <div class="row-actions">
+              <button class="btn btn-secondary btn-icon" data-edit="${d.id}" title="Ubah">${ICONS.edit}</button>
+              <button class="btn btn-outline-danger btn-icon" data-del="${d.id}" title="Hapus">${ICONS.trash}</button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+      tbody.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click', ()=>openEdit(b.dataset.edit)));
+      tbody.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>confirmDelete(b.dataset.del)));
+    }
+
+    function confirmDelete(id){
+      const d = diskonCache.find(x=>x.id===id);
+      openConfirm('Hapus diskon ini?', `Program diskon "${d.nama}" akan dihapus permanen.`, async ()=>{
+        try{
+          await DataService.deleteDiskon(id);
+          showToast('Diskon berhasil dihapus.', 'success');
+          await refreshDiskon(); renderTable();
+        }catch(err){
+          showToast(err.message || 'Gagal menghapus diskon.', 'danger');
+        }
+      });
+    }
+
+    function openAdd(){
+      document.getElementById('modal-diskon-title').textContent = 'Tambah Diskon';
+      document.getElementById('form-diskon').reset();
+      document.getElementById('f-id-original').value = '';
+      document.getElementById('f-mulai').value = dateOffset(0);
+      document.getElementById('f-selesai').value = dateOffset(30);
+      openModal('modal-diskon');
+    }
+    function openEdit(id){
+      const d = diskonCache.find(x=>x.id===id);
+      document.getElementById('modal-diskon-title').textContent = 'Ubah Diskon';
+      document.getElementById('f-id-original').value = d.id;
+      document.getElementById('f-nama-diskon').value = d.nama;
+      document.getElementById('f-jenis').value = d.jenis;
+      document.getElementById('f-nilai').value = d.nilai;
+      document.getElementById('f-mulai').value = String(d.mulai).slice(0,10);
+      document.getElementById('f-selesai').value = String(d.selesai).slice(0,10);
+      document.getElementById('f-status-diskon').value = d.status;
+      openModal('modal-diskon');
+    }
+
+    document.getElementById('btn-add-diskon').addEventListener('click', openAdd);
+    document.getElementById('close-modal-diskon').addEventListener('click', ()=>closeModal('modal-diskon'));
+    document.getElementById('cancel-diskon').addEventListener('click', ()=>closeModal('modal-diskon'));
+
+    document.getElementById('save-diskon').addEventListener('click', async ()=>{
+      const form = document.getElementById('form-diskon');
+      if(!form.reportValidity()) return;
+      const mulai = document.getElementById('f-mulai').value;
+      const selesai = document.getElementById('f-selesai').value;
+      if(selesai < mulai){ showToast('Tanggal selesai tidak boleh sebelum tanggal mulai.', 'danger'); return; }
+      const idOriginal = document.getElementById('f-id-original').value;
+      const data = {
+        nama: document.getElementById('f-nama-diskon').value.trim(),
+        jenis: document.getElementById('f-jenis').value,
+        nilai: parseInt(document.getElementById('f-nilai').value,10),
+        mulai, selesai,
+        status: document.getElementById('f-status-diskon').value,
+      };
+      const btn = document.getElementById('save-diskon');
+      btn.disabled = true;
+      try{
+        if(idOriginal){
+          await DataService.updateDiskon(idOriginal, data);
+          showToast('Perubahan diskon berhasil disimpan.', 'success');
+        }else{
+          await DataService.addDiskon(data);
+          showToast('Diskon baru berhasil ditambahkan.', 'success');
+        }
+        closeModal('modal-diskon');
+        await refreshDiskon(); renderTable();
+      }catch(err){
+        showToast(err.message || 'Gagal menyimpan diskon.', 'danger');
+      }finally{
+        btn.disabled = false;
+      }
+    });
+
+    const globalSearch = document.getElementById('global-search');
+
+  if(globalSearch){
+    globalSearch.placeholder = 'Cari nama diskon, jenis, status...';
+
+    globalSearch.addEventListener('input', (e)=>{
+    searchTerm = e.target.value;
+    renderTable();
+    });
+  }
+
+    (async function init(){
+      try{
+        await refreshDiskon();
+        renderTable();
+      }catch(err){
+        showToast(err.message || 'Gagal memuat data diskon.', 'danger');
+      }
+    })();
+  }
+</script>
+</body>
+</html>

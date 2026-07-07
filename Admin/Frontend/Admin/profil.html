@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profil Saya — Antari</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .profil-grid{ display:grid; grid-template-columns:280px 1fr; gap:20px; align-items:start; }
+  @media(max-width:860px){ .profil-grid{ grid-template-columns:1fr; } }
+  .profil-photo-card{ text-align:center; }
+  .profil-avatar-lg{ width:120px; height:120px; border-radius:50%; margin:0 auto 14px; overflow:hidden;
+    background:#f3e9dc; color:#a9713f; display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:700; }
+  .profil-avatar-lg img{ width:100%; height:100%; object-fit:cover; }
+  .role-pill{ display:inline-block; margin-top:6px; padding:3px 12px; border-radius:999px; background:#f3e9dc; color:#8a5a2b; font-size:12px; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+  <div class="main-shell">
+    <div id="topbar-placeholder"></div>
+    <main class="content">
+      <div class="profil-grid">
+
+        <div class="panel profil-photo-card">
+          <div class="panel__body">
+            <div class="profil-avatar-lg" id="profil-avatar"></div>
+            <div class="cell-strong" id="profil-nama-display" style="font-size:16px;"></div>
+            <div class="cell-muted" id="profil-username-display" style="font-size:12.5px;"></div>
+            <span class="role-pill" id="profil-role-display"></span>
+            <div style="margin-top:16px;">
+              <input type="file" id="input-foto-profil" accept="image/*" style="display:none;">
+              <button class="btn btn-secondary btn-block" id="btn-ganti-foto">Ganti Foto Profil</button>
+              <p class="helper-text">Format JPG/PNG/WEBP, maks 5MB. Foto disimpan aman di Cloudinary.</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel mb-16">
+            <div class="panel__header"><h3>Informasi Akun</h3></div>
+            <div class="panel__body">
+              <form id="form-profil">
+                <div class="field-row">
+                  <div class="field">
+                    <label>Username</label>
+                    <input class="input" type="text" id="f-username" disabled>
+                    <p class="helper-text">Username tidak dapat diubah sendiri. Hubungi admin sistem bila perlu.</p>
+                  </div>
+                  <div class="field">
+                    <label>Peran</label>
+                    <input class="input" type="text" id="f-role" disabled>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Nama Lengkap <span class="req">*</span></label>
+                  <input class="input" type="text" id="f-nama" required>
+                </div>
+                <div class="field">
+                  <label>Email</label>
+                  <input class="input" type="email" id="f-email" placeholder="nama@email.com">
+                  <p class="helper-text">Dipakai untuk menerima notifikasi keamanan (mis. saat password diganti).</p>
+                </div>
+                <button type="submit" class="btn btn-primary" id="btn-simpan-profil">Simpan Perubahan</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel__header"><h3>Keamanan — Ganti Password</h3></div>
+            <div class="panel__body">
+              <form id="form-password">
+                <div class="field">
+                  <label>Password Lama <span class="req">*</span></label>
+                  <input class="input" type="password" id="f-pw-lama" required autocomplete="current-password">
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label>Password Baru <span class="req">*</span></label>
+                    <input class="input" type="password" id="f-pw-baru" required minlength="6" autocomplete="new-password">
+                  </div>
+                  <div class="field">
+                    <label>Konfirmasi Password Baru <span class="req">*</span></label>
+                    <input class="input" type="password" id="f-pw-konfirmasi" required minlength="6" autocomplete="new-password">
+                  </div>
+                </div>
+                <p class="helper-text">Password minimal 6 karakter. Password tidak pernah ditampilkan di layar mana pun setelah disimpan.</p>
+                <button type="submit" class="btn btn-primary" id="btn-ganti-password">Perbarui Password</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/dataService.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  const session = renderLayout('profil');
+  if(session){
+    let currentProfil = null;
+
+    async function loadProfil(){
+      try{
+        currentProfil = await DataService.getProfil();
+        document.getElementById('f-username').value = currentProfil.username;
+        document.getElementById('f-role').value = currentProfil.role === 'admin' ? 'Admin' : 'Kasir';
+        document.getElementById('f-nama').value = currentProfil.nama;
+        document.getElementById('f-email').value = currentProfil.email || '';
+        document.getElementById('profil-nama-display').textContent = currentProfil.nama;
+        document.getElementById('profil-username-display').textContent = '@' + currentProfil.username;
+        document.getElementById('profil-role-display').textContent = currentProfil.role === 'admin' ? 'Admin' : 'Kasir';
+        const avatarEl = document.getElementById('profil-avatar');
+        avatarEl.innerHTML = currentProfil.foto_url
+          ? `<img src="${currentProfil.foto_url}" alt="${currentProfil.nama}">`
+          : initials(currentProfil.nama);
+      }catch(err){
+        showToast(err.message || 'Gagal memuat profil.', 'danger');
+      }
+    }
+
+    document.getElementById('form-profil').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn-simpan-profil');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      try{
+        const updated = await DataService.updateProfil({
+          nama: document.getElementById('f-nama').value.trim(),
+          email: document.getElementById('f-email').value.trim() || null,
+        });
+        updateSessionCache({ nama: updated.nama, email: updated.email });
+        showToast('Profil berhasil diperbarui.', 'success');
+        loadProfil();
+      }catch(err){
+        showToast(err.message || 'Gagal menyimpan profil.', 'danger');
+      }finally{
+        btn.disabled = false; btn.textContent = 'Simpan Perubahan';
+      }
+    });
+
+    document.getElementById('form-password').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const lama = document.getElementById('f-pw-lama').value;
+      const baru = document.getElementById('f-pw-baru').value;
+      const konfirmasi = document.getElementById('f-pw-konfirmasi').value;
+      if(baru !== konfirmasi){
+        showToast('Konfirmasi password baru tidak cocok.', 'danger');
+        return;
+      }
+      const btn = document.getElementById('btn-ganti-password');
+      btn.disabled = true; btn.textContent = 'Memproses...';
+      try{
+        await DataService.gantiPassword(lama, baru);
+        showToast('Password berhasil diperbarui.', 'success');
+        document.getElementById('form-password').reset();
+      }catch(err){
+        showToast(err.message || 'Gagal mengganti password.', 'danger');
+      }finally{
+        btn.disabled = false; btn.textContent = 'Perbarui Password';
+      }
+    });
+
+    document.getElementById('btn-ganti-foto').addEventListener('click', () => {
+      document.getElementById('input-foto-profil').click();
+    });
+    document.getElementById('input-foto-profil').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      try{
+        const res = await DataService.uploadFotoProfil(file);
+        updateSessionCache({ foto_url: res.foto_url });
+        showToast('Foto profil berhasil diperbarui.', 'success');
+        loadProfil();
+      }catch(err){
+        showToast(err.message || 'Gagal mengunggah foto.', 'danger');
+      }
+    });
+
+    loadProfil();
+  }
+</script>
+</body>
+</html>

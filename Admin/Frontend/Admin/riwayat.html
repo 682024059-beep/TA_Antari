@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riwayat Transaksi - Antari</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+  <div class="main-shell">
+    <div id="topbar-placeholder"></div>
+
+    <main class="content">
+      <div class="panel">
+        <div class="panel__header">
+          <div>
+            <h3>Riwayat Transaksi</h3>
+            <div class="hint" id="riwayat-count"></div>
+          </div>
+        </div>
+
+        <div class="panel__body">
+          <div class="flex-gap mb-16" style="flex-wrap:wrap; gap:12px;">
+            <div class="field" style="margin-bottom:0;">
+              <label>Dari Tanggal</label>
+              <input class="input" type="date" id="f-start">
+            </div>
+
+            <div class="field" style="margin-bottom:0;">
+              <label>Sampai Tanggal</label>
+              <input class="input" type="date" id="f-end">
+            </div>
+
+            <div class="field" style="margin-bottom:0;">
+              <label>Metode Bayar</label>
+              <select class="input" id="f-metode">
+                <option value="Semua">Semua</option>
+                <option value="Tunai">Tunai</option>
+                <option value="QRIS">QRIS</option>
+              </select>
+            </div>
+
+            <div class="field" style="margin-bottom:0; flex:1; min-width:200px;">
+              <label>Cari ID Transaksi</label>
+              <input class="input" type="text" id="f-search" placeholder="mis. TRX-1004">
+            </div>
+
+            <button class="btn btn-secondary" id="btn-reset-filter" style="align-self:flex-end;">Reset Filter</button>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID Transaksi</th>
+                  <th>Tanggal &amp; Waktu</th>
+                  <th>Kasir</th>
+                  <th>Jumlah Item</th>
+                  <th>Metode</th>
+                  <th class="text-right">Total</th>
+                  <th class="text-right">Detail</th>
+                </tr>
+              </thead>
+              <tbody id="riwayat-tbody"></tbody>
+            </table>
+          </div>
+
+          <div id="riwayat-empty"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Modal Detail Transaksi -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 id="detail-id">Detail Transaksi</h3>
+      <button class="modal__close" id="close-modal-detail"></button>
+    </div>
+
+    <div class="modal__body">
+      <div class="flex-between mb-16">
+        <span class="cell-muted" id="detail-meta"></span>
+        <span class="badge badge-info" id="detail-metode"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Produk</th>
+              <th>Qty</th>
+              <th class="text-right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="detail-items"></tbody>
+        </table>
+      </div>
+
+      <div class="cart-summary mt-16" style="border-radius:var(--radius-md); border:1px solid var(--cream-200);">
+        <div class="sum-row"><span>Subtotal</span><span id="detail-subtotal"></span></div>
+        <div class="sum-row"><span>Diskon</span><span id="detail-diskon"></span></div>
+        <div class="sum-row total"><span>Total</span><span id="detail-total"></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/dataService.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/layout.js"></script>
+
+<script>
+  const session = renderLayout('riwayat');
+
+  if(session){
+    document.getElementById('close-modal-detail').innerHTML = ICONS.close;
+
+    let transaksiCache = [];
+
+    function getFiltered(){
+      let list = transaksiCache;
+
+      const start = document.getElementById('f-start').value;
+      const end = document.getElementById('f-end').value;
+      const metode = document.getElementById('f-metode').value;
+      const searchId = document.getElementById('f-search').value.trim().toLowerCase();
+      const globalKeyword = (document.getElementById('global-search')?.value || '').trim().toLowerCase();
+
+      if(start){
+        list = list.filter(t => String(t.tanggal).slice(0,10) >= start);
+      }
+
+      if(end){
+        list = list.filter(t => String(t.tanggal).slice(0,10) <= end);
+      }
+
+      if(metode !== 'Semua'){
+        list = list.filter(t => t.metode === metode);
+      }
+
+      if(searchId){
+        list = list.filter(t =>
+          String(t.id || '').toLowerCase().includes(searchId)
+        );
+      }
+
+      if(globalKeyword){
+        list = list.filter(t => {
+          const itemText = (t.items || []).map(it => [
+            it.nama,
+            it.kode_produk,
+            it.kode,
+            it.qty,
+            it.subtotal,
+            formatRupiah(it.subtotal || 0)
+          ].join(' ')).join(' ');
+
+          const transaksiText = [
+            t.id,
+            t.tanggal,
+            formatTanggal(t.tanggal),
+            t.waktu,
+            t.kasir_username,
+            t.metode,
+            t.total,
+            formatRupiah(t.total || 0),
+            t.subtotal,
+            formatRupiah(t.subtotal || 0),
+            t.diskon_nominal,
+            itemText
+          ].join(' ').toLowerCase();
+
+          return transaksiText.includes(globalKeyword);
+        });
+      }
+
+      return list;
+    }
+
+    function renderTable(){
+      const list = getFiltered();
+
+      document.getElementById('riwayat-count').textContent =
+        `${list.length} dari ${transaksiCache.length} transaksi ditampilkan`;
+
+      const tbody = document.getElementById('riwayat-tbody');
+      const emptyEl = document.getElementById('riwayat-empty');
+
+      if(!list.length){
+        tbody.innerHTML = '';
+        emptyEl.innerHTML = `
+          <div class="empty-state">
+            ${ICONS.inbox}
+            <h4>Tidak ada transaksi</h4>
+            <p>Coba ubah filter tanggal atau kata kunci pencarian.</p>
+          </div>
+        `;
+        return;
+      }
+
+      emptyEl.innerHTML = '';
+
+      tbody.innerHTML = list.map(t => `
+        <tr>
+          <td class="cell-strong">${t.id}</td>
+          <td>${formatTanggal(t.tanggal)} · ${t.waktu}</td>
+          <td>${t.kasir_username}</td>
+          <td class="cell-muted">${(t.items || []).length} item</td>
+          <td>
+            <span class="badge ${t.metode === 'Tunai' ? 'badge-warning' : 'badge-info'}">
+              ${t.metode}
+            </span>
+          </td>
+          <td class="text-right cell-strong">${formatRupiah(t.total)}</td>
+          <td class="text-right">
+            <button class="btn btn-secondary btn-sm" data-detail="${t.id}">Lihat</button>
+          </td>
+        </tr>
+      `).join('');
+
+      tbody.querySelectorAll('[data-detail]').forEach(btn => {
+        btn.addEventListener('click', () => openDetail(btn.dataset.detail));
+      });
+    }
+
+    function openDetail(id){
+      const t = transaksiCache.find(x => x.id === id);
+      if(!t) return;
+
+      document.getElementById('detail-id').textContent = t.id;
+      document.getElementById('detail-meta').textContent =
+        `${formatTanggal(t.tanggal)} · ${t.waktu} · Kasir: ${t.kasir_username}`;
+
+      document.getElementById('detail-metode').textContent = t.metode;
+
+      document.getElementById('detail-items').innerHTML = (t.items || []).map(it => `
+        <tr>
+          <td>${it.nama}</td>
+          <td>${it.qty}</td>
+          <td class="text-right">${formatRupiah(it.subtotal)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('detail-subtotal').textContent = formatRupiah(t.subtotal);
+      document.getElementById('detail-diskon').textContent = '- ' + formatRupiah(t.diskon_nominal);
+      document.getElementById('detail-total').textContent = formatRupiah(t.total);
+
+      openModal('modal-detail');
+    }
+
+    document.getElementById('close-modal-detail').addEventListener('click', () => {
+      closeModal('modal-detail');
+    });
+
+    const localSearch = document.getElementById('f-search');
+    const globalSearch = document.getElementById('global-search');
+
+    if(globalSearch){
+      globalSearch.placeholder = 'Cari transaksi, kasir, produk, metode...';
+
+      globalSearch.addEventListener('input', () => {
+        renderTable();
+      });
+    }
+
+    ['f-start','f-end','f-metode','f-search'].forEach(id => {
+      document.getElementById(id).addEventListener('input', renderTable);
+      document.getElementById(id).addEventListener('change', renderTable);
+    });
+
+    document.getElementById('btn-reset-filter').addEventListener('click', () => {
+      document.getElementById('f-start').value = '';
+      document.getElementById('f-end').value = '';
+      document.getElementById('f-metode').value = 'Semua';
+      localSearch.value = '';
+
+      if(globalSearch){
+        globalSearch.value = '';
+      }
+
+      renderTable();
+    });
+
+    (async function init(){
+      try{
+        transaksiCache = await DataService.getTransaksi();
+        renderTable();
+      }catch(err){
+        showToast(err.message || 'Gagal memuat riwayat transaksi.', 'danger');
+      }
+    })();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+Flask==3.0.3
+flask-cors==4.0.1
+PyMySQL==1.1.1
+bcrypt==4.2.0
+PyJWT==2.9.0
+cloudinary==1.41.0
+resend==2.4.0
+python-dotenv==1.0.1
+gunicorn==22.0.0

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Antari</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <div id="sidebar-placeholder"></div>
+  <div class="main-shell">
+    <div id="topbar-placeholder"></div>
+
+    <main class="content">
+
+      <div class="stat-grid" id="stat-grid"></div>
+
+      <div class="panel-grid-2">
+        <div class="panel">
+          <div class="panel__header">
+            <div>
+              <h3>Penjualan 7 Hari Terakhir</h3>
+              <div class="hint">Total pendapatan harian dari Sistem POS</div>
+            </div>
+          </div>
+          <div class="panel__body">
+            <div class="mini-chart" id="mini-chart"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__header">
+            <div>
+              <h3>Produk Terlaris</h3>
+              <div class="hint">Berdasarkan jumlah terjual, 7 hari terakhir</div>
+            </div>
+          </div>
+          <div class="panel__body" id="top-produk"></div>
+        </div>
+      </div>
+
+      <div class="panel mt-24">
+        <div class="panel__header">
+          <div>
+            <h3>Transaksi Terbaru</h3>
+            <div class="hint">10 transaksi terakhir dari Sistem POS</div>
+          </div>
+          <a href="riwayat.html" class="btn btn-secondary btn-sm">Lihat Semua</a>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="recent-table">
+            <thead>
+              <tr>
+                <th>ID Transaksi</th><th>Tanggal</th><th>Kasir</th><th>Item</th><th>Metode</th><th class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="recent-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/dataService.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/layout.js"></script>
+<script>
+  const session = renderLayout('dashboard');
+  if(session){
+    (async function init(){
+      try{
+        const [produkList, transaksiList] = await Promise.all([
+          DataService.getProduk(),
+          DataService.getTransaksi(),
+        ]);
+
+        const today = dateOffset(0);
+        const todayTx = transaksiList.filter(t=>String(t.tanggal).slice(0,10)===today);
+        const pendapatanHariIni = todayTx.reduce((s,t)=>s+Number(t.total),0);
+        const menipis = produkList.filter(p=>p.status==='Aktif' && p.stok>0 && p.stok<=8).length;
+        const habis = produkList.filter(p=>p.stok===0).length;
+
+        const stats = [
+          { label:'Total Produk', value: produkList.length, icon:'box', tone:'tone-accent', delta:`${produkList.filter(p=>p.status==='Aktif').length} aktif`, deltaTone:'flat' },
+          { label:'Transaksi Hari Ini', value: todayTx.length, icon:'cart', tone:'tone-info', delta:`${transaksiList.length} total transaksi`, deltaTone:'flat' },
+          { label:'Pendapatan Hari Ini', value: formatRupiah(pendapatanHariIni), icon:'wallet', tone:'tone-success', delta:'dari Sistem POS', deltaTone:'up' },
+          { label:'Stok Menipis / Habis', value: `${menipis} / ${habis}`, icon:'alert', tone:'tone-warning', delta:'perlu perhatian admin', deltaTone: (menipis+habis>0)?'down':'flat' },
+        ];
+        document.getElementById('stat-grid').innerHTML = stats.map(s=>`
+          <div class="stat-card">
+            <div class="stat-card__top">
+              <span class="stat-card__label">${s.label}</span>
+              <div class="stat-card__icon ${s.tone}">${ICONS[s.icon]}</div>
+            </div>
+            <div class="stat-card__value">${s.value}</div>
+            <div class="stat-card__delta ${s.deltaTone}">${s.delta}</div>
+          </div>
+        `).join('');
+
+        // mini chart 7 hari
+        const days = [];
+        for(let i=6;i>=0;i--) days.push(dateOffset(-i));
+        const dayTotals = days.map(d => transaksiList.filter(t=>String(t.tanggal).slice(0,10)===d).reduce((s,t)=>s+Number(t.total),0));
+        const max = Math.max(...dayTotals, 1);
+        document.getElementById('mini-chart').innerHTML = days.map((d,i)=>{
+          const h = Math.max(6, Math.round((dayTotals[i]/max)*130));
+          const lbl = new Date(d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'short'});
+          return `<div class="bar-col" title="${formatRupiah(dayTotals[i])}">
+            <div class="bar" style="height:${h}px"></div>
+            <div class="lbl">${lbl}</div>
+          </div>`;
+        }).join('');
+
+        // top produk 7 hari
+        const qtyMap = {};
+        transaksiList.filter(t=>days.includes(String(t.tanggal).slice(0,10))).forEach(t=>{
+          (t.items||[]).forEach(it=>{
+            qtyMap[it.kode_produk||it.kode] = qtyMap[it.kode_produk||it.kode] || { nama:it.nama, qty:0, total:0 };
+            qtyMap[it.kode_produk||it.kode].qty += Number(it.qty);
+            qtyMap[it.kode_produk||it.kode].total += Number(it.subtotal);
+          });
+        });
+        const topList = Object.values(qtyMap).sort((a,b)=>b.qty-a.qty).slice(0,5);
+        document.getElementById('top-produk').innerHTML = topList.length ? topList.map((p,i)=>`
+          <div class="top-prod-row">
+            <div class="rank">${i+1}</div>
+            <div class="info"><div class="n">${p.nama}</div><div class="s">${p.qty} terjual</div></div>
+            <div class="amt">${formatRupiah(p.total)}</div>
+          </div>
+        `).join('') : `<div class="empty-state"><p>Belum ada data penjualan.</p></div>`;
+
+        // recent transactions
+        const recent = transaksiList.slice(0,10);
+        document.getElementById('recent-tbody').innerHTML = recent.length ? recent.map(t=>`
+          <tr>
+            <td class="cell-strong">${t.id}</td>
+            <td>${formatTanggal(t.tanggal)} · ${t.waktu}</td>
+            <td>${t.kasir_username}</td>
+            <td class="cell-muted">${(t.items||[]).length} item</td>
+            <td><span class="badge ${t.metode==='Tunai'?'badge-warning':'badge-info'}">${t.metode}</span></td>
+            <td class="text-right cell-strong">${formatRupiah(t.total)}</td>
+          </tr>
+        `).join('') : `<tr><td colspan="6"><div class="empty-state">${ICONS.inbox}<h4>Belum ada transaksi</h4><p>Transaksi dari Sistem POS akan muncul di sini.</p></div></td></tr>`;
+      }catch(err){
+        showToast(err.message || 'Gagal memuat data dashboard.', 'danger');
+      }
+    })();
+  }
+</script>
+</body>
+</html>
