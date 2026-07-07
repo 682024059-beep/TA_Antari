@@ -1772,3 +1772,232 @@ img {
     display: grid;
     grid-template-columns: 1fr;
 }
+
+.notification-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #e74c3c;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(231, 76, 60, 0.35);
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 34px;
+    right: 0;
+    width: 320px;
+    max-height: 360px;
+    overflow-y: auto;
+    z-index: 999;
+    background: #ffffff;
+    border: 1px solid #ead8cf;
+    border-radius: 16px;
+    box-shadow: 0 18px 45px rgba(36, 22, 20, 0.18);
+}
+
+.notification-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0e4dc;
+    color: #251916;
+}
+
+.notification-list {
+    padding: 8px;
+}
+
+.notification-item {
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    background: #fbf7f3;
+    color: #4f403b;
+}
+
+.notification-item.unread {
+    background: #fff1df;
+    border: 1px solid #f1d3aa;
+}
+
+.notification-item strong {
+    display: block;
+    color: #251916;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.notification-item p {
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.notification-item small {
+    display: block;
+    margin-top: 6px;
+    color: #8b7b75;
+    font-size: 11px;
+}
+
+.notification-empty {
+    padding: 18px 12px;
+    text-align: center;
+    color: #8b7b75;
+    font-size: 13px;
+}
+
+/* ==========================================================
+   FIX NOTIFIKASI KASIR
+   ========================================================== */
+
+.topbar {
+    position: relative;
+    z-index: 1000;
+    overflow: visible;
+}
+
+.user-profile {
+    position: relative;
+    z-index: 1001;
+    overflow: visible;
+}
+
+.notification-wrapper {
+    position: relative;
+    z-index: 2000;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-wrapper .icon-bell {
+    position: relative;
+    z-index: 2001;
+    cursor: pointer;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -9px;
+    right: -10px;
+    z-index: 2002;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #e74c3c;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(231, 76, 60, 0.35);
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 38px;
+    right: -8px;
+    z-index: 99999;
+    width: 320px;
+    max-height: 360px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #ead8cf;
+    border-radius: 16px;
+    box-shadow: 0 22px 55px rgba(36, 22, 20, 0.22);
+}
+
+.notification-head {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0e4dc;
+    color: #251916;
+    background: #ffffff;
+    border-radius: 16px 16px 0 0;
+}
+
+.notification-list {
+    padding: 8px;
+    background: #ffffff;
+    border-radius: 0 0 16px 16px;
+}
+
+.notification-item {
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 6px;
+    background: #fbf7f3;
+    color: #4f403b;
+}
+
+.notification-item.unread {
+    background: #fff1df;
+    border: 1px solid #f1d3aa;
+}
+
+.notification-item strong {
+    display: block;
+    color: #251916;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.notification-item p {
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.notification-item small {
+    display: block;
+    margin-top: 6px;
+    color: #8b7b75;
+    font-size: 11px;
+}
+
+.notification-empty {
+    padding: 18px 12px;
+    text-align: center;
+    color: #8b7b75;
+    font-size: 13px;
+}
+
+/* Supaya input pencarian tetap bisa diklik */
+.daftar-produk-header,
+.mini-search,
+#searchProduk {
+    position: relative;
+    z-index: 10;
+}
+
+.billing-area {
+    z-index: 5;
+}
+
+.notification-wrapper {
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.notification-dropdown {
+    pointer-events: auto;
+}
+
+.notification-head {
+    cursor: pointer;
+}

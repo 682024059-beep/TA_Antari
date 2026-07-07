@@ -517,3 +517,95 @@ def proses_transaksi():
     finally:
         if conn:
             conn.close()
+            
+@utama_kasir.route('/api/notifikasi/kasir', methods=['GET'])
+@login_required
+def ambil_notifikasi_kasir():
+    conn = None
+
+    try:
+        conn = get_db_connection()
+
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    id,
+                    judul,
+                    pesan,
+                    tipe,
+                    ref_kode,
+                    is_read,
+                    DATE_FORMAT(created_at, '%%d/%%m/%%Y %%H:%%i') AS created_at
+                FROM notifikasi
+                WHERE target_role IN ('kasir', 'all')
+                ORDER BY created_at DESC
+                LIMIT 10
+            """)
+
+            notifikasi = cursor.fetchall()
+
+            cursor.execute("""
+                SELECT COUNT(*) AS total
+                FROM notifikasi
+                WHERE target_role IN ('kasir', 'all')
+                  AND is_read = 0
+            """)
+
+            unread = cursor.fetchone()
+
+        return jsonify({
+            'status': 'success',
+            'data': notifikasi,
+            'unread_count': unread.get('total', 0) if unread else 0
+        })
+
+    except Exception as e:
+        print("ERROR NOTIFIKASI KASIR:", e)
+
+        return jsonify({
+            'status': 'error',
+            'message': 'Gagal mengambil notifikasi.'
+        }), 500
+
+    finally:
+        if conn:
+            conn.close()
+
+
+@utama_kasir.route('/api/notifikasi/kasir/read', methods=['POST'])
+@login_required
+def baca_notifikasi_kasir():
+    conn = None
+
+    try:
+        conn = get_db_connection()
+
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                UPDATE notifikasi
+                SET is_read = 1
+                WHERE target_role IN ('kasir', 'all')
+                  AND is_read = 0
+            """)
+
+        conn.commit()
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Notifikasi sudah dibaca.'
+        })
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+
+        print("ERROR BACA NOTIFIKASI:", e)
+
+        return jsonify({
+            'status': 'error',
+            'message': 'Gagal memperbarui notifikasi.'
+        }), 500
+
+    finally:
+        if conn:
+            conn.close()

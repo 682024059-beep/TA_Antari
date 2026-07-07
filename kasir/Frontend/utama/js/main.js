@@ -884,6 +884,189 @@ function resetCart() {
 }
 
 // ======================================================
+// 9. PENCARIAN, FILTER KATEGORI, DAN NOTIFIKASI
+// ======================================================
+
+const searchProdukInput = document.getElementById("searchProduk");
+const kategoriButtons = document.querySelectorAll(".kat-btn");
+const productCards = document.querySelectorAll(".card-produk");
+const bellIcon = document.querySelector(".icon-bell");
+
+let activeCategory = "semua";
+
+function normalizeText(text) {
+    return String(text || "").toLowerCase().trim();
+}
+
+function filterProduk() {
+    const keyword = searchProdukInput ? normalizeText(searchProdukInput.value) : "";
+
+    productCards.forEach(function(card) {
+        const nama = normalizeText(card.dataset.nama);
+        const kode = normalizeText(card.dataset.id);
+        const kategori = normalizeText(card.dataset.kategori);
+
+        const cocokSearch =
+            !keyword ||
+            nama.includes(keyword) ||
+            kode.includes(keyword) ||
+            kategori.includes(keyword);
+
+        const cocokKategori =
+            activeCategory === "semua" ||
+            kategori === normalizeText(activeCategory);
+
+        if (cocokSearch && cocokKategori) {
+            card.style.display = "";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+
+if (searchProdukInput) {
+    searchProdukInput.disabled = false;
+
+    searchProdukInput.addEventListener("input", function() {
+        filterProduk();
+    });
+}
+
+kategoriButtons.forEach(function(button) {
+    button.addEventListener("click", function() {
+        if (button.disabled) return;
+
+        kategoriButtons.forEach(function(btn) {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+        activeCategory = button.dataset.category || "semua";
+
+        filterProduk();
+    });
+});
+
+function setupNotificationBell() {
+    if (!bellIcon) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "notification-wrapper";
+
+    bellIcon.parentNode.insertBefore(wrapper, bellIcon);
+    wrapper.appendChild(bellIcon);
+
+    const badge = document.createElement("span");
+    badge.className = "notification-badge";
+    badge.id = "notificationBadge";
+    badge.style.display = "none";
+    wrapper.appendChild(badge);
+
+    const dropdown = document.createElement("div");
+    dropdown.className = "notification-dropdown";
+    dropdown.id = "notificationDropdown";
+    dropdown.style.display = "none";
+    dropdown.innerHTML = `
+        <div class="notification-head">
+            <strong>Notifikasi</strong>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <p class="notification-empty">Belum ada notifikasi baru.</p>
+        </div>
+    `;
+    wrapper.appendChild(dropdown);
+
+    function toggleDropdown() {
+        const isOpen = dropdown.style.display === "block";
+
+        if (isOpen) {
+            dropdown.style.display = "none";
+        } else {
+            dropdown.style.display = "block";
+            markNotificationsAsRead();
+        }
+    }
+
+    wrapper.addEventListener("click", function(e) {
+        e.stopPropagation();
+        toggleDropdown();
+    });
+
+    dropdown.addEventListener("click", function(e) {
+        e.stopPropagation();
+    });
+
+    document.addEventListener("click", function() {
+        dropdown.style.display = "none";
+    });
+
+    loadNotifications();
+    setInterval(loadNotifications, 10000);
+}
+
+async function loadNotifications() {
+    const badge = document.getElementById("notificationBadge");
+    const list = document.getElementById("notificationList");
+
+    if (!badge || !list) return;
+
+    try {
+        const response = await fetch("/api/notifikasi/kasir");
+        const data = await response.json();
+
+        if (data.status !== "success") return;
+
+        const notifications = data.data || [];
+        const unreadCount = data.unread_count || 0;
+
+        if (unreadCount > 0) {
+            badge.innerText = unreadCount > 99 ? "99+" : unreadCount;
+            badge.style.display = "inline-flex";
+        } else {
+            badge.style.display = "none";
+        }
+
+        if (notifications.length === 0) {
+            list.innerHTML = `<p class="notification-empty">Belum ada notifikasi baru.</p>`;
+            return;
+        }
+
+        list.innerHTML = notifications.map(function(item) {
+            return `
+                <div class="notification-item ${item.is_read ? "" : "unread"}">
+                    <strong>${item.judul || "Notifikasi"}</strong>
+                    <p>${item.pesan || "-"}</p>
+                    <small>${item.created_at || ""}</small>
+                </div>
+            `;
+        }).join("");
+
+    } catch (error) {
+        console.error("Gagal mengambil notifikasi:", error);
+    }
+}
+
+async function markNotificationsAsRead() {
+    const badge = document.getElementById("notificationBadge");
+
+    try {
+        await fetch("/api/notifikasi/kasir/read", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (badge) {
+            badge.style.display = "none";
+        }
+
+    } catch (error) {
+        console.error("Gagal menandai notifikasi:", error);
+    }
+}
+
+// ======================================================
 // 9. INIT
 // ======================================================
 
@@ -892,3 +1075,5 @@ updateCartUI();
 updateDiscountDisplay();
 updatePaymentMethodUI();
 validatePaymentButton();
+filterProduk();
+setupNotificationBell();
