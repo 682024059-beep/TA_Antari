@@ -82,7 +82,7 @@
                                 <span class="stat-title">Total Transaksi</span>
                                 <h3>
                                     {{ total_transaksi if total_transaksi else 0 }}
-                                    <span class="trend stable">Hari ini</span>
+                                    <span class="trend stable"></span>
                                 </h3>
                             </div>
                         </div>
@@ -96,7 +96,7 @@
                                 <span class="stat-title">Total Pendapatan</span>
                                 <h3>
                                     Rp {{ "{:,}".format(total_pendapatan if total_pendapatan else 0).replace(',', '.') }}
-                                    <span class="trend stable">Terkini</span>
+                                    <span class="trend stable"></span>
                                 </h3>
                             </div>
                         </div>
@@ -110,7 +110,7 @@
                                 <span class="stat-title">Rata-rata per Transaksi</span>
                                 <h3>
                                     Rp {{ "{:,}".format(rata_rata if rata_rata else 0).replace(',', '.') }}
-                                    <span class="trend stable">Stabil</span>
+                                    <span class="trend stable"></span>
                                 </h3>
                             </div>
                         </div>
@@ -133,17 +133,19 @@
                                 <div class="input-billing">
                                     <label>DARI TANGGAL</label>
                                     <input
-                                        type="date"
-                                        name="tanggal_mulai"
-                                        value="{{ request.args.get('tanggal_mulai', '') }}">
+    type="date"
+    class="date-clean"
+    name="tanggal_mulai"
+    value="{{ request.args.get('tanggal_mulai', '') }}">
                                 </div>
 
                                 <div class="input-billing">
                                     <label>SAMPAI TANGGAL</label>
                                     <input
-                                        type="date"
-                                        name="tanggal_selesai"
-                                        value="{{ request.args.get('tanggal_selesai', '') }}">
+    type="date"
+    class="date-clean"
+    name="tanggal_selesai"
+    value="{{ request.args.get('tanggal_selesai', '') }}">
                                 </div>
 
                                 <div class="filter-date-actions">
@@ -368,6 +370,23 @@
             }
         });
     </script>
+
+    <script>
+    document.querySelectorAll(".date-clean").forEach(function(input) {
+        function toggleDateValue() {
+            if (input.value) {
+                input.classList.add("has-value");
+            } else {
+                input.classList.remove("has-value");
+            }
+        }
+
+        input.addEventListener("change", toggleDateValue);
+        input.addEventListener("input", toggleDateValue);
+
+        toggleDateValue();
+    });
+</script>
 
     <!-- JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>

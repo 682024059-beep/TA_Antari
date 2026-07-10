@@ -2001,3 +2001,17 @@ img {
 .notification-head {
     cursor: pointer;
 }
+
+/* Hilangkan tulisan dd/mm/tttt pada input tanggal */
+.date-clean:not(.has-value)::-webkit-datetime-edit {
+    color: transparent;
+}
+
+.date-clean:focus::-webkit-datetime-edit,
+.date-clean.has-value::-webkit-datetime-edit {
+    color: var(--text-dark);
+}
+
+.date-clean::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
