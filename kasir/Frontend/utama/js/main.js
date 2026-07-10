@@ -916,11 +916,7 @@ function filterProduk() {
             activeCategory === "semua" ||
             kategori === normalizeText(activeCategory);
 
-        if (cocokSearch && cocokKategori) {
-            card.style.display = "";
-        } else {
-            card.style.display = "none";
-        }
+        card.style.display = cocokSearch && cocokKategori ? "" : "none";
     });
 }
 
@@ -947,8 +943,124 @@ kategoriButtons.forEach(function(button) {
     });
 });
 
+// ---------- Helper aman untuk teks ----------
+function escapeHtml(value) {
+    return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+// ---------- Helper waktu notifikasi ----------
+function parseNotifDate(value) {
+    if (!value) return null;
+
+    let s = String(value).trim();
+
+    // Kalau backend masih mengirim format mentah begini, berarti waktunya tidak valid
+    if (
+        s.includes("%d") ||
+        s.includes("%m") ||
+        s.includes("%Y") ||
+        s.includes("%H") ||
+        s.includes("%i")
+    ) {
+        return null;
+    }
+
+    // Format ISO: 2026-07-09T20:35:40
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)) {
+        return new Date(s);
+    }
+
+    // Format MySQL/TiDB: 2026-07-09 20:35:40
+    // Ini dianggap waktu lokal, bukan UTC, supaya tidak selisih 7 jam.
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s)) {
+        s = s.replace(" ", "T");
+        return new Date(s);
+    }
+
+    // Format Indonesia: 09/07/2026 20:35
+    if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/.test(s)) {
+        const [datePart, timePart] = s.split(" ");
+        const [day, month, year] = datePart.split("/");
+        return new Date(`${year}-${month}-${day}T${timePart}:00`);
+    }
+
+    const date = new Date(s);
+    return isNaN(date.getTime()) ? null : date;
+}
+
+function formatNotifTime(value) {
+    const date = parseNotifDate(value);
+
+    if (!date) {
+        return "";
+    }
+
+    let diff = Date.now() - date.getTime();
+
+    if (diff < 0) {
+        diff = 0;
+    }
+
+    const detik = Math.floor(diff / 1000);
+    const menit = Math.floor(detik / 60);
+    const jam = Math.floor(menit / 60);
+    const hari = Math.floor(jam / 24);
+
+    if (detik < 10) return "baru saja";
+    if (detik < 60) return `${detik} detik lalu`;
+    if (menit < 60) return `${menit} menit lalu`;
+    if (jam < 24) return `${jam} jam lalu`;
+    if (hari === 1) return "kemarin";
+    if (hari < 7) return `${hari} hari lalu`;
+
+    return date.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function isUnreadNotif(item) {
+    return (
+        item.is_read === 0 ||
+        item.is_read === false ||
+        item.is_read === "0" ||
+        item.is_read === null
+    );
+}
+
+function getNotifIcon(tipe) {
+    if (tipe === "stok_menipis" || tipe === "stok_habis") {
+        return '<i class="fa-solid fa-triangle-exclamation"></i>';
+    }
+
+    if (tipe === "produk_hapus") {
+        return '<i class="fa-solid fa-trash"></i>';
+    }
+
+    if (tipe === "produk_update") {
+        return '<i class="fa-solid fa-pen"></i>';
+    }
+
+    if (tipe === "produk_baru") {
+        return '<i class="fa-solid fa-box"></i>';
+    }
+
+    return '<i class="fa-solid fa-bell"></i>';
+}
+
+// ---------- Setup lonceng notifikasi ----------
 function setupNotificationBell() {
     if (!bellIcon) return;
+
+    if (bellIcon.parentElement && bellIcon.parentElement.classList.contains("notification-wrapper")) {
+        return;
+    }
 
     const wrapper = document.createElement("div");
     wrapper.className = "notification-wrapper";
@@ -983,6 +1095,7 @@ function setupNotificationBell() {
             dropdown.style.display = "none";
         } else {
             dropdown.style.display = "block";
+            loadNotifications();
             markNotificationsAsRead();
         }
     }
@@ -1014,10 +1127,16 @@ async function loadNotifications() {
         const response = await fetch("/api/notifikasi/kasir");
         const data = await response.json();
 
-        if (data.status !== "success") return;
+        if (data.status !== "success") {
+            list.innerHTML = `<p class="notification-empty">Gagal memuat notifikasi.</p>`;
+            return;
+        }
 
         const notifications = data.data || [];
-        const unreadCount = data.unread_count || 0;
+
+        const unreadCount = notifications.filter(function(item) {
+            return isUnreadNotif(item);
+        }).length;
 
         if (unreadCount > 0) {
             badge.innerText = unreadCount > 99 ? "99+" : unreadCount;
@@ -1032,17 +1151,26 @@ async function loadNotifications() {
         }
 
         list.innerHTML = notifications.map(function(item) {
+            const unreadClass = isUnreadNotif(item) ? "unread" : "";
+
             return `
-                <div class="notification-item ${item.is_read ? "" : "unread"}">
-                    <strong>${item.judul || "Notifikasi"}</strong>
-                    <p>${item.pesan || "-"}</p>
-                    <small>${item.created_at || ""}</small>
+                <div class="notification-item ${unreadClass}" data-id="${escapeHtml(item.id)}">
+                    <div class="notification-icon">
+                        ${getNotifIcon(item.tipe)}
+                    </div>
+
+                    <div class="notification-body">
+                        <strong>${escapeHtml(item.judul || "Notifikasi")}</strong>
+                        <p>${escapeHtml(item.pesan || "-")}</p>
+                        <small>${formatNotifTime(item.created_at)}</small>
+                    </div>
                 </div>
             `;
         }).join("");
 
     } catch (error) {
         console.error("Gagal mengambil notifikasi:", error);
+        list.innerHTML = `<p class="notification-empty">Gagal memuat notifikasi.</p>`;
     }
 }
 

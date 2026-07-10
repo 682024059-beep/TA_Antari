@@ -123,9 +123,19 @@
             data-harga="{{ p.harga }}"
             data-kategori="{{ p.kategori }}"
         >
-            <div class="img-placeholder">
-                <i class="fa-solid fa-mug-hot"></i>
-            </div>
+           <div class="img-placeholder produk-img-box">
+            {% if p.foto_url %}
+        <img 
+            src="{{ p.foto_url }}" 
+            alt="{{ p.nama }}" 
+            class="produk-img"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+        >
+        <i class="fa-solid fa-mug-hot img-fallback" style="display:none;"></i>
+    {% else %}
+        <i class="fa-solid fa-mug-hot"></i>
+    {% endif %}
+</div>
 
             <div class="card-info">
                 <span class="p-code">{{ p.kode }}</span>

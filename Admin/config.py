@@ -29,3 +29,4 @@ class Config:
     RESEND_API_KEY = os.getenv("RESEND_API_KEY")
     RESEND_FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "ANTARI CoffeeShop <onboarding@resend.dev>")
     RESEND_ADMIN_EMAIL = os.getenv("RESEND_ADMIN_EMAIL")
+    APP_BASE_URL = os.getenv("APP_BASE_URL", "http://localhost:4000")

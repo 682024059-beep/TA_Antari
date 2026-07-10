@@ -4,6 +4,7 @@ from datetime import datetime
 from dotenv import load_dotenv, find_dotenv
 import os
 import pymysql
+import certifi
 from pymysql.cursors import DictCursor
 
 load_dotenv(find_dotenv())
@@ -24,29 +25,19 @@ def login_required(f):
 # KONEKSI DATABASE TIDB
 # ==========================================================
 def get_db_connection():
-    db_host = os.getenv("DB_HOST")
-    db_port = int(os.getenv("DB_PORT", 4000))
-    db_user = os.getenv("DB_USER")
-    db_password = os.getenv("DB_PASSWORD")
-    db_name = os.getenv("DB_NAME")
-    db_ssl = os.getenv("DB_SSL", "true").lower() in ("true", "1", "yes", "required")
-
-    if not all([db_host, db_user, db_password, db_name]):
-        raise RuntimeError("Konfigurasi database belum lengkap. Cek file .env kasir.")
-
     config = {
-        "host": db_host,
-        "port": db_port,
-        "user": db_user,
-        "password": db_password,
-        "database": db_name,
+        "host": os.getenv("DB_HOST"),
+        "port": int(os.getenv("DB_PORT", 4000)),
+        "user": os.getenv("DB_USER"),
+        "password": os.getenv("DB_PASSWORD"),
+        "database": os.getenv("DB_NAME"),
+        "cursorclass": pymysql.cursors.DictCursor,
         "charset": "utf8mb4",
-        "cursorclass": DictCursor,
-        "autocommit": False,
+        "autocommit": True,
+        "ssl": {
+            "ca": certifi.where()
+        }
     }
-
-    if db_ssl:
-        config["ssl"] = {}
 
     return pymysql.connect(**config)
 
@@ -98,20 +89,19 @@ def ambil_produk_aktif():
     try:
         with conn.cursor() as cursor:
             cursor.execute("""
-                SELECT
-                    id,
-                    kode,
-                    nama,
-                    kategori,
-                    harga,
-                    stok,
-                    status,
-                    foto_url
-                FROM produk
-                WHERE status = 'Aktif'
-                  AND stok > 0
-                ORDER BY kategori ASC, nama ASC
-            """)
+    SELECT
+        kode,
+        nama,
+        kategori,
+        harga,
+        stok,
+        status,
+        foto_url
+    FROM produk
+    WHERE LOWER(TRIM(status)) = 'aktif'
+      AND stok > 0
+    ORDER BY kategori ASC, nama ASC
+""")
 
             return cursor.fetchall()
 

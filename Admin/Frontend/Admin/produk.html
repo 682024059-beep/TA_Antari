@@ -152,6 +152,33 @@
 <script src="js/ui.js"></script>
 <script src="js/layout.js"></script>
 <script>
+
+  function safeText(value){
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function renderFotoProduk(p){
+  const foto = p.foto_url || "";
+
+  if(foto){
+    return `
+      <img 
+        src="${safeText(foto)}" 
+        alt="${safeText(p.nama)}" 
+        class="produk-img"
+        loading="lazy"
+        onerror="this.style.display='none'; this.parentElement.innerHTML='${KATEGORI_ICON[p.kategori] || '🍽️'}';"
+      >
+    `;
+  }
+
+  return `${KATEGORI_ICON[p.kategori] || '🍽️'}`;
+}
   const session = renderLayout('produk');
   if(session){
 
@@ -223,9 +250,23 @@
       emptyEl.innerHTML = '';
       tbody.innerHTML = list.map(p=>{
         const s = stokStatus(p.stok);
-        const thumb = p.foto_url
-          ? `<img src="${p.foto_url}" alt="${p.nama}" style="width:38px;height:38px;object-fit:cover;border-radius:9px;">`
-          : `<div class="prod-swatch">${KATEGORI_ICON[p.kategori]||'🍽️'}</div>`;
+        const fallbackIcon = KATEGORI_ICON[p.kategori] || '🍽️';
+
+const thumb = `
+  <div class="prod-swatch">
+    ${
+      p.foto_url
+        ? `<img 
+            src="${p.foto_url}" 
+            alt="${p.nama}" 
+            class="produk-img"
+            loading="lazy"
+            onerror="this.remove(); this.parentElement.textContent='${fallbackIcon}';"
+          >`
+        : fallbackIcon
+    }
+  </div>
+`;
         return `
         <tr>
           <td>

@@ -298,9 +298,29 @@ input,select,textarea{ font-family:inherit; font-size:14px; }
   box-shadow:0 2px 0 rgba(255,255,255,.75) inset, 0 8px 16px rgba(28,17,9,.04);
 }
 .input:focus{ border-color:var(--accent-500); box-shadow:0 0 0 3px var(--accent-100), 0 12px 22px rgba(218,124,63,.12); background:var(--paper); }
-.input-with-icon{ position:relative; }
-.input-with-icon svg{ position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px;height:16px; color:var(--ink-500); }
-.input-with-icon .input{ padding-left:38px; }
+.input-with-icon{
+  position:relative;
+  display:block;
+}
+
+.input-with-icon .input{
+  padding-left:38px;
+  padding-right:48px;
+  min-height:42px;
+}
+
+.input-with-icon > svg,
+.input-with-icon > span svg{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  width:16px;
+  height:16px;
+  color:var(--ink-500);
+  pointer-events:none;
+  z-index:2;
+}
 .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .helper-text{ font-size:11.5px; color:var(--ink-500); }
 .error-text{ font-size:12px; color:var(--danger-600); font-weight:500; }
@@ -456,8 +476,48 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .login-card h1{ font-size:28px; margin:8px 0 6px; }
 .login-card .lead{ color:var(--ink-500); font-size:13.5px; margin-bottom:26px; }
 .demo-hint{ background:var(--accent-100); border:1px dashed var(--accent-600); border-radius:var(--radius-sm); padding:12px 14px; font-size:12px; color:var(--accent-700); margin-top:18px; line-height:1.6; }
-.pw-toggle{ position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--ink-500); display:flex; }
-.pw-toggle svg{ width:17px;height:17px; }
+.pw-toggle{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  padding:0;
+  margin:0;
+  border:none;
+  outline:none;
+  background:transparent;
+  cursor:pointer;
+  color:var(--ink-500);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  z-index:6;
+  appearance:none;
+  -webkit-appearance:none;
+}
+
+.pw-toggle:hover{
+  background:rgba(218,124,63,.10);
+  color:var(--accent-700);
+}
+
+.pw-toggle:focus-visible{
+  box-shadow:0 0 0 3px var(--accent-100);
+}
+
+.pw-toggle svg{
+  position:static !important;
+  left:auto !important;
+  top:auto !important;
+  transform:none !important;
+  width:17px;
+  height:17px;
+  color:currentColor;
+  pointer-events:none;
+}
 
 /* ============================================================
    POS / Transaksi page
@@ -567,4 +627,173 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   .sidebar.open{ transform:translateX(0); }
   .main-shell{ margin-left:0; }
   .topbar__search{ display:none; }
+}
+
+/* ============================================================
+   FINAL FIX — Anti flash layout & password eye position
+   Letakkan di paling bawah agar override CSS lama.
+   ============================================================ */
+
+html,
+body{
+  min-height:100%;
+  background:
+    radial-gradient(circle at top left, rgba(218,124,63,.16), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(107,74,50,.14), transparent 34%),
+    linear-gradient(135deg,#fffaf2 0%,var(--cream-50) 45%,#f2e8d8 100%);
+}
+
+/*
+   Halaman admin memakai layout.js untuk membuat sidebar dan topbar.
+   Supaya tidak terlihat halaman setengah jadi saat pindah menu,
+   .app-shell disembunyikan sampai renderLayout selesai menambahkan body.page-ready.
+*/
+.app-shell{
+  background:
+    radial-gradient(circle at top left, rgba(218,124,63,.10), transparent 32%),
+    linear-gradient(135deg, var(--cream-50), #fffaf3);
+  min-height:100vh;
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(4px);
+}
+
+body.page-ready .app-shell{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+  animation:pageEnter .18s ease-out;
+}
+
+body.page-leaving .app-shell{
+  opacity:0;
+  visibility:visible;
+  transform:translateY(4px);
+  transition:opacity .12s ease, transform .12s ease;
+}
+
+.main-shell{
+  opacity:1;
+  transform:none;
+}
+
+@keyframes pageEnter{
+  from{
+    opacity:0;
+    transform:translateY(4px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* Login page tidak memakai .app-shell, jadi harus tetap langsung tampil */
+.login-shell{
+  opacity:1;
+  visibility:visible;
+}
+
+/* Wrapper input menjadi acuan posisi ikon */
+.input-with-icon{
+  position:relative;
+  display:block;
+}
+
+/* Input yang punya ikon kiri diberi ruang kanan untuk tombol mata */
+.input-with-icon .input{
+  padding-left:38px;
+  padding-right:48px;
+  min-height:42px;
+}
+
+/* Ikon kiri seperti user/lock tetap di kiri */
+.input-with-icon > svg,
+.input-with-icon > span svg{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%);
+  width:16px;
+  height:16px;
+  color:var(--ink-500);
+  pointer-events:none;
+  z-index:2;
+}
+
+/* Tombol mata password berada di dalam kotak input kanan */
+.input-with-icon .pw-toggle,
+.pw-toggle{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:34px;
+  height:34px;
+  padding:0;
+  margin:0;
+  border:none;
+  outline:none;
+  background:transparent;
+  cursor:pointer;
+  color:var(--ink-500);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:8px;
+  z-index:6;
+  appearance:none;
+  -webkit-appearance:none;
+}
+
+.input-with-icon .pw-toggle:hover,
+.pw-toggle:hover{
+  background:rgba(218,124,63,.10);
+  color:var(--accent-700);
+}
+
+.input-with-icon .pw-toggle:focus-visible,
+.pw-toggle:focus-visible{
+  box-shadow:0 0 0 3px var(--accent-100);
+}
+
+/* Penting: ikon mata jangan ikut aturan ikon kiri */
+.input-with-icon .pw-toggle svg,
+.pw-toggle svg{
+  position:static !important;
+  left:auto !important;
+  top:auto !important;
+  transform:none !important;
+  width:17px;
+  height:17px;
+  color:currentColor;
+  pointer-events:none;
+}
+
+/* Khusus input password dan konfirmasi password agar teks tidak ketimpa ikon mata */
+#password.input,
+#confirm-password.input{
+  padding-right:48px;
+}
+
+.prod-swatch{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f7e2cc;
+  color:#9c4a1f;
+  font-size:18px;
+  flex-shrink:0;
+}
+
+.prod-swatch img,
+.produk-img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
 }

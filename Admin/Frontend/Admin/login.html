@@ -6,6 +6,7 @@
 <title>Masuk — Sistem Antari</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 <div class="login-shell">
 
@@ -14,9 +15,11 @@
       <div class="mark" id="brand-mark"></div>
       <div class="word">ANTARI</div>
     </div>
+
     <div class="quote">
       <h2>Setiap cangkir bercerita, setiap transaksi tercatat rapi.</h2>
     </div>
+
     <div class="foot">© 2026 CoffeeShop Antari — Sistem Point of Sale Internal</div>
   </div>
 
@@ -24,28 +27,55 @@
     <div class="login-card">
       <div class="eyebrow">Selamat datang kembali</div>
       <h1>Masuk ke Antari</h1>
-      <p class="lead">Masukkan username dan password admin untuk mengakses Sistem Manajemen Antari.</p>
+      <p class="lead">Masukkan email dan password admin untuk mengakses Sistem Manajemen Antari.</p>
 
       <form id="login-form">
         <div class="field">
-          <label for="username">Username</label>
-          <div class="input-with-icon">
+          <label for="email">Email</label>
+          <div class="input-with-icon" style="position:relative;">
             <span id="icon-user"></span>
-            <input class="input" type="text" id="username" placeholder="Masukkan username" autocomplete="username" required>
+            <input
+              class="input"
+              type="email"
+              id="email"
+              placeholder="Masukkan email"
+              autocomplete="email"
+              required
+              oninvalid="this.setCustomValidity('Email tidak boleh kosong')"
+              oninput="this.setCustomValidity('')"
+            >
           </div>
         </div>
+
         <div class="field">
           <label for="password">Password</label>
           <div class="input-with-icon" style="position:relative;">
             <span id="icon-lock"></span>
-            <input class="input" type="password" id="password" placeholder="Masukkan password" autocomplete="current-password" required>
+            <input
+              class="input"
+              type="password"
+              id="password"
+              placeholder="Masukkan password"
+              autocomplete="current-password"
+              required
+              oninvalid="this.setCustomValidity('Password tidak boleh kosong')"
+              oninput="this.setCustomValidity('')"
+            >
             <button type="button" class="pw-toggle" id="toggle-pw"></button>
           </div>
         </div>
 
+        <div style="text-align:right; margin:-4px 0 14px;">
+          <a href="/admin/forgot-password.html" style="font-size:13px; color:var(--accent-700); font-weight:600;">
+            Lupa password?
+          </a>
+        </div>
+
         <p class="error-text hidden" id="login-error"></p>
 
-        <button type="submit" class="btn btn-primary btn-block mt-8" id="btn-submit">Masuk</button>
+        <button type="submit" class="btn btn-primary btn-block mt-8" id="btn-submit">
+          Masuk
+        </button>
       </form>
     </div>
   </div>
@@ -57,17 +87,25 @@
 <script src="js/data.js"></script>
 <script src="js/dataService.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+
 <script>
   document.getElementById('brand-mark').innerHTML = ICONS.cup;
   document.getElementById('icon-user').outerHTML = ICONS.user;
-  document.getElementById('icon-lock').outerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>`;
+  document.getElementById('icon-lock').outerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="10" width="16" height="10" rx="2"/>
+      <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+    </svg>
+  `;
   document.getElementById('toggle-pw').innerHTML = ICONS.eye;
 
-  // redirect if already logged in
+  // Redirect kalau sudah login sebagai admin
   (function(){
-    const s = getSession();
-    if(s && getToken()){
-      if(s.role === 'admin'){
+    const session = getSession();
+
+    if(session && getToken()){
+      if(session.role === 'admin'){
         window.location.href = '/admin/dashboard.html';
       }else{
         clearToken();
@@ -78,43 +116,72 @@
 
   const pwInput = document.getElementById('password');
   const toggleBtn = document.getElementById('toggle-pw');
-  toggleBtn.addEventListener('click', ()=>{
-    const isPw = pwInput.type === 'password';
-    pwInput.type = isPw ? 'text' : 'password';
-    toggleBtn.innerHTML = isPw ? ICONS.eyeOff : ICONS.eye;
+
+  toggleBtn.addEventListener('click', () => {
+    const isPassword = pwInput.type === 'password';
+
+    pwInput.type = isPassword ? 'text' : 'password';
+    toggleBtn.innerHTML = isPassword ? ICONS.eyeOff : ICONS.eye;
   });
 
   document.getElementById('login-form').addEventListener('submit', async function(e){
     e.preventDefault();
-    const username = document.getElementById('username').value;
+
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
+
     const errEl = document.getElementById('login-error');
     const btn = document.getElementById('btn-submit');
 
     errEl.classList.add('hidden');
+    errEl.textContent = '';
+
     btn.disabled = true;
     btn.textContent = 'Memeriksa...';
 
-    const result = await login(username, password);
+    try{
+      const result = await login(email, password);
 
-    if(!result.ok){
-      errEl.textContent = result.message;
+      if(!result.ok){
+        errEl.textContent = result.message || 'Email atau password salah. Silakan periksa kembali.';
+        errEl.classList.remove('hidden');
+
+        btn.disabled = false;
+        btn.textContent = 'Masuk';
+        return;
+      }
+
+      if(result.session.role !== 'admin'){
+        clearToken();
+        sessionStorage.removeItem(SESSION_KEY);
+
+        errEl.textContent = 'Akun ini bukan admin. Gunakan akun admin untuk masuk ke Sistem Manajemen Antari.';
+        errEl.classList.remove('hidden');
+
+        btn.disabled = false;
+        btn.textContent = 'Masuk';
+        return;
+      }
+
+      btn.textContent = 'Berhasil';
+
+      if(typeof showToast === 'function'){
+        showToast('Login berhasil. Selamat datang di Antari.', 'success');
+      }
+
+      setTimeout(() => {
+        window.location.href = '/admin/dashboard.html';
+      }, 800);
+
+    }catch(err){
+      errEl.textContent = err.message || 'Login gagal. Silakan coba lagi.';
       errEl.classList.remove('hidden');
+
       btn.disabled = false;
       btn.textContent = 'Masuk';
-      return;
     }
-    if(result.session.role !== 'admin'){
-      clearToken();
-      sessionStorage.removeItem(SESSION_KEY);
-      errEl.textContent = 'Akun ini bukan admin. Gunakan akun admin untuk masuk ke Sistem Manajemen Antari.';
-      errEl.classList.remove('hidden');
-      btn.disabled = false;
-      btn.textContent = 'Masuk';
-      return;
-    }
-    window.location.href = '/admin/dashboard.html';
   });
 </script>
+
 </body>
 </html>
