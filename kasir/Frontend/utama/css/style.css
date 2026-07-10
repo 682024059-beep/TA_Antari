@@ -2002,6 +2002,7 @@ img {
     cursor: pointer;
 }
 
+<<<<<<< HEAD
 /* ======================================================
    FIX NOTIFIKASI KASIR
    ====================================================== */
@@ -2170,4 +2171,18 @@ img {
     height:100%;
     align-items:center;
     justify-content:center;
+=======
+/* Hilangkan tulisan dd/mm/tttt pada input tanggal */
+.date-clean:not(.has-value)::-webkit-datetime-edit {
+    color: transparent;
+}
+
+.date-clean:focus::-webkit-datetime-edit,
+.date-clean.has-value::-webkit-datetime-edit {
+    color: var(--text-dark);
+}
+
+.date-clean::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+>>>>>>> c048cfac15075dd05f2ccbbcb6f00e60d8db7c85
 }
