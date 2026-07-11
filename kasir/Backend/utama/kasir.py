@@ -64,6 +64,162 @@ def parse_int(value, default=0):
     except (TypeError, ValueError):
         return default
 
+BATAS_STOK_MENIPIS = 8
+
+
+def buat_notifikasi_stok_admin(cursor, produk, stok_lama, stok_baru):
+    """
+    Membuat notifikasi admin saat stok produk menipis/habis karena transaksi kasir.
+    Dibuat setiap ada pembelian yang membuat stok berada di batas menipis/habis.
+    """
+
+    kode = produk.get("kode")
+    nama = produk.get("nama")
+
+    if not kode or not nama:
+        return None
+
+    try:
+        stok_lama = int(stok_lama or 0)
+        stok_baru = int(stok_baru or 0)
+    except Exception:
+        return None
+
+    if stok_baru < 0:
+        stok_baru = 0
+
+    # Kalau stok tidak berkurang, tidak perlu notif
+    if stok_baru >= stok_lama:
+        return None
+
+    if stok_baru <= 0:
+        tipe = "stok_habis"
+        judul = "Stok Habis"
+        pesan = f'Stok "{nama}" ({kode}) telah habis karena transaksi kasir.'
+    elif stok_baru <= BATAS_STOK_MENIPIS:
+        tipe = "stok_menipis"
+        judul = "Stok Menipis"
+        pesan = f'Stok "{nama}" ({kode}) tersisa {stok_baru} unit setelah transaksi kasir.'
+    else:
+        return None
+
+    cursor.execute("""
+        INSERT INTO notifikasi (
+            target_role,
+            tipe,
+            judul,
+            pesan,
+            ref_kode
+        ) VALUES (
+            'admin',
+            %s,
+            %s,
+            %s,
+            %s
+        )
+    """, (
+        tipe,
+        judul,
+        pesan,
+        kode
+    ))
+
+    return {
+        "kode": kode,
+        "nama": nama,
+        "stok": stok_baru,
+        "tipe": tipe
+    }
+
+
+def kirim_email_stok_admin_dari_kasir(produk_list):
+    """
+    Kirim email stok menipis/habis dari aplikasi kasir.
+    Pakai Resend REST API supaya kasir tidak perlu import file Admin.
+    """
+
+    if not produk_list:
+        return
+
+    api_key = os.getenv("RESEND_API_KEY", "").strip()
+    admin_email = os.getenv("RESEND_ADMIN_EMAIL", "").strip()
+    from_email = os.getenv(
+        "RESEND_FROM_EMAIL",
+        "ANTARI CoffeeShop <onboarding@resend.dev>"
+    ).strip()
+
+    if not api_key or not admin_email:
+        print("[Resend Kasir] RESEND_API_KEY / RESEND_ADMIN_EMAIL belum diset.")
+        return
+
+    rows = ""
+
+    for p in produk_list:
+        rows += f"""
+        <tr>
+            <td style="padding:8px 10px; border-bottom:1px solid #eee;">{p.get("kode")}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #eee;">{p.get("nama")}</td>
+            <td style="padding:8px 10px; border-bottom:1px solid #eee; text-align:center;">
+                {p.get("stok")}
+            </td>
+            <td style="padding:8px 10px; border-bottom:1px solid #eee;">
+                {"Habis" if p.get("tipe") == "stok_habis" else "Menipis"}
+            </td>
+        </tr>
+        """
+
+    html = f"""
+    <div style="font-family:Arial,sans-serif; max-width:560px; margin:auto; color:#2b2118;">
+        <h2>⚠️ Peringatan Stok Produk ANTARI</h2>
+
+        <p>
+            Ada produk yang stoknya menipis atau habis setelah transaksi dari kasir.
+            Silakan lakukan pengecekan dan restock produk.
+        </p>
+
+        <table style="width:100%; border-collapse:collapse; font-size:14px; border:1px solid #eee;">
+            <thead>
+                <tr style="background:#f6f1ea;">
+                    <th style="padding:8px 10px; text-align:left;">Kode</th>
+                    <th style="padding:8px 10px; text-align:left;">Nama Produk</th>
+                    <th style="padding:8px 10px;">Sisa Stok</th>
+                    <th style="padding:8px 10px; text-align:left;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {rows}
+            </tbody>
+        </table>
+
+        <p style="margin-top:18px; font-size:12px; color:#9c8c7d;">
+            Email otomatis dari Sistem POS ANTARI.
+        </p>
+    </div>
+    """
+
+    try:
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "from": from_email,
+                "to": [admin_email],
+                "subject": "Peringatan: Stok Produk Menipis/Habis",
+                "html": html
+            },
+            timeout=15
+        )
+
+        if response.status_code not in [200, 201, 202]:
+            print("[Resend Kasir] Gagal kirim email stok:", response.text)
+        else:
+            print("[Resend Kasir] Email stok berhasil dikirim.")
+
+    except Exception as err:
+        print("[Resend Kasir] Error kirim email stok:", err)
 
 def buat_id_transaksi():
     now = datetime.now()
@@ -578,6 +734,8 @@ def proses_transaksi():
 
     diskon_id_frontend = str(diskon_id_frontend).strip()
 
+    produk_stok_alert = []
+
     if not customer:
         return jsonify({
             'status': 'error',
@@ -602,6 +760,7 @@ def proses_transaksi():
         with conn.cursor() as cursor:
             transaksi_items = []
             subtotal_hitung = 0
+            stok_lama_map = {}
 
             # Ambil ulang produk dari database supaya harga dan stok valid
             for item in items:
@@ -638,12 +797,16 @@ def proses_transaksi():
                 if not produk_db:
                     raise ValueError(f"Produk {kode_produk} tidak ditemukan atau tidak aktif.")
 
-                if parse_int(produk_db.get('stok')) < qty:
+                stok_lama = parse_int(produk_db.get('stok'))
+
+                if stok_lama < qty:
                     raise ValueError(f"Stok {produk_db.get('nama')} tidak mencukupi.")
 
                 harga = parse_int(produk_db.get('harga'))
                 subtotal_item = harga * qty
                 subtotal_hitung += subtotal_item
+
+                stok_lama_map[kode_produk] = stok_lama
 
                 transaksi_items.append({
                     'kode_produk': produk_db.get('kode'),
@@ -754,6 +917,9 @@ def proses_transaksi():
                     item['subtotal']
                 ))
 
+                stok_lama = parse_int(stok_lama_map.get(item['kode_produk']))
+                stok_baru = stok_lama - parse_int(item['qty'])
+
                 cursor.execute("""
                     UPDATE produk
                     SET stok = stok - %s
@@ -767,6 +933,27 @@ def proses_transaksi():
 
                 if cursor.rowcount == 0:
                     raise ValueError(f"Gagal mengurangi stok produk {item['nama']}.")
+
+                # Ambil data produk setelah stok dikurangi
+                cursor.execute("""
+                    SELECT kode, nama, stok
+                    FROM produk
+                    WHERE kode = %s
+                    LIMIT 1
+                """, (item['kode_produk'],))
+
+                produk_update = cursor.fetchone()
+
+                if produk_update:
+                    alert = buat_notifikasi_stok_admin(
+                        cursor,
+                        produk_update,
+                        stok_lama,
+                        stok_baru
+                    )
+
+                    if alert:
+                        produk_stok_alert.append(alert)
 
             cursor.execute("""
                 INSERT INTO notifikasi (
@@ -788,6 +975,10 @@ def proses_transaksi():
             ))
 
         conn.commit()
+
+        # Kirim email setelah transaksi benar-benar berhasil commit
+        if produk_stok_alert:
+            kirim_email_stok_admin_dari_kasir(produk_stok_alert)
 
         produk_ringkas = ', '.join([
             item['nama'] for item in transaksi_items
@@ -835,13 +1026,12 @@ def proses_transaksi():
 
         return jsonify({
             'status': 'error',
-            'message': 'Terjadi kesalahan saat menyimpan transaksi ke database.'
+            'message': 'Terjadi kesalahan saat memproses transaksi.'
         }), 500
 
     finally:
         if conn:
             conn.close()
-
 
 # ==========================================================
 # NOTIFIKASI KASIR
