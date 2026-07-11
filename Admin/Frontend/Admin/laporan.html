@@ -224,5 +224,95 @@
     render();
   }
 </script>
+
+<script>
+    // ======================================================
+    // FIX TANGGAL LAPORAN
+    // Tampilan awal kosong seperti Riwayat Transaksi.
+    // Tanggal hanya boleh mulai dari 01 Januari 2026 ke atas.
+    // ======================================================
+    document.addEventListener("DOMContentLoaded", function(){
+        const MIN_DATE = "2026-01-01";
+
+        const dateInputs = Array.from(document.querySelectorAll('input[type="date"]'));
+
+        if(dateInputs.length < 2){
+            return;
+        }
+
+        const startInput = dateInputs[0]; // Dari Tanggal
+        const endInput = dateInputs[1];   // Sampai Tanggal
+
+        function applyMinDate(){
+            dateInputs.forEach(input => {
+                input.min = MIN_DATE;
+                input.removeAttribute("max");
+
+                if(input.value && input.value < MIN_DATE){
+                    input.value = "";
+                }
+            });
+        }
+
+        function clearInitialDates(){
+            // Kosongkan tampilan awal agar placeholder mm/dd/yyyy muncul
+            startInput.value = "";
+            endInput.value = "";
+        }
+
+        function clampMin2026(input){
+            if(input.value && input.value < MIN_DATE){
+                input.value = MIN_DATE;
+            }
+        }
+
+        applyMinDate();
+
+        // Tunggu script laporan utama selesai mengisi default tanggal,
+        // lalu kosongkan lagi supaya tampilan awal sama seperti riwayat.
+        setTimeout(function(){
+            applyMinDate();
+            clearInitialDates();
+        }, 150);
+
+        startInput.addEventListener("change", function(){
+            clampMin2026(startInput);
+
+            if(startInput.value && endInput.value && startInput.value > endInput.value){
+                endInput.value = startInput.value;
+            }
+        });
+
+        endInput.addEventListener("change", function(){
+            clampMin2026(endInput);
+
+            if(startInput.value && endInput.value && endInput.value < startInput.value){
+                startInput.value = endInput.value;
+            }
+        });
+
+        // Kalau user pilih periode cepat, baru tanggal boleh otomatis muncul
+        const periodeSelect =
+            document.getElementById("periode") ||
+            document.getElementById("quick-period") ||
+            document.getElementById("periode-cepat") ||
+            document.querySelector("select");
+
+        if(periodeSelect){
+            periodeSelect.addEventListener("change", function(){
+                setTimeout(function(){
+                    applyMinDate();
+
+                    dateInputs.forEach(input => {
+                        if(input.value && input.value < MIN_DATE){
+                            input.value = MIN_DATE;
+                        }
+                    });
+                }, 50);
+            });
+        }
+    });
+</script>
+
 </body>
 </html>

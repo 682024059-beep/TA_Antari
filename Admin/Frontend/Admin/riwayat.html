@@ -300,5 +300,77 @@
     })();
   }
 </script>
+
+<script>
+    // ======================================================
+    // FIX TANGGAL RIWAYAT TRANSAKSI
+    // Tanggal hanya boleh mulai dari 01 Januari 2026 ke atas
+    // ======================================================
+    document.addEventListener("DOMContentLoaded", function(){
+        const MIN_DATE = "2026-01-01";
+
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+
+        if(!dateInputs.length){
+            return;
+        }
+
+        dateInputs.forEach(input => {
+            input.min = MIN_DATE;
+            input.removeAttribute("max");
+
+            if(input.value && input.value < MIN_DATE){
+                input.value = MIN_DATE;
+            }
+        });
+
+        function clampMin2026(input){
+            if(!input.value || input.value < MIN_DATE){
+                input.value = MIN_DATE;
+            }
+        }
+
+        function refreshRiwayat(){
+            // Jalankan ulang filter kalau function-nya ada
+            if(typeof renderTable === "function"){
+                renderTable();
+                return;
+            }
+
+            if(typeof renderRiwayat === "function"){
+                renderRiwayat();
+                return;
+            }
+
+            if(typeof loadRiwayat === "function"){
+                loadRiwayat();
+                return;
+            }
+
+            if(typeof loadTransactions === "function"){
+                loadTransactions();
+                return;
+            }
+        }
+
+        dateInputs.forEach(input => {
+            input.addEventListener("change", function(){
+                clampMin2026(input);
+
+                input.dispatchEvent(new Event("input", {
+                    bubbles:true
+                }));
+
+                refreshRiwayat();
+            });
+
+            input.addEventListener("blur", function(){
+                clampMin2026(input);
+                refreshRiwayat();
+            });
+        });
+    });
+</script>
+
 </body>
 </html>

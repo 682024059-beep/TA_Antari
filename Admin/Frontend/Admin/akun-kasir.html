@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akun Kasir - Antari</title>
+
+    <link rel="stylesheet" href="/admin/css/style.css">
+</head>
+
+<body>
+    <div class="app-shell">
+        <div id="sidebar-placeholder"></div>
+
+        <main class="main-shell">
+            <div id="topbar-placeholder"></div>
+
+            <section class="content akun-page">
+                <div id="alert-box" class="akun-alert"></div>
+
+                <div class="akun-card">
+                    <div class="akun-card-head">
+                        <h3 id="form-title">Tambah Akun Kasir</h3>
+                        <p>Admin dapat membuat akun kasir baru, mengubah data, reset password, dan menonaktifkan akun.</p>
+                    </div>
+
+                    <form id="kasir-form">
+                        <input type="hidden" id="kasir-id">
+
+                        <div class="akun-form-grid">
+                            <div class="akun-form-group">
+                                <label for="nama">Nama Kasir</label>
+                                <input type="text" id="nama" placeholder="Contoh: Kasir Satu" required>
+                            </div>
+
+                            <div class="akun-form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" placeholder="Contoh: kasir_pagi" required>
+                            </div>
+
+                            <div class="akun-form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" placeholder="Contoh: kasir1@antari.local">
+                            </div>
+
+                            <div class="akun-form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" placeholder="Minimal 6 karakter">
+                            </div>
+
+                            <div class="akun-form-group">
+                                <label for="status">Status</label>
+                                <select id="status">
+                                    <option value="Aktif">Aktif</option>
+                                    <option value="Nonaktif">Nonaktif</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="akun-form-actions">
+                            <button type="button" class="akun-btn akun-btn-secondary" id="btn-cancel" style="display:none;">
+                                Batal Edit
+                            </button>
+
+                            <button type="submit" class="akun-btn akun-btn-primary" id="btn-submit">
+                                Simpan Akun
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="akun-card">
+                    <div class="akun-card-head">
+                        <h3>Daftar Akun Kasir</h3>
+                        <p>Akun dengan status aktif dapat login ke halaman kasir.</p>
+                    </div>
+
+                    <div class="akun-table-wrap">
+                        <table class="akun-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Dibuat</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="kasir-tbody">
+                                <tr>
+                                    <td colspan="6">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/admin/js/api.js"></script>
+    <script src="/admin/js/layout.js"></script>
+
+    <script>
+       let kasirCache = [];
+let activeSession = null;
+
+document.addEventListener("DOMContentLoaded", function(){
+    try{
+        if(typeof renderLayout === "function"){
+            activeSession = renderLayout("akun-kasir");
+        }
+    }catch(err){
+        console.error("LAYOUT ERROR:", err);
+    }
+
+    // Kalau renderLayout gagal, pakai fallback dengan class dashboard asli.
+    ensureAkunKasirLayout();
+
+    document.body.classList.add("page-ready");
+
+    const form = document.getElementById("kasir-form");
+    const cancelBtn = document.getElementById("btn-cancel");
+    const tbody = document.getElementById("kasir-tbody");
+
+    if(form){
+        form.addEventListener("submit", saveKasir);
+    }
+
+    if(cancelBtn){
+        cancelBtn.addEventListener("click", resetForm);
+    }
+
+    if(tbody){
+        tbody.addEventListener("click", handleTableAction);
+    }
+
+    loadKasirUsers();
+});
+
+function ensureAkunKasirLayout(){
+    const hasSidebar = document.querySelector("#sidebar.sidebar");
+    const hasTopbar = document.querySelector("#topbar.topbar");
+
+    const session = getAdminSessionForLayout();
+
+    if(!hasSidebar){
+        const sidebarTarget =
+            document.getElementById("sidebar-placeholder") ||
+            document.getElementById("sidebar");
+
+        if(sidebarTarget){
+            sidebarTarget.outerHTML = buildSidebarHTML(session);
+        }
+    }
+
+    if(!hasTopbar){
+        const topbarTarget =
+            document.getElementById("topbar-placeholder") ||
+            document.getElementById("topbar");
+
+        if(topbarTarget){
+            topbarTarget.outerHTML = buildTopbarHTML(session);
+        }
+    }
+
+    const logoutBtn = document.getElementById("btn-logout");
+
+    if(logoutBtn && !logoutBtn.dataset.ready){
+        logoutBtn.dataset.ready = "1";
+
+        logoutBtn.addEventListener("click", function(e){
+            e.preventDefault();
+
+            if(confirm("Keluar dari sistem?")){
+                if(typeof logout === "function"){
+                    logout();
+                }else{
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = "/admin/login.html";
+                }
+            }
+        });
+    }
+
+    try{
+        if(typeof setupNotifBell === "function"){
+            setupNotifBell();
+        }
+    }catch(err){
+        console.warn("Notif gagal dimuat:", err);
+    }
+}
+
+function getAdminSessionForLayout(){
+    if(activeSession){
+        return activeSession;
+    }
+
+    try{
+        if(typeof requireAuth === "function"){
+            const session = requireAuth(["admin"]);
+            if(session){
+                return session;
+            }
+        }
+    }catch(err){}
+
+    const storages = [localStorage, sessionStorage];
+
+    for(const storage of storages){
+        for(let i = 0; i < storage.length; i++){
+            const key = storage.key(i);
+            const raw = storage.getItem(key);
+
+            if(!raw){
+                continue;
+            }
+
+            try{
+                const data = JSON.parse(raw);
+                const found = findAdminObject(data);
+
+                if(found){
+                    return found;
+                }
+            }catch(err){}
+        }
+    }
+
+    return {
+        nama: "Admin",
+        role: "admin",
+        foto_url: ""
+    };
+}
+
+function findAdminObject(obj, depth = 0){
+    if(!obj || typeof obj !== "object" || depth > 5){
+        return null;
+    }
+
+    if(obj.role === "admin" || obj.role === "Admin"){
+        return obj;
+    }
+
+    if(obj.user && typeof obj.user === "object"){
+        const foundUser = findAdminObject(obj.user, depth + 1);
+        if(foundUser){
+            return foundUser;
+        }
+    }
+
+    if(obj.admin && typeof obj.admin === "object"){
+        return obj.admin;
+    }
+
+    for(const key in obj){
+        if(Object.prototype.hasOwnProperty.call(obj, key)){
+            const found = findAdminObject(obj[key], depth + 1);
+            if(found){
+                return found;
+            }
+        }
+    }
+
+    return null;
+}
+
+function getInitialName(name){
+    if(typeof initials === "function"){
+        return initials(name);
+    }
+
+    return String(name || "A")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part.charAt(0))
+        .join("")
+        .toUpperCase() || "A";
+}
+
+function safeIcon(name){
+    try{
+        if(typeof ICONS !== "undefined" && ICONS[name]){
+            return ICONS[name];
+        }
+    }catch(err){}
+
+    const fallback = {
+        dashboard: `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+        `,
+        box: `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73L13 2.27a2 2 0 0 0-2 0L4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <path d="M3.3 7L12 12l8.7-5"></path>
+                <path d="M12 22V12"></path>
+            </svg>
+        `,
+        percent: `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="5" x2="5" y2="19"></line>
+                <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                <circle cx="17.5" cy="17.5" r="2.5"></circle>
+            </svg>
+        `,
+        clock: `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        `,
+        chart: `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+        `,
+        user: `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+        `,
+        cup: `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M10 2v2"></path>
+                <path d="M14 2v2"></path>
+                <path d="M16 8h1a4 4 0 0 1 0 8h-1"></path>
+                <path d="M5 8h11v7a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5Z"></path>
+            </svg>
+        `,
+        search: `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+        `,
+        bell: `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+            </svg>
+        `,
+        logout: `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        `
+    };
+
+    return fallback[name] || "";
+}
+
+function buildSidebarHTML(session){
+    const nama = session.nama || session.name || session.username || "Admin";
+    const role = session.role || "admin";
+    const init = getInitialName(nama);
+
+    const nav = [
+        { key:"dashboard", label:"Dashboard", icon:"dashboard", href:"dashboard.html" },
+        { key:"produk", label:"Manage Produk", icon:"box", href:"produk.html" },
+        { key:"diskon", label:"Diskon", icon:"percent", href:"diskon.html" },
+        { key:"riwayat", label:"Riwayat Transaksi", icon:"clock", href:"riwayat.html" },
+        { key:"laporan", label:"Laporan Penjualan", icon:"chart", href:"laporan.html" },
+        { key:"akun-kasir", label:"Akun Kasir", icon:"user", href:"akun-kasir.html" }
+    ];
+
+    return `
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar__brand">
+                <div class="mark">${safeIcon("cup")}</div>
+                <div>
+                    <div class="word">ANTARI</div>
+                    <div class="sub">Sistem Manajemen</div>
+                </div>
+            </div>
+
+            <nav class="sidebar__nav">
+                <div class="sidebar__section-label">Menu</div>
+                ${nav.map(item => `
+                    <a class="nav-item ${item.key === "akun-kasir" ? "active" : ""}" href="${item.href}">
+                        ${safeIcon(item.icon)}
+                        <span>${item.label}</span>
+                    </a>
+                `).join("")}
+            </nav>
+
+            <div class="sidebar__footer">
+                <a class="user-card" href="profil.html" style="text-decoration:none; color:inherit; cursor:pointer;">
+                    <div class="avatar">${init}</div>
+                    <div class="who">
+                        <div class="name">${escapeHtml(nama)}</div>
+                        <div class="role">${role === "admin" ? "Admin" : "Kasir"}</div>
+                    </div>
+                </a>
+
+                <button class="logout-btn" id="btn-logout">
+                    ${safeIcon("logout")}
+                    <span>Keluar</span>
+                </button>
+            </div>
+        </aside>
+    `;
+}
+
+function buildTopbarHTML(session){
+    const nama = session.nama || session.name || session.username || "Admin";
+    const init = getInitialName(nama);
+
+    return `
+        <header class="topbar" id="topbar">
+            <div class="topbar__title">
+                <h1>Akun Kasir</h1>
+                <div class="crumb">Kelola akun kasir yang dapat login ke sistem POS</div>
+            </div>
+
+            <div class="topbar__right">
+                <div class="topbar__search" id="global-search-wrap">
+                    ${safeIcon("search")}
+                    <input type="text" id="global-search" placeholder="Cari produk, transaksi..." />
+                </div>
+
+                <div style="position:relative;">
+                    <button class="icon-btn" id="btn-notif" title="Notifikasi">
+                        ${safeIcon("bell")}
+                        <span class="dot" id="notif-dot" style="display:none;"></span>
+                    </button>
+                    <div class="notif-dropdown" id="notif-dropdown"></div>
+                </div>
+
+                <a href="profil.html" class="topbar__avatar" id="topbar-avatar" title="${escapeHtml(nama)}">
+                    ${init}
+                </a>
+            </div>
+        </header>
+    `;
+}
+
+
+        function getToken(){
+            const fromSession =
+                activeSession?.token ||
+                activeSession?.access_token ||
+                activeSession?.auth_token ||
+                activeSession?.jwt;
+
+            if(fromSession){
+                return fromSession;
+            }
+
+            const storages = [localStorage, sessionStorage];
+
+            const keys = [
+                "token",
+                "auth_token",
+                "access_token",
+                "admin_token",
+                "antari_token",
+                "jwt",
+                "jwt_token",
+                "antari_admin_token"
+            ];
+
+            for(const storage of storages){
+                for(const key of keys){
+                    const value = storage.getItem(key);
+
+                    if(value){
+                        return value;
+                    }
+                }
+            }
+
+            for(const storage of storages){
+                for(let i = 0; i < storage.length; i++){
+                    const key = storage.key(i);
+                    const raw = storage.getItem(key);
+
+                    if(!raw){
+                        continue;
+                    }
+
+                    try{
+                        const data = JSON.parse(raw);
+                        const token = deepFindToken(data);
+
+                        if(token){
+                            return token;
+                        }
+                    }catch(err){}
+                }
+            }
+
+            return "";
+        }
+
+        function deepFindToken(obj, depth = 0){
+            if(!obj || typeof obj !== "object" || depth > 5){
+                return "";
+            }
+
+            const keys = [
+                "token",
+                "access_token",
+                "auth_token",
+                "admin_token",
+                "jwt",
+                "jwt_token",
+                "accessToken",
+                "authToken",
+                "jwtToken"
+            ];
+
+            for(const key of keys){
+                if(typeof obj[key] === "string" && obj[key]){
+                    return obj[key];
+                }
+            }
+
+            for(const key in obj){
+                if(Object.prototype.hasOwnProperty.call(obj, key)){
+                    const found = deepFindToken(obj[key], depth + 1);
+
+                    if(found){
+                        return found;
+                    }
+                }
+            }
+
+            return "";
+        }
+
+        async function apiFetch(url, options = {}){
+            const token = getToken();
+
+            const headers = {
+                "Content-Type": "application/json",
+                ...(options.headers || {})
+            };
+
+            if(token){
+                headers["Authorization"] = token.toLowerCase().startsWith("bearer ")
+                    ? token
+                    : "Bearer " + token;
+            }
+
+            let response = await fetch(url, {
+                ...options,
+                headers,
+                credentials: "include"
+            });
+
+            if(response.status === 404 && !url.endsWith("/")){
+                response = await fetch(url + "/", {
+                    ...options,
+                    headers,
+                    credentials: "include"
+                });
+            }
+
+            const data = await response.json().catch(() => ({}));
+
+            if(response.status === 401 || response.status === 403){
+                throw new Error(data.message || "Sesi admin tidak ditemukan. Silakan login ulang.");
+            }
+
+            if(response.status === 404){
+                throw new Error(data.message || `Endpoint ${url} tidak ditemukan di backend.`);
+            }
+
+            if(!response.ok){
+                throw new Error(data.message || "Terjadi kesalahan.");
+            }
+
+            return data;
+        }
+
+        function showAlert(message, type = "success"){
+            const box = document.getElementById("alert-box");
+            box.className = "akun-alert " + type;
+            box.textContent = message;
+
+            setTimeout(() => {
+                box.className = "akun-alert";
+                box.textContent = "";
+            }, 4500);
+        }
+
+        function escapeHtml(value){
+            return String(value || "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
+        }
+
+        function formatDate(value){
+            if(!value){
+                return "-";
+            }
+
+            const date = new Date(value);
+
+            if(isNaN(date.getTime())){
+                return value;
+            }
+
+            return date.toLocaleDateString("id-ID", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric"
+            });
+        }
+
+        async function loadKasirUsers(){
+            const tbody = document.getElementById("kasir-tbody");
+
+            try{
+                tbody.innerHTML = `<tr><td colspan="6">Memuat data...</td></tr>`;
+
+                const data = await apiFetch("/api/kasir-users");
+                const rows = data.kasir || [];
+
+                kasirCache = rows;
+
+                if(!rows.length){
+                    tbody.innerHTML = `<tr><td colspan="6">Belum ada akun kasir.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = rows.map(item => {
+                    const status = item.status || "Aktif";
+                    const badgeClass = status.toLowerCase() === "aktif"
+                        ? "akun-badge-aktif"
+                        : "akun-badge-nonaktif";
+
+                    return `
+                        <tr>
+                            <td><strong>${escapeHtml(item.nama)}</strong></td>
+                            <td>${escapeHtml(item.username)}</td>
+                            <td>${escapeHtml(item.email || "-")}</td>
+                            <td><span class="${badgeClass}">${escapeHtml(status)}</span></td>
+                            <td>${formatDate(item.created_at)}</td>
+                            <td>
+                                <div class="akun-action-btns">
+                                    <button type="button" class="akun-mini-btn" data-action="edit" data-id="${item.id}">
+                                        Edit
+                                    </button>
+                                    <button type="button" class="akun-mini-btn" data-action="reset" data-id="${item.id}">
+                                        Reset Password
+                                    </button>
+                                    <button type="button" class="akun-mini-btn danger" data-action="nonaktif" data-id="${item.id}">
+                                        Nonaktifkan
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+
+            }catch(err){
+                tbody.innerHTML = `<tr><td colspan="6">Gagal memuat data akun kasir.</td></tr>`;
+                showAlert(err.message, "error");
+            }
+        }
+
+        function handleTableAction(event){
+            const button = event.target.closest("button[data-action]");
+
+            if(!button){
+                return;
+            }
+
+            const action = button.dataset.action;
+            const id = button.dataset.id;
+
+            if(action === "edit"){
+                const item = kasirCache.find(row => String(row.id) === String(id));
+
+                if(item){
+                    editKasir(item);
+                }
+            }
+
+            if(action === "reset"){
+                resetPassword(id);
+            }
+
+            if(action === "nonaktif"){
+                nonaktifkanKasir(id);
+            }
+        }
+
+        async function saveKasir(event){
+            event.preventDefault();
+
+            const submitBtn = document.getElementById("btn-submit");
+            const id = document.getElementById("kasir-id").value;
+
+            const payload = {
+                nama: document.getElementById("nama").value.trim(),
+                username: document.getElementById("username").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                password: document.getElementById("password").value.trim(),
+                status: document.getElementById("status").value
+            };
+
+            if(!payload.nama || !payload.username){
+                showAlert("Nama dan username wajib diisi.", "error");
+                return;
+            }
+
+            if(/\s/.test(payload.username)){
+                showAlert("Username tidak boleh pakai spasi. Gunakan kasir_pagi atau kasirpagi.", "error");
+                return;
+            }
+
+            if(!id && !payload.password){
+                showAlert("Password wajib diisi untuk akun baru.", "error");
+                return;
+            }
+
+            if(payload.password && payload.password.length < 6){
+                showAlert("Password minimal 6 karakter.", "error");
+                return;
+            }
+
+            try{
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Menyimpan...";
+
+                if(id){
+                    delete payload.password;
+
+                    await apiFetch(`/api/kasir-users/${id}`, {
+                        method: "PUT",
+                        body: JSON.stringify(payload)
+                    });
+
+                    showAlert("Akun kasir berhasil diperbarui.");
+                }else{
+                    await apiFetch("/api/kasir-users", {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    });
+
+                    showAlert("Akun kasir berhasil dibuat.");
+                }
+
+                resetForm();
+                await loadKasirUsers();
+
+            }catch(err){
+                showAlert(err.message, "error");
+
+            }finally{
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Simpan Akun";
+            }
+        }
+
+        function editKasir(item){
+            document.getElementById("form-title").textContent = "Edit Akun Kasir";
+            document.getElementById("kasir-id").value = item.id;
+            document.getElementById("nama").value = item.nama || "";
+            document.getElementById("username").value = item.username || "";
+            document.getElementById("email").value = item.email || "";
+
+            document.getElementById("password").value = "";
+            document.getElementById("password").disabled = true;
+            document.getElementById("password").placeholder = "Gunakan tombol Reset Password";
+
+            document.getElementById("status").value = item.status || "Aktif";
+            document.getElementById("btn-cancel").style.display = "inline-flex";
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        function resetForm(){
+            document.getElementById("form-title").textContent = "Tambah Akun Kasir";
+            document.getElementById("kasir-form").reset();
+            document.getElementById("kasir-id").value = "";
+
+            document.getElementById("password").disabled = false;
+            document.getElementById("password").placeholder = "Minimal 6 karakter";
+
+            document.getElementById("btn-cancel").style.display = "none";
+        }
+
+        async function resetPassword(id){
+            const password = prompt("Masukkan password baru untuk kasir ini:");
+
+            if(!password){
+                return;
+            }
+
+            if(password.length < 6){
+                showAlert("Password minimal 6 karakter.", "error");
+                return;
+            }
+
+            try{
+                await apiFetch(`/api/kasir-users/${id}/password`, {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        password
+                    })
+                });
+
+                showAlert("Password kasir berhasil direset.");
+
+            }catch(err){
+                showAlert(err.message, "error");
+            }
+        }
+
+        async function nonaktifkanKasir(id){
+            if(!confirm("Yakin ingin menonaktifkan akun kasir ini?")){
+                return;
+            }
+
+            try{
+                await apiFetch(`/api/kasir-users/${id}`, {
+                    method: "DELETE"
+                });
+
+                showAlert("Akun kasir berhasil dinonaktifkan.");
+                await loadKasirUsers();
+
+            }catch(err){
+                showAlert(err.message, "error");
+            }
+        }
+    </script>
+</body>
+</html>

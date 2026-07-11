@@ -71,7 +71,7 @@ function updateSessionCache(patch){
 function logout(){
   clearToken();
   sessionStorage.removeItem(SESSION_KEY);
-  window.location.href = rootPath() + 'login.html';
+  window.location.replace(rootPath() + 'login.html');
 }
 
 /* 
@@ -83,16 +83,46 @@ function requireAuth(allowedRoles){
   const token = getToken();
 
   if(!session || !token){
-    window.location.href = rootPath() + 'login.html';
+    window.location.replace(rootPath() + 'login.html');
     return null;
   }
 
   if(allowedRoles && !allowedRoles.includes(session.role)){
     clearToken();
     sessionStorage.removeItem(SESSION_KEY);
-    window.location.href = rootPath() + 'login.html';
+    window.location.replace(rootPath() + 'login.html');
     return null;
   }
 
   return session;
 }
+
+function redirectLoginIfAlreadyLoggedIn(){
+    const session = getSession();
+    const token = getToken();
+    const currentPage = window.location.pathname.toLowerCase();
+
+    if(session && token && currentPage.includes('login.html')){
+        window.location.replace(rootPath() + 'dashboard.html');
+    }
+}
+
+redirectLoginIfAlreadyLoggedIn();
+
+function redirectLoginIfAlreadyLoggedIn(){
+    const session = getSession();
+    const token = getToken();
+    const currentPage = window.location.pathname.toLowerCase();
+
+    if(session && token && currentPage.includes('login.html')){
+        window.location.replace(rootPath() + 'dashboard.html');
+    }
+}
+
+// Jalan saat halaman pertama kali dibuka
+redirectLoginIfAlreadyLoggedIn();
+
+// Jalan saat user klik tombol Back browser
+window.addEventListener("pageshow", function(){
+    redirectLoginIfAlreadyLoggedIn();
+});

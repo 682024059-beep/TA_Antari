@@ -1,7 +1,6 @@
 /* ============================================================
    ANTARI — Layout renderer (sidebar + topbar)
-   Notifikasi (lonceng) & Profil terhubung ke backend.
-   Smooth navigation agar pindah menu tidak muncul halaman setengah jadi.
+   Stable version untuk semua halaman admin termasuk Akun Kasir
    ============================================================ */
 
 const NAV_ITEMS = {
@@ -11,6 +10,7 @@ const NAV_ITEMS = {
     { key:'diskon', label:'Diskon', icon:'percent', href:'diskon.html' },
     { key:'riwayat', label:'Riwayat Transaksi', icon:'clock', href:'riwayat.html' },
     { key:'laporan', label:'Laporan Penjualan', icon:'chart', href:'laporan.html' },
+    { key:'akun-kasir', label:'Akun Kasir', icon:'user', href:'akun-kasir.html' },
   ],
 };
 
@@ -22,16 +22,37 @@ const PAGE_TITLES = {
   laporan: ['Laporan Penjualan', 'Evaluasi performa penjualan berdasarkan periode'],
   transaksi: ['Transaksi Penjualan', 'Catat pesanan dan proses pembayaran pelanggan'],
   profil: ['Profil Saya', 'Kelola informasi akun dan keamanan login Anda'],
+  'akun-kasir': ['Akun Kasir', 'Kelola akun kasir yang dapat login ke sistem POS'],
 };
+
+const USER_ICON = `
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+`;
 
 const NOTIF_ICON = {
   stok_menipis: 'alert',
   stok_habis: 'alert',
   transaksi_baru: 'cart',
   produk_baru: 'box',
+  produk_update: 'box',
+  produk_hapus: 'box',
   diskon: 'percent',
   sistem: 'bell',
 };
+
+function getLayoutIcon(iconName){
+  if(iconName === 'user'){
+    return ICONS.user || USER_ICON;
+  }
+
+  return ICONS[iconName] || ICONS.bell || '';
+}
 
 function renderLayout(activeKey){
   const session = requireAuth(['admin']);
@@ -43,11 +64,16 @@ function renderLayout(activeKey){
   document.body.classList.remove('page-ready');
   document.body.classList.remove('page-leaving');
 
-  const role = session.role;
-  const items = NAV_ITEMS[role] || [];
+  const role = session.role || 'admin';
+  const items = NAV_ITEMS[role] || NAV_ITEMS.admin;
 
-  const sidebarEl = document.getElementById('sidebar-placeholder');
-  const topbarEl = document.getElementById('topbar-placeholder');
+  const sidebarEl =
+    document.getElementById('sidebar-placeholder') ||
+    document.getElementById('sidebar');
+
+  const topbarEl =
+    document.getElementById('topbar-placeholder') ||
+    document.getElementById('topbar');
 
   if(sidebarEl){
     sidebarEl.outerHTML = `
@@ -64,7 +90,7 @@ function renderLayout(activeKey){
           <div class="sidebar__section-label">Menu</div>
           ${items.map(it => `
             <a class="nav-item ${it.key === activeKey ? 'active' : ''}" href="${it.href}">
-              ${ICONS[it.icon]}
+              ${getLayoutIcon(it.icon)}
               <span>${it.label}</span>
             </a>
           `).join('')}
@@ -105,11 +131,17 @@ function renderLayout(activeKey){
       logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
 
-        openConfirm(
-          'Keluar dari sistem?',
-          'Anda perlu login kembali untuk mengakses ANTARI.',
-          logout
-        );
+        if(typeof openConfirm === 'function'){
+          openConfirm(
+            'Keluar dari sistem?',
+            'Anda perlu login kembali untuk mengakses ANTARI.',
+            logout
+          );
+        }else{
+          if(confirm('Keluar dari sistem?')){
+            logout();
+          }
+        }
       });
     }
   }
@@ -429,75 +461,17 @@ function ensureNotifStyles(){
   document.head.appendChild(style);
 }
 
-/* ---------------- Smooth Navigation ---------------- */
-
-function enableSmoothNavigation(){
-  const links = document.querySelectorAll('a[href]');
-
-  links.forEach(link => {
-    if(link.dataset.smoothReady === '1'){
-      return;
-    }
-
-    const href = link.getAttribute('href');
-
-    if(!href){
-      return;
-    }
-
-    if(href.startsWith('#')){
-      return;
-    }
-
-    if(href.startsWith('http')){
-      return;
-    }
-
-    if(!href.includes('.html')){
-      return;
-    }
-
-    link.dataset.smoothReady = '1';
-
-    link.addEventListener('click', function(e){
-      if(e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1){
-        return;
-      }
-
-      const targetUrl = new URL(href, window.location.href);
-
-      if(
-        targetUrl.pathname === window.location.pathname &&
-        targetUrl.search === window.location.search
-      ){
-        e.preventDefault();
-        return;
-      }
-
-      e.preventDefault();
-
-      document.body.classList.remove('page-ready');
-      document.body.classList.add('page-leaving');
-
-      setTimeout(() => {
-        window.location.href = href;
-      }, 120);
-    });
-  });
-}
+/* ---------------- Waktu Notifikasi ---------------- */
 
 function parseAntariDate(value){
   if(!value) return null;
 
   let s = String(value).trim();
 
-  // Format dari TiDB/MySQL biasanya: 2026-07-09 10:30:00
-  // Itu kita anggap UTC, lalu browser otomatis ubah ke waktu lokal WIB.
   if(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s)){
     s = s.replace(' ', 'T') + 'Z';
   }
 
-  // Kalau formatnya ISO tanpa timezone: 2026-07-09T10:30:00
   if(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(s)){
     s = s + 'Z';
   }
@@ -514,8 +488,6 @@ function formatWaktuNotif(value){
 
   let diffMs = Date.now() - date.getTime();
 
-  // Kalau beda sedikit atau dianggap waktu masa depan karena timezone,
-  // tetap tampilkan baru saja.
   if(diffMs < 0){
     diffMs = 0;
   }
@@ -542,8 +514,13 @@ function formatWaktuNotif(value){
   }
 
   return date.toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric'
+    day:'2-digit',
+    month:'short',
+    year:'numeric'
   });
+}
+
+/* Smooth navigation dimatikan supaya tidak blank/setengah jadi */
+function enableSmoothNavigation(){
+  return;
 }

@@ -1,0 +1,5 @@
+Flask
+python-dotenv
+PyMySQL
+certifi
+requests

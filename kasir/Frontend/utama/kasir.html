@@ -189,9 +189,11 @@
                                 <span id="subtotal-val">Rp 0</span>
                             </div>
 
-                            <div class="summary-line diskon">
-                                <span>Diskon</span>
-                                <span id="diskon-val">- Rp 0</span>
+                            <div class="summary-line discount-line" id="discount-row">
+                                <select id="discount-select" class="discount-select">
+                                <option value="">Tidak memakai diskon</option>
+                            </select>
+                            <span id="diskon-val">-</span>
                             </div>
 
                             <div class="summary-line total-utama">
@@ -263,6 +265,21 @@
     </div>
 
     <!-- JS -->
+    <script>
+        window.ACTIVE_DISCOUNT = {
+            id: "",
+            nama: "",
+            jenis: "",
+            nilai: 0
+        };
+
+        window.ACTIVE_DISCOUNTS = [];
+    </script>
+    <script
+    type="text/javascript"
+    src="https://app.sandbox.midtrans.com/snap/snap.js"
+    data-client-key="{{ midtrans_client_key }}">
+</script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

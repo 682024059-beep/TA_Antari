@@ -3,11 +3,11 @@
 // ======================================================
 
 let cart = [];
-let discountPercent = 0;
 let selectedMethod = "";
 
 function formatRupiah(angka) {
-    return `Rp ${Number(angka || 0).toLocaleString("id-ID")}`;
+    angka = parseInt(angka) || 0;
+    return "Rp " + angka.toLocaleString("id-ID");
 }
 
 // ======================================================
@@ -306,8 +306,18 @@ const changeEl = document.getElementById("change-val");
 const custNameInput = document.getElementById("cust-name");
 const btnProses = document.getElementById("btn-proses-bayar");
 const btnReset = document.getElementById("btn-reset-cart");
-const diskonRow = diskonEl ? diskonEl.closest(".summary-line") : null;
+const diskonRow = document.getElementById("discount-row") || (diskonEl ? diskonEl.closest(".summary-line") : null);
 const methodButtons = document.querySelectorAll(".method-btn");
+const discountSelect = document.getElementById("discount-select");
+
+let daftarDiskon = [];
+
+let activeDiscount = {
+    id: "",
+    nama: "",
+    jenis: "",
+    nilai: 0
+};
 
 // ======================================================
 // 3. VALIDASI DAN HELPER
@@ -352,13 +362,51 @@ function preventMinusCashInput() {
     });
 }
 
+function hitungDiskon(subtotal) {
+    if (!activeDiscount || !activeDiscount.id) {
+        return 0;
+    }
+
+    const nilai = parseInt(activeDiscount.nilai) || 0;
+
+    if (nilai <= 0) {
+        return 0;
+    }
+
+    if (activeDiscount.jenis === "Persen") {
+        return Math.round(subtotal * (nilai / 100));
+    }
+
+    if (activeDiscount.jenis === "Nominal") {
+        return Math.min(nilai, subtotal);
+    }
+
+    return 0;
+}
+
+function tampilkanDiskon(diskon) {
+    if (!diskonEl) return;
+
+    if (diskonRow) {
+        diskonRow.style.display = "flex";
+    }
+
+    if (diskon > 0) {
+        diskonEl.innerText = "- " + formatRupiah(diskon);
+    } else {
+        diskonEl.innerText = "-";
+    }
+}
+
 function updateDiscountDisplay() {
     if (!diskonRow) return;
 
-    if (discountPercent <= 0) {
-        diskonRow.style.display = "none";
-    } else {
-        diskonRow.style.display = "flex";
+    diskonRow.style.display = "flex";
+
+    if (!activeDiscount || !activeDiscount.id) {
+        if (diskonEl) {
+            diskonEl.innerText = "-";
+        }
     }
 }
 
@@ -373,38 +421,28 @@ function updatePaymentMethodUI() {
         }
     });
 
-    const totalHarga = getTotalFromUI();
-
     if (cashInput) {
-        if (selectedMethod === "QRIS") {
-            cashInput.value = totalHarga > 0 ? totalHarga : "";
-            cashInput.disabled = true;
-            calculateChange(totalHarga);
-        } else {
-            cashInput.disabled = false;
-        }
+        cashInput.disabled = false;
     }
 }
 
 function selectPaymentMethod(method) {
     selectedMethod = method;
 
-    if (selectedMethod === "Cash") {
-        if (cashInput) {
+    const totalHarga = getTotalFromUI();
+
+    if (cashInput) {
+        if (selectedMethod === "QRIS") {
+            cashInput.disabled = true;
+            cashInput.value = totalHarga;
+        } else {
             cashInput.disabled = false;
             cashInput.value = "";
         }
     }
 
-    if (selectedMethod === "QRIS") {
-        const totalHarga = getTotalFromUI();
-
-        if (cashInput) {
-            cashInput.value = totalHarga > 0 ? totalHarga : "";
-            cashInput.disabled = true;
-        }
-
-        calculateChange(totalHarga);
+    if (changeEl) {
+        changeEl.innerText = formatRupiah(0);
     }
 
     updatePaymentMethodUI();
@@ -449,23 +487,18 @@ function isPaymentComplete(showAlert = false) {
         return false;
     }
 
-    if (selectedMethod === "Cash") {
-        if (jumlahDibayar <= 0) {
-            if (showAlert) alert("Jumlah dibayar wajib diisi!");
-            return false;
-        }
-
-        if (jumlahDibayar < totalHarga) {
-            if (showAlert) alert("Jumlah dibayar masih kurang!");
-            return false;
-        }
+    if (selectedMethod === "QRIS") {
+        return true;
     }
 
-    if (selectedMethod === "QRIS") {
-        if (totalHarga <= 0) {
-            if (showAlert) alert("Total QRIS belum valid!");
-            return false;
-        }
+    if (jumlahDibayar <= 0) {
+        if (showAlert) alert("Jumlah dibayar wajib diisi!");
+        return false;
+    }
+
+    if (jumlahDibayar < totalHarga) {
+        if (showAlert) alert("Jumlah dibayar masih kurang!");
+        return false;
     }
 
     return true;
@@ -476,8 +509,78 @@ function validatePaymentButton() {
     btnProses.disabled = !isPaymentComplete(false);
 }
 
+function calculateChange(totalHarga) {
+    if (!cashInput || !changeEl) return;
+
+    if (selectedMethod === "QRIS") {
+        changeEl.innerText = formatRupiah(0);
+        return;
+    }
+
+    const cashPaid = getCashPaidValue();
+    const change = cashPaid - totalHarga;
+
+    changeEl.innerText = change >= 0 ? formatRupiah(change) : formatRupiah(0);
+}
+
 // ======================================================
-// 4. KERANJANG KASIR
+// 4. DISKON DROPDOWN
+// ======================================================
+
+async function setupDiscountSelect() {
+    if (!discountSelect) return;
+
+    try {
+        const response = await fetch("/api/diskon/aktif");
+        const result = await response.json();
+
+        if (result.status !== "success") {
+            return;
+        }
+
+        daftarDiskon = result.data || [];
+
+        discountSelect.innerHTML = `
+            <option value="">Tidak memakai diskon</option>
+        `;
+
+        daftarDiskon.forEach(function(diskon) {
+            const option = document.createElement("option");
+            option.value = diskon.id;
+
+            if (diskon.jenis === "Persen") {
+                option.textContent = `${diskon.nama} - ${diskon.nilai}%`;
+            } else {
+                option.textContent = `${diskon.nama} - ${formatRupiah(diskon.nilai)}`;
+            }
+
+            discountSelect.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error("Gagal mengambil diskon:", error);
+    }
+
+    discountSelect.addEventListener("change", function() {
+        const selectedId = discountSelect.value;
+
+        const selectedDiskon = daftarDiskon.find(function(diskon) {
+            return String(diskon.id) === String(selectedId);
+        });
+
+        activeDiscount = selectedDiskon || {
+            id: "",
+            nama: "",
+            jenis: "",
+            nilai: 0
+        };
+
+        updateCartUI();
+    });
+}
+
+// ======================================================
+// 5. KERANJANG KASIR
 // ======================================================
 
 if (gridProduk) {
@@ -495,7 +598,14 @@ if (gridProduk) {
         const nama = card.dataset.nama;
         const harga = parseInt(card.dataset.harga) || 0;
 
-        const existingItem = cart.find(item => item.id === id);
+        if (!id || !nama || harga <= 0) {
+            alert("Data produk tidak valid.");
+            return;
+        }
+
+        const existingItem = cart.find(function(item) {
+            return item.id === id;
+        });
 
         if (existingItem) {
             existingItem.qty += 1;
@@ -519,16 +629,17 @@ function updateCartUI() {
 
     if (cart.length === 0) {
         cartContainer.innerHTML = '<p class="empty-text">Belum ada menu yang dipilih</p>';
+
         subtotalEl.innerText = formatRupiah(0);
-        diskonEl.innerText = "- " + formatRupiah(0);
         totalEl.innerText = formatRupiah(0);
         changeEl.innerText = formatRupiah(0);
+
+        tampilkanDiskon(0);
 
         if (cashInput) {
             cashInput.value = "";
         }
 
-        updateDiscountDisplay();
         updatePaymentMethodUI();
         validatePaymentButton();
         return;
@@ -538,7 +649,7 @@ function updateCartUI() {
 
     let subtotal = 0;
 
-    cart.forEach(item => {
+    cart.forEach(function(item) {
         const itemSubtotal = item.harga * item.qty;
         subtotal += itemSubtotal;
 
@@ -565,42 +676,38 @@ function updateCartUI() {
         cartContainer.appendChild(div);
     });
 
-    const diskon = discountPercent > 0
-        ? Math.round(subtotal * (discountPercent / 100))
-        : 0;
-
+    const diskon = hitungDiskon(subtotal);
     const total = subtotal - diskon;
 
     subtotalEl.innerText = formatRupiah(subtotal);
-    diskonEl.innerText = "- " + formatRupiah(diskon);
     totalEl.innerText = formatRupiah(total);
 
-    if (selectedMethod === "QRIS" && cashInput) {
-        cashInput.value = total;
-    }
-
+    tampilkanDiskon(diskon);
     calculateChange(total);
-    updateDiscountDisplay();
     updatePaymentMethodUI();
     validatePaymentButton();
 }
 
 window.changeQty = function(id, delta) {
-    const item = cart.find(i => i.id === id);
+    const item = cart.find(function(i) {
+        return i.id === id;
+    });
 
     if (!item) return;
 
     item.qty += delta;
 
     if (item.qty <= 0) {
-        cart = cart.filter(i => i.id !== id);
+        cart = cart.filter(function(i) {
+            return i.id !== id;
+        });
     }
 
     updateCartUI();
 };
 
 // ======================================================
-// 5. HITUNG KEMBALIAN
+// 6. HITUNG KEMBALIAN
 // ======================================================
 
 if (cashInput) {
@@ -622,27 +729,13 @@ methodButtons.forEach(function(button) {
     });
 });
 
-function calculateChange(totalHarga) {
-    if (!cashInput || !changeEl) return;
-
-    if (selectedMethod === "QRIS") {
-        changeEl.innerText = formatRupiah(0);
-        return;
-    }
-
-    const cashPaid = getCashPaidValue();
-    const change = cashPaid - totalHarga;
-
-    changeEl.innerText = change >= 0 ? formatRupiah(change) : formatRupiah(0);
-}
-
 // ======================================================
-// 6. STRUK POPUP
+// 7. STRUK POPUP
 // ======================================================
 
 function buildReceiptItems(items) {
     return items.map(item => {
-        const itemSubtotal = item.harga * item.qty;
+        const itemSubtotal = item.subtotal || (item.harga * item.qty);
 
         return `
             <div class="receipt-item">
@@ -659,9 +752,11 @@ function buildReceiptItems(items) {
 function buildReceiptDiscountLine(transaksi) {
     if (!transaksi.diskon || transaksi.diskon <= 0) return "";
 
+    const label = transaksi.diskon_nama || transaksi.diskon_label || "Diskon";
+
     return `
         <div class="receipt-line">
-            <span>Diskon (${transaksi.diskon_persen}%)</span>
+            <span>${label}</span>
             <strong>- ${formatRupiah(transaksi.diskon)}</strong>
         </div>
     `;
@@ -685,58 +780,61 @@ function showReceiptPopup(transaksi) {
                 <div class="receipt-meta">
                     <div class="receipt-line">
                         <span>No Transaksi</span>
-                        <strong>${transaksi.no}</strong>
+                        <strong>${transaksi.no || "-"}</strong>
                     </div>
                     <div class="receipt-line">
                         <span>Tanggal</span>
-                        <strong>${transaksi.tanggal}</strong>
+                        <strong>${transaksi.tanggal || "-"}</strong>
                     </div>
                     <div class="receipt-line">
                         <span>Waktu</span>
-                        <strong>${transaksi.waktu}</strong>
+                        <strong>${transaksi.waktu || "-"}</strong>
                     </div>
                     <div class="receipt-line">
                         <span>Kasir</span>
-                        <strong>${transaksi.kasir}</strong>
+                        <strong>${transaksi.kasir || "Kasir"}</strong>
                     </div>
                     <div class="receipt-line">
                         <span>Customer</span>
-                        <strong>${transaksi.customer}</strong>
+                        <strong>${transaksi.customer || "-"}</strong>
                     </div>
                 </div>
 
                 <div class="receipt-items">
-                    ${buildReceiptItems(transaksi.items)}
+                    ${buildReceiptItems(transaksi.items || [])}
                 </div>
 
                 <div class="receipt-total">
                     <div class="receipt-line">
                         <span>Subtotal</span>
-                        <strong>${formatRupiah(transaksi.subtotal)}</strong>
+                        <strong>${formatRupiah(transaksi.subtotal || 0)}</strong>
                     </div>
 
                     ${buildReceiptDiscountLine(transaksi)}
 
                     <div class="receipt-line receipt-grand">
                         <span>Total</span>
-                        <strong>${formatRupiah(transaksi.total)}</strong>
+                        <strong>${formatRupiah(transaksi.total || 0)}</strong>
                     </div>
+
                     <div class="receipt-line">
                         <span>Dibayar</span>
-                        <strong>${formatRupiah(transaksi.bayar)}</strong>
+                        <strong>${formatRupiah(transaksi.bayar || 0)}</strong>
                     </div>
+
                     <div class="receipt-line">
                         <span>Kembalian</span>
-                        <strong>${formatRupiah(transaksi.kembalian)}</strong>
+                        <strong>${formatRupiah(transaksi.kembalian || 0)}</strong>
                     </div>
+
                     <div class="receipt-line">
                         <span>Pembayaran</span>
-                        <strong>${transaksi.metode}</strong>
+                        <strong>${transaksi.metode || "-"}</strong>
                     </div>
                 </div>
 
                 <div class="receipt-footer">
-                    <p>Simpan struk ini sebagai bukti transaksi.</p>
+                    <p>Transaksi berhasil. Simpan struk ini sebagai bukti transaksi.</p>
                 </div>
             </div>
 
@@ -744,8 +842,17 @@ function showReceiptPopup(transaksi) {
                 <button type="button" class="receipt-btn close" id="closeReceiptBtn">
                     Tutup
                 </button>
+
                 <button type="button" class="receipt-btn print" id="printReceiptBtn">
                     Cetak Struk
+                </button>
+
+                <button type="button" class="receipt-btn new-order" id="newOrderBtn">
+                    Transaksi Baru
+                </button>
+
+                <button type="button" class="receipt-btn next-page" id="nextPageBtn">
+                    Lanjut ke Riwayat
                 </button>
             </div>
         </div>
@@ -755,16 +862,167 @@ function showReceiptPopup(transaksi) {
 
     document.getElementById("closeReceiptBtn").addEventListener("click", function() {
         overlay.remove();
-        resetCart();
     });
 
     document.getElementById("printReceiptBtn").addEventListener("click", function() {
         window.print();
     });
+
+    document.getElementById("newOrderBtn").addEventListener("click", function() {
+        overlay.remove();
+
+        if (typeof resetCart === "function") {
+            resetCart();
+        }
+
+        window.location.href = "/kasir";
+    });
+
+    document.getElementById("nextPageBtn").addEventListener("click", function() {
+        if (typeof resetCart === "function") {
+            resetCart();
+        }
+
+        window.location.href = "/riwayat";
+    });
+}
+   async function simpanTransaksiSetelahMidtrans(transaksi, midtransResult) {
+    const midtransStatus = midtransResult.transaction_status || "pending";
+
+    const payload = {
+        ...transaksi,
+        metode: "QRIS",
+        bayar: transaksi.total,
+        kembalian: 0,
+
+        midtrans_order_id: midtransResult.order_id || "",
+        midtrans_payment_type: midtransResult.payment_type || "qris",
+        midtrans_transaction_status: midtransStatus,
+        midtrans_status: midtransStatus
+    };
+
+    const response = await fetch("/api/transaksi", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (data.status !== "success") {
+        throw new Error(data.message || "Transaksi gagal disimpan setelah pembayaran Midtrans.");
+    }
+
+    const serverData = data.data || {};
+
+    return {
+        ...transaksi,
+        ...serverData,
+        no: data.no || serverData.no || transaksi.no,
+        customer: serverData.customer || transaksi.customer,
+        items: serverData.items || transaksi.items,
+        metode: serverData.metode || "QRIS",
+        diskon_nama: serverData.diskon_nama || transaksi.diskon_nama,
+        diskon_label: serverData.diskon_nama || transaksi.diskon_label,
+        bayar: serverData.bayar || transaksi.total,
+        kembalian: serverData.kembalian || 0,
+        midtrans_order_id: midtransResult.order_id || "",
+        midtrans_payment_type: midtransResult.payment_type || "qris",
+        midtrans_status: midtransStatus
+    };
+}
+
+async function prosesMidtransSnap(transaksi) {
+    if (!window.snap) {
+        alert("Midtrans Snap belum termuat. Cek koneksi internet atau Client Key.");
+        return;
+    }
+
+    const tokenResponse = await fetch("/api/midtrans/token", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(transaksi)
+    });
+
+    const tokenData = await tokenResponse.json();
+
+    if (tokenData.status !== "success") {
+        alert(tokenData.message || "Gagal membuat pembayaran Midtrans.");
+        return;
+    }
+
+    window.snap.pay(tokenData.token, {
+        onSuccess: async function(result) {
+            try {
+                const transaksiReceipt = await simpanTransaksiSetelahMidtrans(transaksi, {
+                    ...result,
+                    transaction_status: result.transaction_status || "settlement",
+                    order_id: result.order_id || tokenData.order_id
+                });
+
+                showReceiptPopup(transaksiReceipt);
+
+            } catch (err) {
+                console.error("Simpan transaksi Midtrans gagal:", err);
+                alert(err.message || "Pembayaran sukses, tetapi transaksi gagal disimpan.");
+            }
+        },
+
+        onPending: async function(result) {
+            try {
+                const lanjut = confirm(
+                    "Pembayaran Midtrans Sandbox masih berstatus PENDING.\n\n" +
+                    "Untuk kebutuhan demo/project, transaksi akan tetap dicatat sebagai QRIS Pending.\n\n" +
+                    "Lanjutkan ke struk dan riwayat?"
+                );
+
+                if (!lanjut) {
+                    return;
+                }
+
+                const transaksiReceipt = await simpanTransaksiSetelahMidtrans(transaksi, {
+                    ...result,
+                    transaction_status: result.transaction_status || "pending",
+                    order_id: result.order_id || tokenData.order_id,
+                    payment_type: result.payment_type || "qris"
+                });
+
+                transaksiReceipt.status_midtrans = "Pending";
+                transaksiReceipt.catatan_midtrans = "Pembayaran Midtrans Sandbox masih pending.";
+
+                showReceiptPopup(transaksiReceipt);
+
+            } catch (err) {
+                console.error("Simpan transaksi pending Midtrans gagal:", err);
+                alert(err.message || "Transaksi pending gagal disimpan.");
+            }
+        },
+
+        onError: function(result) {
+            console.error("MIDTRANS ERROR:", result);
+            alert("Pembayaran Midtrans gagal.");
+        },
+
+        onClose: function() {
+            const lanjut = confirm(
+                "Popup pembayaran ditutup sebelum selesai.\n\n" +
+                "Kalau ini hanya demo Sandbox, kamu bisa lanjut tanpa menyimpan transaksi.\n\n" +
+                "Kembali ke halaman kasir?"
+            );
+
+            if (lanjut) {
+                window.location.href = "/kasir";
+            }
+        }
+    });
 }
 
 // ======================================================
-// 7. PROSES PEMBAYARAN
+// 8. PROSES PEMBAYARAN
 // ======================================================
 
 if (btnProses) {
@@ -780,22 +1038,14 @@ if (btnProses) {
         const kasirName = usernameEl ? usernameEl.innerText.trim() || "Kasir" : "Kasir";
 
         const subtotal = cart.reduce((sum, item) => sum + (item.harga * item.qty), 0);
-
-        const diskon = discountPercent > 0
-            ? Math.round(subtotal * (discountPercent / 100))
-            : 0;
-
+        const diskon = hitungDiskon(subtotal);
         const totalHarga = subtotal - diskon;
 
-        let finalBayar = 0;
-        let finalKembalian = 0;
+        const finalBayar = selectedMethod === "QRIS" ? totalHarga : getCashPaidValue();
+        let finalKembalian = selectedMethod === "QRIS" ? 0 : finalBayar - totalHarga;
 
-        if (selectedMethod === "QRIS") {
-            finalBayar = totalHarga;
+        if (finalKembalian < 0) {
             finalKembalian = 0;
-        } else {
-            finalBayar = getCashPaidValue();
-            finalKembalian = finalBayar - totalHarga;
         }
 
         const paymentLabel = selectedMethod;
@@ -816,7 +1066,9 @@ if (btnProses) {
             items: cart.map(item => ({ ...item })),
             subtotal: subtotal,
             diskon: diskon,
-            diskon_persen: discountPercent,
+            diskon_id: activeDiscount.id || "",
+            diskon_nama: activeDiscount.nama || "",
+            diskon_label: activeDiscount.nama || "Diskon",
             total: totalHarga,
             bayar: finalBayar,
             kembalian: finalKembalian,
@@ -830,6 +1082,10 @@ if (btnProses) {
         btnProses.innerText = "Memproses...";
 
         try {
+            if (selectedMethod === "QRIS") {
+            await prosesMidtransSnap(transaksi);
+            return;
+        }
             const response = await fetch("/api/transaksi", {
                 method: "POST",
                 headers: {
@@ -841,8 +1097,21 @@ if (btnProses) {
             const data = await response.json();
 
             if (data.status === "success") {
-                transaksi.no = data.no || data.no_transaksi || data.id_transaksi || transaksi.no;
-                showReceiptPopup(transaksi);
+                const serverData = data.data || {};
+
+                const transaksiReceipt = {
+                    ...transaksi,
+                    ...serverData,
+                    no: data.no || serverData.no || transaksi.no,
+                    kasir: kasirName,
+                    customer: serverData.customer || transaksi.customer,
+                    items: serverData.items || transaksi.items,
+                    metode: serverData.metode || transaksi.metode,
+                    diskon_nama: serverData.diskon_nama || transaksi.diskon_nama,
+                    diskon_label: serverData.diskon_nama || transaksi.diskon_label
+                };
+
+                showReceiptPopup(transaksiReceipt);
             } else {
                 alert(data.message || "Transaksi gagal diproses.");
             }
@@ -857,7 +1126,7 @@ if (btnProses) {
 }
 
 // ======================================================
-// 8. RESET KERANJANG
+// 9. RESET KERANJANG
 // ======================================================
 
 if (btnReset) {
@@ -868,6 +1137,17 @@ if (btnReset) {
 
 function resetCart() {
     cart = [];
+
+    activeDiscount = {
+        id: "",
+        nama: "",
+        jenis: "",
+        nilai: 0
+    };
+
+    if (discountSelect) {
+        discountSelect.value = "";
+    }
 
     if (cashInput) {
         cashInput.disabled = false;
@@ -884,7 +1164,7 @@ function resetCart() {
 }
 
 // ======================================================
-// 9. PENCARIAN, FILTER KATEGORI, DAN NOTIFIKASI
+// 10. PENCARIAN, FILTER KATEGORI, DAN NOTIFIKASI
 // ======================================================
 
 const searchProdukInput = document.getElementById("searchProduk");
@@ -959,7 +1239,6 @@ function parseNotifDate(value) {
 
     let s = String(value).trim();
 
-    // Kalau backend masih mengirim format mentah begini, berarti waktunya tidak valid
     if (
         s.includes("%d") ||
         s.includes("%m") ||
@@ -970,19 +1249,15 @@ function parseNotifDate(value) {
         return null;
     }
 
-    // Format ISO: 2026-07-09T20:35:40
     if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(s)) {
         return new Date(s);
     }
 
-    // Format MySQL/TiDB: 2026-07-09 20:35:40
-    // Ini dianggap waktu lokal, bukan UTC, supaya tidak selisih 7 jam.
     if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s)) {
         s = s.replace(" ", "T");
         return new Date(s);
     }
 
-    // Format Indonesia: 09/07/2026 20:35
     if (/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/.test(s)) {
         const [datePart, timePart] = s.split(" ");
         const [day, month, year] = datePart.split("/");
@@ -1035,6 +1310,10 @@ function isUnreadNotif(item) {
 }
 
 function getNotifIcon(tipe) {
+    if (tipe === "diskon") {
+        return '<i class="fa-solid fa-tag"></i>';
+    }
+
     if (tipe === "stok_menipis" || tipe === "stok_habis") {
         return '<i class="fa-solid fa-triangle-exclamation"></i>';
     }
@@ -1096,7 +1375,10 @@ function setupNotificationBell() {
         } else {
             dropdown.style.display = "block";
             loadNotifications();
-            markNotificationsAsRead();
+
+            setTimeout(function() {
+                markNotificationsAsRead();
+            }, 300);
         }
     }
 
@@ -1114,7 +1396,11 @@ function setupNotificationBell() {
     });
 
     loadNotifications();
-    setInterval(loadNotifications, 10000);
+    setInterval(loadNotifications, 3000);
+
+    window.addEventListener("focus", function() {
+        loadNotifications();
+    });
 }
 
 async function loadNotifications() {
@@ -1133,10 +1419,7 @@ async function loadNotifications() {
         }
 
         const notifications = data.data || [];
-
-        const unreadCount = notifications.filter(function(item) {
-            return isUnreadNotif(item);
-        }).length;
+        const unreadCount = parseInt(data.unread_count) || 0;
 
         if (unreadCount > 0) {
             badge.innerText = unreadCount > 99 ? "99+" : unreadCount;
@@ -1195,10 +1478,11 @@ async function markNotificationsAsRead() {
 }
 
 // ======================================================
-// 9. INIT
+// 11. INIT
 // ======================================================
 
 preventMinusCashInput();
+setupDiscountSelect();
 updateCartUI();
 updateDiscountDisplay();
 updatePaymentMethodUI();
