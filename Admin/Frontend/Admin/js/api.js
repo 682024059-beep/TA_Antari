@@ -229,3 +229,11 @@ const Api = {
       method:'POST'
     }),
 };
+function logout(){
+    try{
+        localStorage.clear();
+        sessionStorage.clear();
+    }catch(err){}
+
+    window.location.replace("/admin/login.html");
+}

@@ -1,7 +1,7 @@
 import datetime
 import os
 
-from flask import Flask, jsonify, redirect, send_from_directory
+from flask import Flask, jsonify, redirect, send_from_directory, request
 from flask.json.provider import DefaultJSONProvider
 from flask_cors import CORS
 
@@ -54,6 +54,13 @@ def create_app():
     CORS(app, origins=origins, supports_credentials=True)
 
     app.teardown_appcontext(close_db)
+    @app.after_request
+    def add_no_cache_headers(response):
+        if request.path.startswith("/admin") or request.path.startswith("/api"):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
 
     # ======================================================
     # REGISTER BLUEPRINT API

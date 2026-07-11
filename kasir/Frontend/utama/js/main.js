@@ -1489,3 +1489,53 @@ updatePaymentMethodUI();
 validatePaymentButton();
 filterProduk();
 setupNotificationBell();
+
+// ======================================================
+// SECURITY FIX — cegah masuk kasir lewat tombol Back setelah logout
+// ======================================================
+
+function isProtectedKasirPage(){
+    const path = window.location.pathname;
+
+    return path === "/kasir" ||
+           path === "/riwayat" ||
+           path.startsWith("/kasir/") ||
+           path.startsWith("/riwayat/");
+}
+
+async function validateKasirSessionOnBack(){
+    if(!isProtectedKasirPage()){
+        return;
+    }
+
+    try{
+        const response = await fetch("/api/session-check", {
+            cache: "no-store",
+            credentials: "include"
+        });
+
+        const data = await response.json();
+
+        if(!data.logged_in){
+            window.location.replace("/login");
+        }
+
+    }catch(err){
+        window.location.replace("/login");
+    }
+}
+
+window.addEventListener("pageshow", function(event){
+    const navEntry = performance.getEntriesByType("navigation")[0];
+    const isBackForward = event.persisted || (navEntry && navEntry.type === "back_forward");
+
+    if(isBackForward){
+        validateKasirSessionOnBack();
+    }
+});
+
+document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "visible"){
+        validateKasirSessionOnBack();
+    }
+});

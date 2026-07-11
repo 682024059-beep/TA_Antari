@@ -524,3 +524,67 @@ function formatWaktuNotif(value){
 function enableSmoothNavigation(){
   return;
 }
+
+/* ============================================================
+   SECURITY FIX — cegah masuk dashboard lewat tombol Back setelah logout
+   ============================================================ */
+
+function isProtectedAdminPage(){
+  const path = window.location.pathname;
+
+  if(!path.startsWith("/admin/")){
+    return false;
+  }
+
+  const publicPages = [
+    "/admin/login.html",
+    "/admin/forgot-password.html",
+    "/admin/reset-password.html"
+  ];
+
+  return !publicPages.includes(path);
+}
+
+function forceAdminLogoutRedirect(){
+  try{
+    localStorage.clear();
+    sessionStorage.clear();
+  }catch(err){}
+
+  window.location.replace("/admin/login.html");
+}
+
+function validateAdminSessionOnBack(){
+  if(!isProtectedAdminPage()){
+    return;
+  }
+
+  let session = null;
+
+  try{
+    if(typeof requireAuth === "function"){
+      session = requireAuth(["admin"]);
+    }
+  }catch(err){
+    session = null;
+  }
+
+  if(!session || session.role !== "admin"){
+    forceAdminLogoutRedirect();
+  }
+}
+
+window.addEventListener("pageshow", function(event){
+  const navEntry = performance.getEntriesByType("navigation")[0];
+  const isBackForward = event.persisted || (navEntry && navEntry.type === "back_forward");
+
+  if(isBackForward){
+    validateAdminSessionOnBack();
+  }
+});
+
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "visible"){
+    validateAdminSessionOnBack();
+  }
+});

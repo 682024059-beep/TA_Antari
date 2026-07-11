@@ -192,5 +192,21 @@ def api_login():
 def logout():
     session.clear()
 
-    response = make_response(redirect(url_for('utama_auth.login')))
-    return no_cache_response(response)
+    response = redirect(url_for('utama_auth.login'))
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+
+    return response
+
+@utama_auth.route('/api/session-check')
+def session_check():
+    is_logged_in = bool(
+        session.get('logged_in') and
+        session.get('role') == 'kasir'
+    )
+
+    return jsonify({
+        'logged_in': is_logged_in,
+        'role': session.get('role')
+    })
