@@ -1,5 +1,6 @@
-Flask
-python-dotenv
-PyMySQL
-certifi
-requests
+Flask==3.0.3
+python-dotenv==1.0.1
+PyMySQL==1.1.1
+certifi==2024.8.30
+requests==2.32.3
+Werkzeug==3.0.4

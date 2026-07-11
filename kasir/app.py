@@ -1,7 +1,12 @@
+import os
 from flask import Flask, redirect, url_for
+from dotenv import load_dotenv, find_dotenv
 
 from Backend.utama.auth import utama_auth
 from Backend.utama.kasir import utama_kasir
+
+
+load_dotenv(find_dotenv())
 
 app = Flask(
     __name__,
@@ -9,7 +14,7 @@ app = Flask(
     template_folder='Frontend/utama'
 )
 
-app.secret_key = 'antari-coffee-secret-key'
+app.secret_key = os.getenv("SECRET_KEY", "antari-coffee-secret-key")
 
 
 @app.route('/')
