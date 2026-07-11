@@ -28,17 +28,87 @@ def get_profil():
 @auth_required
 def update_profil():
     data = request.get_json(silent=True) or {}
+
+    username = (data.get("username") or "").strip()
     nama = (data.get("nama") or "").strip()
     email = data.get("email")
+
+    if email:
+        email = str(email).strip()
+    else:
+        email = None
+
+    if not username:
+        return jsonify({"message": "Username tidak boleh kosong."}), 400
+
+    if " " in username:
+        return jsonify({"message": "Username tidak boleh mengandung spasi."}), 400
+
     if not nama:
         return jsonify({"message": "Nama tidak boleh kosong."}), 400
 
-    query("UPDATE users SET nama=%s, email=%s WHERE id=%s", (nama, email, g.user["id"]), fetch=None)
-    row = query(
-        "SELECT id, username, nama, role, email, foto_url FROM users WHERE id=%s",
-        (g.user["id"],), fetch="one",
+    existing = query(
+        """
+        SELECT id
+        FROM users
+        WHERE id <> %s
+          AND (
+                username = %s
+                OR (
+                    email IS NOT NULL
+                    AND email <> ''
+                    AND email = %s
+                )
+              )
+        LIMIT 1
+        """,
+        (g.user["id"], username, email),
+        fetch="one",
     )
-    return jsonify({"message": "Profil berhasil diperbarui.", "profil": row})
+
+    if existing:
+        return jsonify({
+            "message": "Username atau email sudah digunakan akun lain."
+        }), 409
+
+    query(
+        """
+        UPDATE users
+        SET
+            username = %s,
+            nama = %s,
+            email = %s
+        WHERE id = %s
+        """,
+        (
+            username,
+            nama,
+            email,
+            g.user["id"],
+        ),
+        fetch=None,
+    )
+
+    row = query(
+        """
+        SELECT
+            id,
+            username,
+            nama,
+            role,
+            email,
+            foto_url
+        FROM users
+        WHERE id = %s
+        """,
+        (g.user["id"],),
+        fetch="one",
+    )
+
+    return jsonify({
+        "message": "Profil berhasil diperbarui.",
+        "profil": row
+    })
 
 
 @bp.post("/ganti-password")

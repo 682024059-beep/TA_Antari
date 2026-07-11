@@ -45,8 +45,8 @@
                 <div class="field-row">
                   <div class="field">
                     <label>Username</label>
-                    <input class="input" type="text" id="f-username" disabled>
-                    <p class="helper-text">Username tidak dapat diubah sendiri. Hubungi admin sistem bila perlu.</p>
+                    <input class="input" type="text" id="f-username" required>
+                    <p class="helper-text">Username dipakai untuk identitas akun. Gunakan tanpa spasi.</p>
                   </div>
                   <div class="field">
                     <label>Peran</label>
@@ -132,11 +132,17 @@
       const btn = document.getElementById('btn-simpan-profil');
       btn.disabled = true; btn.textContent = 'Menyimpan...';
       try{
-        const updated = await DataService.updateProfil({
-          nama: document.getElementById('f-nama').value.trim(),
-          email: document.getElementById('f-email').value.trim() || null,
-        });
-        updateSessionCache({ nama: updated.nama, email: updated.email });
+      const updated = await DataService.updateProfil({
+      username: document.getElementById('f-username').value.trim(),
+      nama: document.getElementById('f-nama').value.trim(),
+      email: document.getElementById('f-email').value.trim() || null,
+    });
+
+      updateSessionCache({
+      username: updated.username,
+      nama: updated.nama,
+      email: updated.email
+    });
         showToast('Profil berhasil diperbarui.', 'success');
         loadProfil();
       }catch(err){
