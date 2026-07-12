@@ -266,9 +266,6 @@ def hitung_diskon_backend(subtotal, diskon):
 
     return 0
 
-# ==========================================================
-# MIDTRANS SNAP SANDBOX
-# ==========================================================
 
 @utama_kasir.route('/api/midtrans/token', methods=['POST'])
 @login_required
@@ -497,9 +494,6 @@ def hitung_order_midtrans(cursor, items, diskon_id_frontend):
 
     return transaksi_items, subtotal_hitung, diskon_nominal, diskon_id, diskon_nama, total_hitung
 
-# ==========================================================
-# AMBIL PRODUK DARI DATABASE ADMIN
-# ==========================================================
 def ambil_produk_aktif():
     conn = get_db_connection()
     try:
@@ -524,9 +518,6 @@ def ambil_kategori_produk(produk):
     ])))
 
 
-# ==========================================================
-# HALAMAN KASIR
-# ==========================================================
 @utama_kasir.route('/kasir')
 @login_required
 def halaman_kasir():
@@ -568,9 +559,6 @@ def halaman_kasir():
 )
 
 
-# ==========================================================
-# API DISKON AKTIF UNTUK DROPDOWN KASIR
-# ==========================================================
 @utama_kasir.route('/api/diskon/aktif', methods=['GET'])
 @login_required
 def api_diskon_aktif():
@@ -607,9 +595,6 @@ def api_diskon_aktif():
             conn.close()
 
 
-# ==========================================================
-# HALAMAN RIWAYAT TRANSAKSI
-# ==========================================================
 @utama_kasir.route('/riwayat')
 @login_required
 def halaman_riwayat():
@@ -708,9 +693,6 @@ def halaman_riwayat():
     )
 
 
-# ==========================================================
-# PROSES TRANSAKSI KASIR
-# ==========================================================
 @utama_kasir.route('/api/transaksi', methods=['POST'])
 @login_required
 def proses_transaksi():
@@ -820,7 +802,6 @@ def proses_transaksi():
             diskon_id = None
             diskon_nama = None
 
-            # Ambil diskon dari database jika kasir memilih diskon
             if diskon_id_frontend:
                 cursor.execute("""
                     SELECT id, nama, jenis, nilai
@@ -1033,9 +1014,6 @@ def proses_transaksi():
         if conn:
             conn.close()
 
-# ==========================================================
-# NOTIFIKASI KASIR
-# ==========================================================
 @utama_kasir.route('/api/notifikasi/kasir', methods=['GET'])
 @login_required
 def ambil_notifikasi_kasir():
@@ -1045,8 +1023,6 @@ def ambil_notifikasi_kasir():
         conn = get_db_connection()
 
         with conn.cursor() as cursor:
-            # Dropdown notifikasi tetap menampilkan 10 notifikasi terakhir,
-            # baik yang sudah dibaca maupun yang belum dibaca.
             cursor.execute("""
                 SELECT
                     id,
@@ -1062,8 +1038,6 @@ def ambil_notifikasi_kasir():
                 LIMIT 10
             """)
             notifikasi = cursor.fetchall()
-
-            # Badge hanya menghitung yang belum dibaca.
             cursor.execute("""
                 SELECT COUNT(*) AS total
                 FROM notifikasi

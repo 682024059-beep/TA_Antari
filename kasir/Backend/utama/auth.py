@@ -9,10 +9,6 @@ utama_auth = Blueprint('utama_auth', __name__)
 
 load_dotenv(find_dotenv())
 
-
-# ======================================================
-# KONEKSI DATABASE
-# ======================================================
 def get_conn():
     return pymysql.connect(
         host=os.getenv("DB_HOST"),
@@ -52,9 +48,6 @@ def no_cache_response(response):
     return response
 
 
-# ======================================================
-# HALAMAN LOGIN
-# ======================================================
 @utama_auth.route('/login')
 def login():
     if session.get('logged_in') and session.get('role') == 'kasir':
@@ -64,10 +57,6 @@ def login():
     response = make_response(render_template('index.html'))
     return no_cache_response(response)
 
-
-# ======================================================
-# API LOGIN KASIR
-# ======================================================
 @utama_auth.route('/api/login', methods=['POST'])
 def api_login():
     if session.get('logged_in') and session.get('role') == 'kasir':
@@ -185,9 +174,6 @@ def api_login():
             conn.close()
 
 
-# ======================================================
-# LOGOUT
-# ======================================================
 @utama_auth.route('/logout')
 def logout():
     session.clear()

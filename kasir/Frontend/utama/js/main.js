@@ -1,7 +1,3 @@
-// ======================================================
-// ANTARI COFFEE - MAIN JAVASCRIPT
-// ======================================================
-
 let cart = [];
 let selectedMethod = "";
 
@@ -9,10 +5,6 @@ function formatRupiah(angka) {
     angka = parseInt(angka) || 0;
     return "Rp " + angka.toLocaleString("id-ID");
 }
-
-// ======================================================
-// 0. STYLE POPUP STRUK
-// ======================================================
 
 (function injectReceiptStyle() {
     if (document.getElementById("receiptModalStyle")) return;
@@ -200,10 +192,6 @@ function formatRupiah(angka) {
     document.head.appendChild(style);
 })();
 
-// ======================================================
-// 1. LOGIN PAGE
-// ======================================================
-
 const loginForm = document.getElementById("loginForm");
 const loginMessage = document.getElementById("loginMessage");
 const togglePassword = document.getElementById("togglePassword");
@@ -292,10 +280,6 @@ if (togglePassword) {
     });
 }
 
-// ======================================================
-// 2. ELEMENT KASIR
-// ======================================================
-
 const gridProduk = document.querySelector(".grid-produk");
 const cartContainer = document.getElementById("cart-items");
 const subtotalEl = document.getElementById("subtotal-val");
@@ -319,9 +303,6 @@ let activeDiscount = {
     nilai: 0
 };
 
-// ======================================================
-// 3. VALIDASI DAN HELPER
-// ======================================================
 
 function getTotalFromUI() {
     if (!totalEl) return 0;
@@ -523,9 +504,6 @@ function calculateChange(totalHarga) {
     changeEl.innerText = change >= 0 ? formatRupiah(change) : formatRupiah(0);
 }
 
-// ======================================================
-// 4. DISKON DROPDOWN
-// ======================================================
 
 async function setupDiscountSelect() {
     if (!discountSelect) return;
@@ -579,9 +557,6 @@ async function setupDiscountSelect() {
     });
 }
 
-// ======================================================
-// 5. KERANJANG KASIR
-// ======================================================
 
 if (gridProduk) {
     gridProduk.addEventListener("click", function(e) {
@@ -706,9 +681,6 @@ window.changeQty = function(id, delta) {
     updateCartUI();
 };
 
-// ======================================================
-// 6. HITUNG KEMBALIAN
-// ======================================================
 
 if (cashInput) {
     cashInput.addEventListener("input", function() {
@@ -729,9 +701,6 @@ methodButtons.forEach(function(button) {
     });
 });
 
-// ======================================================
-// 7. STRUK POPUP
-// ======================================================
 
 function buildReceiptItems(items) {
     return items.map(item => {
@@ -1021,9 +990,6 @@ async function prosesMidtransSnap(transaksi) {
     });
 }
 
-// ======================================================
-// 8. PROSES PEMBAYARAN
-// ======================================================
 
 if (btnProses) {
     btnProses.addEventListener("click", async function() {
@@ -1125,9 +1091,6 @@ if (btnProses) {
     });
 }
 
-// ======================================================
-// 9. RESET KERANJANG
-// ======================================================
 
 if (btnReset) {
     btnReset.addEventListener("click", function() {
@@ -1163,9 +1126,6 @@ function resetCart() {
     validatePaymentButton();
 }
 
-// ======================================================
-// 10. PENCARIAN, FILTER KATEGORI, DAN NOTIFIKASI
-// ======================================================
 
 const searchProdukInput = document.getElementById("searchProduk");
 const kategoriButtons = document.querySelectorAll(".kat-btn");
@@ -1223,7 +1183,6 @@ kategoriButtons.forEach(function(button) {
     });
 });
 
-// ---------- Helper aman untuk teks ----------
 function escapeHtml(value) {
     return String(value || "")
         .replaceAll("&", "&amp;")
@@ -1233,7 +1192,6 @@ function escapeHtml(value) {
         .replaceAll("'", "&#039;");
 }
 
-// ---------- Helper waktu notifikasi ----------
 function parseNotifDate(value) {
     if (!value) return null;
 
@@ -1333,7 +1291,6 @@ function getNotifIcon(tipe) {
     return '<i class="fa-solid fa-bell"></i>';
 }
 
-// ---------- Setup lonceng notifikasi ----------
 function setupNotificationBell() {
     if (!bellIcon) return;
 
@@ -1477,9 +1434,6 @@ async function markNotificationsAsRead() {
     }
 }
 
-// ======================================================
-// 11. INIT
-// ======================================================
 
 preventMinusCashInput();
 setupDiscountSelect();
@@ -1490,9 +1444,6 @@ validatePaymentButton();
 filterProduk();
 setupNotificationBell();
 
-// ======================================================
-// SECURITY FIX — cegah masuk kasir lewat tombol Back setelah logout
-// ======================================================
 
 function isProtectedKasirPage(){
     const path = window.location.pathname;

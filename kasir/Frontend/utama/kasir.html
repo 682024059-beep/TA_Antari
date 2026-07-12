@@ -4,18 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Kasir - Antari Coffee</title>
-
-    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
     <div class="dashboard-container">
-
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="brand">
                 <h2>Antari Coffee</h2>
@@ -41,11 +35,7 @@
                 </a>
             </div>
         </aside>
-
-        <!-- MAIN CONTENT -->
         <main class="main-content">
-
-            <!-- TOPBAR -->
             <header class="topbar">
                 <div class="page-title">
                     <h2>Menu Kasir</h2>
@@ -65,15 +55,9 @@
                     </div>
                 </div>
             </header>
-
-            <!-- BODY -->
             <div class="content-body">
                 <div class="kasir-layout">
-
-                    <!-- AREA PRODUK -->
                     <section class="produk-area">
-
-                        <!-- HEADER PRODUK -->
                         <div class="daftar-produk-header">
                             <div>
                                 <h3>Daftar Produk</h3>
@@ -90,8 +74,6 @@
                                     {% if not produk %}disabled{% endif %}>
                             </div>
                         </div>
-
-                        <!-- FILTER KATEGORI -->
                         <div class="kategori-filter">
                             <button type="button" class="kat-btn active" data-category="semua">
                                 Semua
@@ -109,9 +91,6 @@
                                 </button>
                             {% endif %}
                         </div>
-
-                        <!-- GRID PRODUK -->
-                        <!-- GRID PRODUK -->
 <div class="grid-produk">
     {% if produk %}
         {% for p in produk %}
@@ -160,11 +139,7 @@
     {% endif %}
 </div>
                     </section>
-
-                    <!-- AREA BILLING -->
                     <aside class="billing-area">
-
-                        <!-- CUSTOMER INFO -->
                         <div class="customer-info-row">
                             <div class="input-billing">
                                 <label>NAMA CUSTOMER</label>
@@ -174,15 +149,11 @@
                                     placeholder="Contoh: Andri Wijaya">
                             </div>
                         </div>
-
-                        <!-- CART -->
                         <h3 class="section-title">DETAIL PESANAN</h3>
 
                         <div class="cart-items-list" id="cart-items">
                             <p class="empty-text">Belum ada menu yang dipilih</p>
                         </div>
-
-                        <!-- SUMMARY -->
                         <div class="payment-summary">
                             <div class="summary-line">
                                 <span>Subtotal</span>
@@ -201,8 +172,6 @@
                                 <strong id="total-val" class="text-brown">Rp 0</strong>
                             </div>
                         </div>
-
-                        <!-- METODE PEMBAYARAN -->
                         <div class="payment-method-section">
                             <h3 class="section-title">METODE PEMBAYARAN</h3>
 
@@ -226,8 +195,6 @@
                                 </button>
                             </div>
                         </div>
-
-                        <!-- CASH CALCULATOR -->
                         <div class="cash-calculator">
                             <div class="input-billing">
                                 <label>JUMLAH DIBAYAR</label>
@@ -245,8 +212,6 @@
                                 <div class="kembalian-amount" id="change-val">Rp 0</div>
                             </div>
                         </div>
-
-                        <!-- ACTION -->
                         <button 
                             type="button" 
                             class="btn-proses" 
@@ -263,8 +228,6 @@
             </div>
         </main>
     </div>
-
-    <!-- JS -->
     <script>
         window.ACTIVE_DISCOUNT = {
             id: "",

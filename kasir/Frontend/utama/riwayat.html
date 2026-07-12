@@ -4,18 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riwayat Transaksi - Antari Coffee</title>
-
-    <!-- CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
     <div class="dashboard-container">
-
-        <!-- SIDEBAR -->
         <aside class="sidebar">
             <div class="brand">
                 <h2>Antari Coffee</h2>
@@ -41,11 +35,7 @@
                 </a>
             </div>
         </aside>
-
-        <!-- MAIN CONTENT -->
         <main class="main-content">
-
-            <!-- TOPBAR -->
             <header class="topbar">
                 <div class="page-title">
                     <h2>Riwayat Transaksi</h2>
@@ -65,12 +55,8 @@
                     </div>
                 </div>
             </header>
-
-            <!-- BODY -->
             <div class="content-body">
                 <div class="riwayat-container">
-
-                    <!-- SUMMARY CARDS -->
                     <div class="summary-cards">
 
                         <div class="card-stat">
@@ -116,8 +102,6 @@
                         </div>
 
                     </div>
-
-                    <!-- FILTER TANGGAL -->
                     <div class="log-transaksi-box">
                         <div class="log-header">
                             <div>
@@ -160,8 +144,6 @@
                             </div>
                         </form>
                     </div>
-
-                    <!-- LOG TRANSAKSI -->
                     <div class="log-transaksi-box">
                         <div class="log-header">
                             <div>
@@ -265,8 +247,6 @@
             </div>
         </main>
     </div>
-
-    <!-- POPUP DETAIL TRANSAKSI -->
     <div class="receipt-overlay" id="riwayatDetailModal" style="display: none;">
         <div class="receipt-modal">
             <div class="receipt-paper">
@@ -332,8 +312,6 @@
             </div>
         </div>
     </div>
-
-    <!-- SCRIPT POPUP DETAIL -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const modal = document.getElementById("riwayatDetailModal");
@@ -387,8 +365,6 @@
         toggleDateValue();
     });
 </script>
-
-    <!-- JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
