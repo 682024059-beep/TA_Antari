@@ -93,8 +93,7 @@ def add_kasir_user():
     password_hash = generate_password_hash(password)
     is_active = _status_to_active(status)
 
-    # PENTING:
-    # id tidak dimasukkan karena id users adalah BIGINT AUTO_INCREMENT.
+
     query(
         """
         INSERT INTO users

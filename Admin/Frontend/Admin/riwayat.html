@@ -11,7 +11,6 @@
   <div id="sidebar-placeholder"></div>
   <div class="main-shell">
     <div id="topbar-placeholder"></div>
-
     <main class="content">
       <div class="panel">
         <div class="panel__header">
@@ -20,19 +19,16 @@
             <div class="hint" id="riwayat-count"></div>
           </div>
         </div>
-
         <div class="panel__body">
           <div class="flex-gap mb-16" style="flex-wrap:wrap; gap:12px;">
             <div class="field" style="margin-bottom:0;">
               <label>Dari Tanggal</label>
               <input class="input" type="date" id="f-start">
             </div>
-
             <div class="field" style="margin-bottom:0;">
               <label>Sampai Tanggal</label>
               <input class="input" type="date" id="f-end">
             </div>
-
             <div class="field" style="margin-bottom:0;">
               <label>Metode Bayar</label>
               <select class="input" id="f-metode">
@@ -74,7 +70,6 @@
   </div>
 </div>
 
-<!-- Modal Detail Transaksi -->
 <div class="modal-overlay" id="modal-detail">
   <div class="modal">
     <div class="modal__header">
@@ -302,10 +297,6 @@
 </script>
 
 <script>
-    // ======================================================
-    // FIX TANGGAL RIWAYAT TRANSAKSI
-    // Tanggal hanya boleh mulai dari 01 Januari 2026 ke atas
-    // ======================================================
     document.addEventListener("DOMContentLoaded", function(){
         const MIN_DATE = "2026-01-01";
 
@@ -331,7 +322,6 @@
         }
 
         function refreshRiwayat(){
-            // Jalankan ulang filter kalau function-nya ada
             if(typeof renderTable === "function"){
                 renderTable();
                 return;

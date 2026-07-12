@@ -201,7 +201,6 @@ def add_produk():
         fetch="one",
     )
 
-    # Notifikasi ke kasir: produk baru
     _safe_notify(
         notif_produk_kasir,
         "produk_baru",
@@ -209,7 +208,6 @@ def add_produk():
         row["nama"],
     )
 
-    # Notifikasi ke kasir kalau stok awal langsung menipis/habis
     _safe_notify(
         notif_stok_langsung,
         row["kode"],
@@ -217,7 +215,6 @@ def add_produk():
         row["stok"],
     )
 
-    # Notifikasi admin + email admin kalau stok menipis/habis
     _safe_notify(
         _check_and_notify_stok_admin,
         row,
@@ -288,7 +285,7 @@ def update_produk(kode):
     if not row:
         return jsonify({"message": "Produk tidak ditemukan."}), 404
 
-    # Notifikasi ke kasir: produk diupdate
+
     _safe_notify(
         notif_produk_kasir,
         "produk_update",
@@ -296,7 +293,6 @@ def update_produk(kode):
         row["nama"],
     )
 
-    # Notifikasi ke kasir kalau stok berubah menjadi menipis/habis
     _safe_notify(
         notif_stok_berubah,
         row["kode"],
@@ -305,7 +301,6 @@ def update_produk(kode):
         row["stok"],
     )
 
-    # Notifikasi admin + email admin kalau stok menipis/habis
     _safe_notify(
         _check_and_notify_stok_admin,
         row,
@@ -343,7 +338,6 @@ def delete_produk(kode):
         fetch=None,
     )
 
-    # Notifikasi ke kasir: produk dihapus
     _safe_notify(
         notif_produk_kasir,
         "produk_hapus",
@@ -400,7 +394,6 @@ def update_stok(kode):
         fetch="one",
     )
 
-    # Notifikasi ke kasir: stok/produk diperbarui
     _safe_notify(
         notif_produk_kasir,
         "produk_update",
@@ -408,7 +401,6 @@ def update_stok(kode):
         updated["nama"],
     )
 
-    # Notifikasi ke kasir kalau stok berubah menjadi menipis/habis
     _safe_notify(
         notif_stok_berubah,
         updated["kode"],
@@ -417,7 +409,6 @@ def update_stok(kode):
         updated["stok"],
     )
 
-    # Notifikasi admin + email admin kalau stok menipis/habis
     _safe_notify(
         _check_and_notify_stok_admin,
         updated,
@@ -476,7 +467,6 @@ def upload_foto_produk(kode):
         fetch="one",
     )
 
-    # Notifikasi ke kasir: produk diperbarui karena foto berubah
     if row:
         _safe_notify(
             notif_produk_kasir,

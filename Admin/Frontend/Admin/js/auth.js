@@ -1,12 +1,3 @@
-/* ============================================================
-   ANTARI — Auth & Session
-   F001 Login Sistem, F011 Logout Sistem
-
-   Login memverifikasi ke backend lewat Api.login().
-   Sesi disimpan sebagai JWT di localStorage, dan info tampilan
-   disimpan di sessionStorage.
-   ============================================================ */
-
 const SESSION_KEY = 'antari_session_v1';
 
 async function login(email, password){
@@ -74,10 +65,6 @@ function logout(){
   window.location.replace(rootPath() + 'login.html');
 }
 
-/* 
-   Dipanggil di setiap halaman yang butuh login.
-   Kalau belum login atau role tidak sesuai, user diarahkan ke login.
-*/
 function requireAuth(allowedRoles){
   const session = getSession();
   const token = getToken();
@@ -119,10 +106,8 @@ function redirectLoginIfAlreadyLoggedIn(){
     }
 }
 
-// Jalan saat halaman pertama kali dibuka
 redirectLoginIfAlreadyLoggedIn();
 
-// Jalan saat user klik tombol Back browser
 window.addEventListener("pageshow", function(){
     redirectLoginIfAlreadyLoggedIn();
 });

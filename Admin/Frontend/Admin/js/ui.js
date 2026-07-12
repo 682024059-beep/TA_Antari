@@ -1,7 +1,3 @@
-/* ============================================================
-   ANTARI — UI helpers: toast & confirm dialog
-   ============================================================ */
-
 function ensureToastStack(){
   let stack = document.querySelector('.toast-stack');
   if(!stack){

@@ -141,7 +141,6 @@
           <div class="stat-card__value">${s.value}</div>
         </div>`).join('');
 
-      // chart: group by date present in list
       const byDate = {};
       list.forEach(t=>{ const d = String(t.tanggal).slice(0,10); byDate[d] = (byDate[d]||0) + Number(t.total); });
       const dates = Object.keys(byDate).sort();
@@ -226,11 +225,6 @@
 </script>
 
 <script>
-    // ======================================================
-    // FIX TANGGAL LAPORAN
-    // Tampilan awal kosong seperti Riwayat Transaksi.
-    // Tanggal hanya boleh mulai dari 01 Januari 2026 ke atas.
-    // ======================================================
     document.addEventListener("DOMContentLoaded", function(){
         const MIN_DATE = "2026-01-01";
 
@@ -240,8 +234,8 @@
             return;
         }
 
-        const startInput = dateInputs[0]; // Dari Tanggal
-        const endInput = dateInputs[1];   // Sampai Tanggal
+        const startInput = dateInputs[0]; 
+        const endInput = dateInputs[1];   
 
         function applyMinDate(){
             dateInputs.forEach(input => {
@@ -255,7 +249,6 @@
         }
 
         function clearInitialDates(){
-            // Kosongkan tampilan awal agar placeholder mm/dd/yyyy muncul
             startInput.value = "";
             endInput.value = "";
         }
@@ -268,8 +261,6 @@
 
         applyMinDate();
 
-        // Tunggu script laporan utama selesai mengisi default tanggal,
-        // lalu kosongkan lagi supaya tampilan awal sama seperti riwayat.
         setTimeout(function(){
             applyMinDate();
             clearInitialDates();
@@ -291,7 +282,6 @@
             }
         });
 
-        // Kalau user pilih periode cepat, baru tanggal boleh otomatis muncul
         const periodeSelect =
             document.getElementById("periode") ||
             document.getElementById("quick-period") ||

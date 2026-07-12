@@ -62,9 +62,6 @@ def create_app():
             response.headers["Expires"] = "0"
         return response
 
-    # ======================================================
-    # REGISTER BLUEPRINT API
-    # ======================================================
     app.register_blueprint(auth_bp)
     app.register_blueprint(profil_bp)
     app.register_blueprint(produk_bp)
@@ -74,10 +71,7 @@ def create_app():
     app.register_blueprint(notifikasi_bp)
     app.register_blueprint(kasir_user_bp)
 
-    # ======================================================
-    # ROUTE FRONTEND ADMIN
-    # ======================================================
-    @app.get("/")
+
     def root():
         return redirect("/admin/login.html")
 
@@ -113,10 +107,6 @@ def create_app():
             }), 404
 
         return send_from_directory(FRONTEND_ADMIN_DIR, filename)
-
-    # ======================================================
-    # HEALTH CHECK
-    # ======================================================
     @app.get("/api/health")
     def health():
         return jsonify({
@@ -124,9 +114,6 @@ def create_app():
             "app": "antari-admin"
         })
 
-    # ======================================================
-    # ERROR HANDLER
-    # ======================================================
     @app.errorhandler(404)
     def not_found(e):
         return jsonify({

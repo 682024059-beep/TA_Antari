@@ -1,8 +1,3 @@
-/* ============================================================
-   ANTARI — Layout renderer (sidebar + topbar)
-   Stable version untuk semua halaman admin termasuk Akun Kasir
-   ============================================================ */
-
 const NAV_ITEMS = {
   admin: [
     { key:'dashboard', label:'Dashboard', icon:'dashboard', href:'dashboard.html' },
@@ -198,8 +193,6 @@ function renderLayout(activeKey){
 
   return session;
 }
-
-/* ---------------- Notifikasi ---------------- */
 
 function setupNotifBell(){
   const btn = document.getElementById('btn-notif');
@@ -461,7 +454,6 @@ function ensureNotifStyles(){
   document.head.appendChild(style);
 }
 
-/* ---------------- Waktu Notifikasi ---------------- */
 
 function parseAntariDate(value){
   if(!value) return null;
@@ -520,14 +512,10 @@ function formatWaktuNotif(value){
   });
 }
 
-/* Smooth navigation dimatikan supaya tidak blank/setengah jadi */
 function enableSmoothNavigation(){
   return;
 }
 
-/* ============================================================
-   SECURITY FIX — cegah masuk dashboard lewat tombol Back setelah logout
-   ============================================================ */
 
 function isProtectedAdminPage(){
   const path = window.location.pathname;

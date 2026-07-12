@@ -1,10 +1,4 @@
-/* ============================================================
-   ANTARI — Sistem POS & Manajemen CoffeeShop
-   Design tokens & base styles
-   ============================================================ */
-
 :root{
-  /* --- coffee / brand palette --- */
   --coffee-950:#1C1109;
   --coffee-900:#2A1810;
   --coffee-800:#3A2417;
@@ -76,18 +70,13 @@ button{ font-family:inherit; }
 input,select,textarea{ font-family:inherit; font-size:14px; }
 ::selection{ background:var(--accent-100); }
 
-/* subtle bean-dot texture used behind hero/signature panels */
 .bean-texture{
   background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.06) 1.4px, transparent 1.4px);
   background-size:18px 18px;
 }
 
-/* ============================================================
-   APP SHELL
-   ============================================================ */
 .app-shell{ display:flex; min-height:100vh; }
 
-/* ---------- Sidebar ---------- */
 .sidebar{
   width:var(--sidebar-w);
   flex-shrink:0;
@@ -164,7 +153,7 @@ input,select,textarea{ font-family:inherit; font-size:14px; }
 .logout-btn:hover{ background:var(--danger-600); border-color:var(--danger-600); color:#fff; }
 .logout-btn svg{ width:15px;height:15px; }
 
-/* ---------- Main shell ---------- */
+
 .main-shell{ flex:1; margin-left:var(--sidebar-w); display:flex; flex-direction:column; min-width:0; }
 
 .topbar{
@@ -210,11 +199,6 @@ input,select,textarea{ font-family:inherit; font-size:14px; }
 
 .content{ padding:26px 28px 60px; flex:1; }
 
-/* ============================================================
-   COMPONENTS
-   ============================================================ */
-
-/* Stat cards */
 .stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:24px; }
 @media (max-width:1100px){ .stat-grid{ grid-template-columns:repeat(2,1fr);} }
 .stat-card{
@@ -245,7 +229,7 @@ input,select,textarea{ font-family:inherit; font-size:14px; }
 .tone-warning{ background:var(--warning-100); color:var(--warning-600); }
 .tone-danger{ background:var(--danger-100); color:var(--danger-600); }
 
-/* Panels / cards */
+
 .panel{
   background:var(--paper); border:1px solid var(--cream-200); border-radius:var(--radius-md);
   box-shadow:var(--shadow-3d);
@@ -261,7 +245,7 @@ input,select,textarea{ font-family:inherit; font-size:14px; }
 .panel-grid-2{ display:grid; grid-template-columns:1.6fr 1fr; gap:18px; }
 @media (max-width:1050px){ .panel-grid-2{ grid-template-columns:1fr; } }
 
-/* Buttons */
+
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
   border-radius:var(--radius-sm); border:1px solid transparent;
@@ -286,7 +270,7 @@ input,select,textarea{ font-family:inherit; font-size:14px; }
 .btn:active{ transform:translateY(1px); box-shadow:var(--shadow-pressed); }
 .btn-icon{ width:34px;height:34px; padding:0; border-radius:8px; }
 
-/* Forms */
+
 .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
 .field label{ font-size:12.5px; font-weight:600; color:var(--ink-700); }
 .field .req{ color:var(--danger-600); }
@@ -332,7 +316,7 @@ input,select,textarea{ font-family:inherit; font-size:14px; }
 }
 .toggle-group button.active{ background:var(--paper); color:var(--accent-700); box-shadow:var(--shadow-sm); }
 
-/* Tables */
+
 .table-wrap{ overflow-x:auto; }
 table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .data-table thead th{
@@ -347,7 +331,7 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .cell-muted{ color:var(--ink-500); }
 .row-actions{ display:flex; gap:6px; justify-content:flex-end; }
 
-/* Badges */
+
 .badge{
   display:inline-flex; align-items:center; gap:5px; padding:4px 10px; border-radius:var(--radius-pill);
   font-size:11.5px; font-weight:700; white-space:nowrap;
@@ -359,7 +343,7 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .badge-info{ background:var(--info-100); color:var(--info-600); }
 .badge-neutral{ background:var(--cream-100); color:var(--ink-500); }
 
-/* product avatar swatch */
+
 .prod-swatch{
   width:38px;height:38px;border-radius:10px;
   display:flex;align-items:center;justify-content:center; font-size:18px; flex-shrink:0;
@@ -367,7 +351,7 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   box-shadow:0 8px 16px rgba(28,17,9,.08), 0 1px 0 rgba(255,255,255,.80) inset;
 }
 
-/* Empty state */
+
 .empty-state{
   text-align:center;
   padding:32px 20px;
@@ -402,7 +386,7 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   line-height:1.5;
 }
 
-/* Modal */
+
 .modal-overlay{
   position:fixed; inset:0; background:rgba(28,17,9,.45); backdrop-filter:blur(2px);
   display:flex; align-items:center; justify-content:center; z-index:100; padding:20px;
@@ -422,7 +406,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .modal__body{ padding:4px 22px 22px; }
 .modal__footer{ display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid var(--cream-100); }
 
-/* Toast */
 .toast-stack{ position:fixed; top:20px; right:20px; z-index:200; display:flex; flex-direction:column; gap:10px; }
 .toast{
   background:var(--coffee-900); color:#fff; padding:12px 16px; border-radius:var(--radius-sm);
@@ -434,9 +417,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .toast.danger{ background:var(--danger-600); }
 @keyframes toastIn{ from{ opacity:0; transform:translateY(-8px);} to{ opacity:1; transform:translateY(0);} }
 
-/* ============================================================
-   LOGIN PAGE — disamakan dengan tampilan login kasir
-   ============================================================ */
 
 .login-shell{
   min-height:100vh;
@@ -446,7 +426,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   visibility:visible;
 }
 
-/* BAGIAN KIRI LOGIN */
 .login-visual{
   flex:1.05;
   min-width:0;
@@ -464,7 +443,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
     url("https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1400&auto=format&fit=crop") center/cover no-repeat;
 }
 
-/* lingkaran dekorasi kanan atas */
 .login-visual::before{
   content:"";
   position:absolute;
@@ -478,7 +456,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   pointer-events:none;
 }
 
-/* lingkaran dekorasi kiri bawah */
 .login-visual::after{
   content:"";
   position:absolute;
@@ -491,7 +468,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   pointer-events:none;
 }
 
-/* brand dibuat jadi konten tengah */
 .login-visual .brand{
   position:relative;
   z-index:2;
@@ -502,7 +478,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   gap:0;
 }
 
-/* kotak icon cup */
 .login-visual .brand .mark{
   width:92px;
   height:92px;
@@ -525,7 +500,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   stroke-width:2.4;
 }
 
-/* tulisan ANTARI */
 .login-visual .brand .word{
   color:#fff;
   font-size:34px;
@@ -535,7 +509,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   text-shadow:0 8px 20px rgba(0,0,0,.34);
 }
 
-/* sub title */
 .login-visual .brand .sub{
   margin-top:16px;
   color:#F5D6A1;
@@ -545,7 +518,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   text-transform:uppercase;
 }
 
-/* garis kecil bawah title */
 .login-visual .brand::after{
   content:"";
   width:68px;
@@ -555,12 +527,10 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   background:linear-gradient(90deg, #D28A35 0%, #fff 100%);
 }
 
-/* sembunyikan quote lama admin agar tidak gelap/kosong */
 .login-visual .quote{
   display:none !important;
 }
 
-/* copyright bawah */
 .login-visual .foot{
   position:absolute;
   z-index:2;
@@ -575,7 +545,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   text-transform:uppercase;
 }
 
-/* BAGIAN KANAN FORM */
 .login-form-side{
   flex:1;
   min-width:0;
@@ -621,7 +590,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   font-size:13.5px;
 }
 
-/* responsive */
 @media(max-width:900px){
   .login-shell{
     flex-direction:column;
@@ -640,9 +608,7 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
     padding:28px 20px;
   }
 }
-/* ============================================================
-   POS / Transaksi page
-   ============================================================ */
+
 .pos-layout{ display:grid; grid-template-columns:1fr 380px; gap:20px; align-items:start; }
 @media (max-width:1100px){ .pos-layout{ grid-template-columns:1fr; } }
 
@@ -697,7 +663,7 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 
 .kembalian-box{ background:var(--success-100); color:var(--success-600); border-radius:var(--radius-sm); padding:10px 14px; font-size:13px; font-weight:700; display:flex; justify-content:space-between; }
 
-/* Receipt (struk) */
+
 .receipt{ font-family:'Courier New', monospace; font-size:12.5px; color:#111; width:280px; margin:0 auto; }
 .receipt h3{ text-align:center; font-family:'Courier New', monospace; font-size:15px; margin-bottom:2px; }
 .receipt .center{ text-align:center; }
@@ -705,7 +671,7 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .receipt .line{ display:flex; justify-content:space-between; gap:8px; }
 .receipt .line span:last-child{ text-align:right; }
 
-/* mini bar chart */
+
 .mini-chart{ display:flex; align-items:flex-end; gap:10px; height:150px; padding:6px 4px 0; }
 .mini-chart .bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; justify-content:flex-end; height:100%; }
 .mini-chart .bar{ width:100%; max-width:34px; border-radius:6px 6px 0 0; background:linear-gradient(180deg,var(--accent-500),var(--accent-700)); min-height:4px; }
@@ -719,7 +685,7 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
 .top-prod-row .info .s{ font-size:11.5px; color:var(--ink-500); }
 .top-prod-row .amt{ font-size:13px; font-weight:700; color:var(--accent-700); }
 
-/* Utility */
+
 .flex{ display:flex; }
 .flex-between{ display:flex; align-items:center; justify-content:space-between; }
 .flex-gap{ display:flex; align-items:center; gap:10px; }
@@ -736,13 +702,11 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   #print-area{ position:absolute; top:0; left:0; width:100%; }
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar{ width:9px; height:9px; }
 ::-webkit-scrollbar-track{ background:transparent; }
 ::-webkit-scrollbar-thumb{ background:var(--cream-200); border-radius:99px; }
 ::-webkit-scrollbar-thumb:hover{ background:var(--ink-300); }
 
-/* Responsive: collapse sidebar on small screens */
 @media (max-width:880px){
   .sidebar{ transform:translateX(-100%); transition:transform .2s ease; }
   .sidebar.open{ transform:translateX(0); }
@@ -750,10 +714,6 @@ table.data-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
   .topbar__search{ display:none; }
 }
 
-/* ============================================================
-   FINAL FIX — Layout admin stabil + password eye + akun kasir
-   Letakkan di paling bawah agar override CSS lama.
-   ============================================================ */
 
 html,
 body{
@@ -764,7 +724,6 @@ body{
     linear-gradient(135deg,#fffaf2 0%,var(--cream-50) 45%,#f2e8d8 100%);
 }
 
-/* Layout dasar admin */
 .app-shell{
   display:flex;
   min-height:100vh;
@@ -776,7 +735,6 @@ body{
   transform:none;
 }
 
-/* Sidebar fixed, jadi konten wajib diberi margin kiri */
 .sidebar{
   width:var(--sidebar-w);
   min-width:var(--sidebar-w);
@@ -788,8 +746,7 @@ body{
   z-index:40;
 }
 
-/* Dashboard lama pakai .main-shell, akun kasir pakai .main-content.
-   Dua-duanya dibuat sama agar layout tidak ketimpa sidebar. */
+
 .main-shell,
 .main-content{
   flex:1;
@@ -803,7 +760,6 @@ body{
   transform:none;
 }
 
-/* Topbar tetap sejajar dengan konten, tidak ketutup sidebar */
 .topbar{
   height:var(--topbar-h);
   flex-shrink:0;
@@ -812,13 +768,11 @@ body{
   z-index:30;
 }
 
-/* Konten halaman */
 .content{
   padding:26px 28px 60px;
   flex:1;
 }
 
-/* Animasi ringan, tidak menyembunyikan halaman */
 body.page-ready .app-shell{
   opacity:1;
   visibility:visible;
@@ -832,13 +786,11 @@ body.page-leaving .app-shell{
   transition:opacity .12s ease;
 }
 
-/* Login page tidak pakai sidebar */
 .login-shell{
   opacity:1;
   visibility:visible;
 }
 
-/* Responsive sidebar */
 @media (max-width:880px){
   .sidebar{
     transform:translateX(-100%);
@@ -859,9 +811,6 @@ body.page-leaving .app-shell{
   }
 }
 
-/* ============================================================
-   PASSWORD INPUT EYE FIX
-   ============================================================ */
 
 .input-with-icon{
   position:relative;
@@ -939,9 +888,6 @@ body.page-leaving .app-shell{
   padding-right:48px;
 }
 
-/* ============================================================
-   CLOUDINARY PRODUCT IMAGE
-   ============================================================ */
 
 .prod-swatch{
   width:42px;
@@ -964,10 +910,6 @@ body.page-leaving .app-shell{
   object-fit:cover;
   display:block;
 }
-
-/* ============================================================
-   AKUN KASIR PAGE
-   ============================================================ */
 
 .akun-page{
   padding:26px 28px 60px;
@@ -1205,10 +1147,6 @@ body.page-leaving .app-shell{
   }
 }
 
-/* ============================================================
-   PRINT FIX — Laporan Penjualan
-   Supaya bar chart tren pendapatan tetap muncul saat cetak PDF
-   ============================================================ */
 
 @media print{
   *{
@@ -1257,17 +1195,8 @@ body.page-leaving .app-shell{
   }
 }
 
-/* ============================================================
-   ADMIN FINAL THEME — Disamakan dengan style kasir ANTARI
-   File ini adalah hasil merge final:
-   - Tetap mempertahankan class admin: app-shell, main-shell,
-     sidebar__brand, nav-item, topbar, panel, stat-card, data-table.
-   - Warna, font, radius, shadow, logo, sidebar, topbar, card,
-     form, button mengikuti style kasir.
-   ============================================================ */
 
 :root{
-  /* Palette utama dari kasir */
   --primary-color:#7A3E08;
   --primary-hover:#5D2F05;
   --primary-soft:#F4E7DA;
@@ -1298,7 +1227,6 @@ body.page-leaving .app-shell{
   --shadow-md:0 16px 35px rgba(36,22,20,.12);
   --shadow-lg:0 28px 60px rgba(36,22,20,.16);
 
-  /* Mapping ke variable admin lama */
   --coffee-950:#1A0F0D;
   --coffee-900:#241614;
   --coffee-800:#3A241F;
@@ -1343,9 +1271,6 @@ body.page-leaving .app-shell{
   --topbar-h:74px;
 }
 
-/* ============================================================
-   BASE
-============================================================ */
 
 html,
 body{
@@ -1388,9 +1313,6 @@ a{
   text-decoration:none;
 }
 
-/* ============================================================
-   APP LAYOUT
-============================================================ */
 
 .app-shell{
   display:flex !important;
@@ -1419,9 +1341,6 @@ a{
   padding:24px 28px 60px !important;
 }
 
-/* ============================================================
-   SIDEBAR — gaya kasir, class tetap admin
-============================================================ */
 
 .sidebar{
   position:fixed !important;
@@ -1645,9 +1564,6 @@ a{
   color:#FF7C72 !important;
 }
 
-/* ============================================================
-   TOPBAR — gaya kasir, class tetap admin
-============================================================ */
 
 .topbar{
   min-height:74px !important;
@@ -1748,10 +1664,6 @@ a{
   box-shadow:0 8px 16px rgba(111,56,0,.22) !important;
 }
 
-/* ============================================================
-   CARD / PANEL / TABLE
-============================================================ */
-
 .panel,
 .stat-card,
 .akun-card,
@@ -1816,9 +1728,6 @@ a{
   background:#FBF7F3 !important;
 }
 
-/* ============================================================
-   FORM
-============================================================ */
 
 .input,
 select.input,
@@ -1849,9 +1758,6 @@ textarea.input:focus,
   font-weight:900 !important;
 }
 
-/* ============================================================
-   BUTTON
-============================================================ */
 
 .btn-primary,
 .akun-btn-primary{
@@ -1905,10 +1811,6 @@ textarea.input:focus,
   color:var(--danger-color) !important;
 }
 
-/* ============================================================
-   BADGE / STATUS
-============================================================ */
-
 .badge-success,
 .akun-badge-aktif{
   background:#EAF7EE !important;
@@ -1931,9 +1833,6 @@ textarea.input:focus,
   color:var(--info-color) !important;
 }
 
-/* ============================================================
-   LOGIN ADMIN ikut gaya kasir
-============================================================ */
 
 .login-card,
 .form-container{
@@ -1955,9 +1854,6 @@ textarea.input:focus,
   color:var(--text-muted) !important;
 }
 
-/* ============================================================
-   CLOUDINARY PRODUCT IMAGE
-============================================================ */
 
 .prod-swatch{
   width:42px !important;
@@ -1980,9 +1876,6 @@ textarea.input:focus,
   display:block !important;
 }
 
-/* ============================================================
-   PRINT FIX — Laporan Penjualan
-============================================================ */
 
 @media print{
   *{
@@ -2039,9 +1932,6 @@ textarea.input:focus,
   }
 }
 
-/* ============================================================
-   RESPONSIVE
-============================================================ */
 
 @media(max-width:880px){
   .sidebar{

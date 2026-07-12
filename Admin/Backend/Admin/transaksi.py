@@ -110,7 +110,6 @@ def create_transaksi():
     finally:
         conn.autocommit(True)
 
-    # Notifikasi transaksi baru
     try:
         create_notifikasi(
             target_role="admin", tipe="transaksi_baru", judul="Transaksi Baru",
@@ -120,7 +119,6 @@ def create_transaksi():
     except Exception:
         pass
 
-    # Struk digital via Resend
     if email_customer:
         try:
             result = send_struk_email({
@@ -133,7 +131,6 @@ def create_transaksi():
         except Exception:
             pass
 
-    # Alert stok menipis/habis
     for p in stok_menipis_list:
         try:
             create_notifikasi(

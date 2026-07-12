@@ -1,10 +1,3 @@
-/* ============================================================
-   ANTARI — Util & konstanta bersama (murni fungsi format, TIDAK
-   ada lagi penyimpanan localStorage sebagai "database palsu").
-   Data sesungguhnya diambil lewat js/dataService.js -> js/api.js
-   yang terhubung ke backend (TiDB, Cloudinary, Resend).
-   ============================================================ */
-
 const KATEGORI_ICON = {
   'Kopi': '☕',
   'Non-Kopi': '🧋',

@@ -1,9 +1,3 @@
-/* ============================================================
-   ANTARI — API client
-   Semua request ke backend (TiDB/Cloudinary/Resend) lewat sini.
-   Ganti API_BASE_URL sesuai alamat server backend Anda.
-   ============================================================ */
-
 const API_BASE_URL = window.ANTARI_API_BASE_URL || '/api';
 const TOKEN_KEY = 'antari_token_v1';
 
@@ -52,7 +46,6 @@ async function apiRequest(path, { method='GET', body, isForm=false } = {}){
   try{
     data = await res.json();
   }catch(e){
-    // Respons kosong
   }
 
   if(res.status === 401){
@@ -72,7 +65,6 @@ async function apiRequest(path, { method='GET', body, isForm=false } = {}){
 }
 
 const Api = {
-  // Auth
   login: (email, password) =>
     apiRequest('/auth/login', {
       method:'POST',
@@ -93,7 +85,6 @@ const Api = {
 
   me: () => apiRequest('/auth/me'),
 
-  // Profil
   getProfil: () => apiRequest('/profil'),
 
   updateProfil: (data) =>
@@ -119,7 +110,6 @@ const Api = {
     });
   },
 
-  // Produk
   getProduk: () => apiRequest('/produk'),
 
   addProduk: (data) =>
@@ -156,7 +146,6 @@ const Api = {
     });
   },
 
-  // Diskon
   getDiskon: () => apiRequest('/diskon'),
 
   addDiskon: (data) =>
@@ -176,7 +165,6 @@ const Api = {
       method:'DELETE'
     }),
 
-  // Transaksi
   getTransaksi: (start, end) => {
     const qs = new URLSearchParams();
 
@@ -199,7 +187,6 @@ const Api = {
       body:data
     }),
 
-  // Laporan
   getLaporan: (start, end) => {
     const qs = new URLSearchParams();
 
@@ -216,7 +203,6 @@ const Api = {
     return apiRequest('/laporan' + (q ? '?' + q : ''));
   },
 
-  // Notifikasi
   getNotifikasi: () => apiRequest('/notifikasi'),
 
   bacaNotifikasi: (id) =>

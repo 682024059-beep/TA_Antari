@@ -152,7 +152,6 @@ def _kirim_notifikasi_diskon_update(diskon_id, old_row, nama, jenis, nilai, stat
     old_nonaktif = _is_nonaktif(old_status)
     new_nonaktif = _is_nonaktif(status)
 
-    # Kalau status baru nonaktif, jangan tampilkan "Diskon Diperbarui"
     if new_nonaktif:
         _safe_create_notifikasi(
             target_role="kasir",
@@ -163,7 +162,6 @@ def _kirim_notifikasi_diskon_update(diskon_id, old_row, nama, jenis, nilai, stat
         )
         return
 
-    # Kalau sebelumnya nonaktif lalu sekarang aktif
     if old_nonaktif and _is_aktif(status):
         _safe_create_notifikasi(
             target_role="kasir",
@@ -174,7 +172,6 @@ def _kirim_notifikasi_diskon_update(diskon_id, old_row, nama, jenis, nilai, stat
         )
         return
 
-    # Kalau status tetap aktif, baru tampilkan update biasa
     _safe_create_notifikasi(
         target_role="kasir",
         tipe="diskon_update",

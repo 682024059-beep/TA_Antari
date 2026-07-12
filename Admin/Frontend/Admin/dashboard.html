@@ -104,7 +104,6 @@
           </div>
         `).join('');
 
-        // mini chart 7 hari
         const days = [];
         for(let i=6;i>=0;i--) days.push(dateOffset(-i));
         const dayTotals = days.map(d => transaksiList.filter(t=>String(t.tanggal).slice(0,10)===d).reduce((s,t)=>s+Number(t.total),0));
@@ -118,7 +117,6 @@
           </div>`;
         }).join('');
 
-        // top produk 7 hari
         const qtyMap = {};
         transaksiList.filter(t=>days.includes(String(t.tanggal).slice(0,10))).forEach(t=>{
           (t.items||[]).forEach(it=>{
@@ -136,7 +134,6 @@
           </div>
         `).join('') : `<div class="empty-state"><p>Belum ada data penjualan.</p></div>`;
 
-        // recent transactions
         const recent = transaksiList.slice(0,10);
         document.getElementById('recent-tbody').innerHTML = recent.length ? recent.map(t=>`
           <tr>

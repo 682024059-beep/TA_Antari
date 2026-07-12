@@ -57,8 +57,6 @@ def _find_user_by_identifier(identifier):
 def login():
     data = request.get_json(silent=True) or {}
 
-    # Frontend admin baru mengirim email.
-    # Frontend lama/kasir mungkin masih mengirim username.
     identifier = (
         data.get("email")
         or data.get("username")
@@ -113,7 +111,6 @@ def forgot_password():
         fetch="one",
     )
 
-    # Pesan dibuat umum agar email yang tidak terdaftar tidak mudah ditebak.
     success_message = "Jika email terdaftar, link reset password akan dikirim."
 
     if not user or not user["is_active"]:
@@ -147,8 +144,6 @@ def forgot_password():
             reset_link=reset_link,
         )
     except Exception:
-        # Jangan tampilkan detail error email ke frontend.
-        # Untuk debugging, bisa print error di terminal kalau dibutuhkan.
         pass
 
     return jsonify({"message": success_message}), 200
