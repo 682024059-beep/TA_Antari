@@ -187,47 +187,73 @@ def send_password_changed_email(to_email, nama):
 
 
 def send_reset_password_email(to_email, nama, reset_link):
+    """
+    Mengirim email reset password admin.
+    Tombol reset dibuat sebagai tag <a href=""> supaya bisa diklik di Gmail.
+    """
+
     if not to_email:
-        return {"ok": False, "skipped": True}
+        raise ValueError("Email tujuan tidak boleh kosong.")
+
+    if not reset_link:
+        raise ValueError("Link reset password tidak boleh kosong.")
+
+    nama = nama or "Admin"
 
     html = f"""
-    <div style="font-family:Arial,sans-serif; max-width:430px; margin:auto; color:#2b2118;">
-      <h2>Reset Password ANTARI</h2>
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #2b2118;">
+        <h2 style="margin-bottom: 20px;">Reset Password ANTARI</h2>
 
-      <p>Halo {nama or ''},</p>
+        <p>Halo {nama},</p>
 
-      <p>
-        Kami menerima permintaan reset password untuk akun ANTARI Anda.
-      </p>
+        <p>
+            Kami menerima permintaan reset password untuk akun ANTARI Anda.
+        </p>
 
-      <p>
-        Klik tombol berikut untuk membuat password baru:
-      </p>
+        <p>
+            Klik tombol berikut untuk membuat password baru:
+        </p>
 
-      <p style="margin:24px 0;">
-        <a href="{reset_link}"
-           style="background:#C1652E; color:white; padding:12px 18px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Reset Password
-        </a>
-      </p>
+        <p style="margin: 28px 0;">
+            <a href="{reset_link}"
+               target="_blank"
+               style="
+                    display: inline-block;
+                    background: #C7652E;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 14px 22px;
+                    border-radius: 8px;
+                    font-weight: bold;
+               ">
+                Reset Password
+            </a>
+        </p>
 
-      <p style="font-size:13px; color:#7a6a5c;">
-        Link ini hanya berlaku sementara. Jika Anda tidak meminta reset password,
-        abaikan email ini.
-      </p>
+        <p>
+            Jika tombol tidak dapat diklik, salin dan buka link berikut di browser:
+        </p>
 
-      <p style="font-size:12px; color:#9c8c7d; margin-top:22px;">
-        Email ini dikirim otomatis oleh Sistem ANTARI.
-      </p>
+        <p style="word-break: break-all; font-size: 13px;">
+            <a href="{reset_link}" target="_blank" style="color: #C7652E;">
+                {reset_link}
+            </a>
+        </p>
+
+        <p style="margin-top: 24px; color: #7A6753;">
+            Link ini hanya berlaku sementara. Jika Anda tidak meminta reset password,
+            abaikan email ini.
+        </p>
+
+        <p style="margin-top: 28px; font-size: 12px; color: #9C8C7D;">
+            Email ini dikirim otomatis oleh Sistem ANTARI.
+        </p>
     </div>
     """
 
-    return _safe_send(
-        {
-            "from": FROM,
-            "to": to_email,
-            "subject": "Reset Password Akun ANTARI",
-            "html": html,
-        },
-        "reset password",
-    )
+    return resend.Emails.send({
+        "from": Config.RESEND_FROM_EMAIL,
+        "to": [to_email],
+        "subject": "Reset Password ANTARI",
+        "html": html,
+    })
