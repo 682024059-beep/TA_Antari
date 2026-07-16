@@ -52,6 +52,30 @@ def _find_user_by_identifier(identifier):
         fetch="one",
     )
 
+def _get_app_base_url():
+    """
+    Mengambil base URL aplikasi.
+    Jika APP_BASE_URL di env sudah diisi, gunakan itu.
+    Jika belum, ambil otomatis dari request host Vercel.
+    """
+
+    env_base_url = getattr(Config, "APP_BASE_URL", "") or ""
+    env_base_url = env_base_url.strip().rstrip("/")
+
+    if env_base_url and "localhost" not in env_base_url and "127.0.0.1" not in env_base_url:
+        return env_base_url
+
+    forwarded_proto = request.headers.get("X-Forwarded-Proto")
+    forwarded_host = request.headers.get("X-Forwarded-Host")
+
+    proto = forwarded_proto or request.scheme or "https"
+    host = forwarded_host or request.host
+
+    if host and "localhost" not in host and "127.0.0.1" not in host:
+        return f"{proto}://{host}".rstrip("/")
+
+    return env_base_url or "http://localhost:4000"
+
 
 @bp.post("/login")
 def login():
@@ -134,7 +158,7 @@ def forgot_password():
         fetch=None,
     )
 
-    app_base_url = getattr(Config, "APP_BASE_URL", "http://localhost:4000")
+    app_base_url = _get_app_base_url()
     reset_link = f"{app_base_url}/admin/reset-password.html?token={reset_token}"
 
     try:

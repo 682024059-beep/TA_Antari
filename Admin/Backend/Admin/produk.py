@@ -89,6 +89,35 @@ def _generate_unique_kode(kategori):
 
     raise Exception("Gagal membuat kode produk unik.")
 
+def _cek_produk_duplikat(nama, kategori, exclude_kode=None):
+    """
+    Mengecek apakah produk dengan nama dan kategori yang sama sudah ada.
+    Dipakai agar produk tidak tersimpan double.
+    """
+
+    nama = (nama or "").strip()
+    kategori = (kategori or "").strip()
+
+    if not nama or not kategori:
+        return None
+
+    sql = """
+        SELECT kode, nama, kategori
+        FROM produk
+        WHERE LOWER(TRIM(nama)) = LOWER(TRIM(%s))
+          AND LOWER(TRIM(kategori)) = LOWER(TRIM(%s))
+    """
+
+    params = [nama, kategori]
+
+    if exclude_kode:
+        sql += " AND kode <> %s"
+        params.append(exclude_kode)
+
+    sql += " LIMIT 1"
+
+    return query(sql, tuple(params), fetch="one")
+
 
 def _check_and_notify_stok_admin(produk, stok_lama=None):
     """
@@ -163,7 +192,7 @@ def add_produk():
     data = request.get_json(silent=True) or {}
 
     nama = (data.get("nama") or "").strip()
-    kategori = data.get("kategori")
+    kategori = (data.get("kategori") or "").strip()
     harga = data.get("harga")
     stok = data.get("stok")
     status = data.get("status") or "Aktif"
@@ -174,6 +203,14 @@ def add_produk():
         }), 400
 
     harga, err = _parse_int(harga, "Harga")
+
+    duplikat = _cek_produk_duplikat(nama, kategori)
+
+    if duplikat:
+        return jsonify({
+        "message": f'Produk "{nama}" dengan kategori "{kategori}" sudah ada. Produk tidak boleh double.'
+    }), 409
+
     if err:
         return jsonify({"message": err}), 400
 
