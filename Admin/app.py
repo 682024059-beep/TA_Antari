@@ -71,7 +71,7 @@ def create_app():
     app.register_blueprint(notifikasi_bp)
     app.register_blueprint(kasir_user_bp)
 
-
+    @app.get("/")
     def root():
         return redirect("/admin/login.html")
 
