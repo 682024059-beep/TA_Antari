@@ -144,6 +144,14 @@ function renderLayout(activeKey){
   if(topbarEl){
     const [title, crumb] = PAGE_TITLES[activeKey] || ['ANTARI', ''];
 
+    const currentPath = window.location.pathname;
+
+const hideSearchAndNotif =
+  currentPath.includes("/admin/akun-kasir.html") ||
+  currentPath.includes("/admin/profil.html") ||
+  activeKey === "akun-kasir" ||
+  activeKey === "profil";
+
     topbarEl.outerHTML = `
       <header class="topbar" id="topbar">
         <div class="topbar__title">
