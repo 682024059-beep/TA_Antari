@@ -1960,3 +1960,37 @@ textarea.input:focus,
     padding:18px !important;
   }
 }
+
+/* Rapikan posisi notifikasi dan profil di topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topbar__title {
+  flex: 1;
+}
+
+.topbar__right {
+  margin-left: auto !important;
+  width: auto !important;
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 14px !important;
+}
+
+.topbar__right > div {
+  width: auto !important;
+}
+
+#btn-notif {
+  flex-shrink: 0;
+}
+
+#topbar-avatar,
+.topbar__avatar {
+  flex-shrink: 0;
+}
