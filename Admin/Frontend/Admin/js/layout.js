@@ -166,19 +166,13 @@ const hideSearchAndNotif =
   </div>
 ` : ''}
 
-          ${!hideTopbarSearchNotif ? `
-  <div class="topbar__search" id="global-search-wrap">
-    ${ICONS.search}
-    <input type="text" id="global-search" placeholder="Cari produk, transaksi..." />
-  </div>
-` : ''}
-
-          ${!hideTopbarSearchNotif ? `
-  <div class="topbar__search" id="global-search-wrap">
-    ${ICONS.search}
-    <input type="text" id="global-search" placeholder="Cari produk, transaksi..." />
-  </div>
-` : ''}
+          <div style="position:relative;">
+            <button class="icon-btn" id="btn-notif" title="Notifikasi">
+              ${ICONS.bell}
+              <span class="dot" id="notif-dot" style="display:none;"></span>
+            </button>
+            <div class="notif-dropdown" id="notif-dropdown"></div>
+          </div>
 
           <a href="profil.html" class="topbar__avatar" id="topbar-avatar" title="${session.nama}">
             ${initials(session.nama)}
