@@ -35,15 +35,19 @@
           <div class="input-with-icon" style="position:relative;">
             <span id="icon-user"></span>
             <input
-              class="input"
-              type="email"
-              id="email"
-              placeholder="Masukkan email"
-              autocomplete="email"
-              required
-              oninvalid="this.setCustomValidity('Email tidak boleh kosong')"
-              oninput="this.setCustomValidity('')"
-            >
+            class="input"
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Masukkan email"
+            autocomplete="email"
+            autocapitalize="none"
+            spellcheck="false"
+            inputmode="email"
+            required
+            oninvalid="this.setCustomValidity('Email tidak boleh kosong')"
+            oninput="this.value = this.value.toLowerCase(); this.setCustomValidity('')"
+          />
           </div>
         </div>
 

@@ -3,7 +3,7 @@ F001 Login Sistem — autentikasi via MySQL + bcrypt + JWT.
 Endpoint ini TIDAK PERNAH mengembalikan password/hash apa pun.
 
 Update:
-- Login bisa memakai email atau username.
+- Login admin memakai email dan password.
 - Mendukung forgot password dan reset password via email.
 """
 
@@ -33,22 +33,21 @@ def _safe_user_response(user):
     }
 
 
-def _find_user_by_identifier(identifier):
+def _find_user_by_email(email):
     """
-    Login dibuat fleksibel:
-    - Admin bisa login pakai email.
-    - Kasir lama yang masih pakai username tetap aman.
+    Mencari user berdasarkan email.
+    Email dibuat lowercase agar tidak terpengaruh huruf kapital saat login.
     """
-    identifier = (identifier or "").strip().lower()
+    email = (email or "").strip().lower()
 
     return query(
         """
         SELECT id, username, password_hash, nama, role, email, foto_url, is_active
         FROM users
-        WHERE LOWER(email) = %s OR LOWER(username) = %s
+        WHERE LOWER(TRIM(email)) = %s
         LIMIT 1
         """,
-        (identifier, identifier),
+        (email,),
         fetch="one",
     )
 
@@ -81,26 +80,25 @@ def _get_app_base_url():
 def login():
     data = request.get_json(silent=True) or {}
 
-    identifier = (
-        data.get("email")
-        or data.get("username")
-        or ""
-    ).strip()
-
+    email = (data.get("email") or "").strip().lower()
     password = data.get("password") or ""
 
-    if not identifier or not password:
+    if not email or not password:
         return jsonify({"message": "Email dan password wajib diisi."}), 400
 
-    user = _find_user_by_identifier(identifier)
+    user = _find_user_by_email(email)
 
     if not user or not user["is_active"]:
-        return jsonify({"message": "Email atau password salah. Silakan periksa kembali."}), 401
+        return jsonify({
+            "message": "Email atau password salah. Silakan periksa kembali."
+        }), 401
 
     password_hash = user["password_hash"]
 
     if not bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8")):
-        return jsonify({"message": "Email atau password salah. Silakan periksa kembali."}), 401
+        return jsonify({
+            "message": "Email atau password salah. Silakan periksa kembali."
+        }), 401
 
     token = generate_token({
         "id": user["id"],
@@ -114,7 +112,6 @@ def login():
         "token": token,
         "user": _safe_user_response(user),
     })
-
 
 @bp.post("/forgot-password")
 def forgot_password():

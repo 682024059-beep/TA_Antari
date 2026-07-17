@@ -25,10 +25,12 @@
               <label>Dari Tanggal</label>
               <input class="input" type="date" id="f-start">
             </div>
+
             <div class="field" style="margin-bottom:0;">
               <label>Sampai Tanggal</label>
               <input class="input" type="date" id="f-end">
             </div>
+
             <div class="field" style="margin-bottom:0;">
               <label>Metode Bayar</label>
               <select class="input" id="f-metode">
@@ -38,12 +40,9 @@
               </select>
             </div>
 
-            <div class="field" style="margin-bottom:0; flex:1; min-width:200px;">
-              <label>Cari ID Transaksi</label>
-              <input class="input" type="text" id="f-search" placeholder="mis. TRX-1004">
-            </div>
-
-            <button class="btn btn-secondary" id="btn-reset-filter" style="align-self:flex-end;">Reset Filter</button>
+            <button class="btn btn-secondary" id="btn-reset-filter" style="align-self:flex-end;">
+              Reset Filter
+            </button>
           </div>
 
           <div class="table-wrap">
@@ -127,7 +126,6 @@
       const start = document.getElementById('f-start').value;
       const end = document.getElementById('f-end').value;
       const metode = document.getElementById('f-metode').value;
-      const searchId = document.getElementById('f-search').value.trim().toLowerCase();
       const globalKeyword = (document.getElementById('global-search')?.value || '').trim().toLowerCase();
 
       if(start){
@@ -140,12 +138,6 @@
 
       if(metode !== 'Semua'){
         list = list.filter(t => t.metode === metode);
-      }
-
-      if(searchId){
-        list = list.filter(t =>
-          String(t.id || '').toLowerCase().includes(searchId)
-        );
       }
 
       if(globalKeyword){
@@ -256,8 +248,7 @@
       closeModal('modal-detail');
     });
 
-    const localSearch = document.getElementById('f-search');
-    const globalSearch = document.getElementById('global-search');
+   const globalSearch = document.getElementById('global-search');
 
     if(globalSearch){
       globalSearch.placeholder = 'Cari transaksi, kasir, produk, metode...';
@@ -267,23 +258,22 @@
       });
     }
 
-    ['f-start','f-end','f-metode','f-search'].forEach(id => {
-      document.getElementById(id).addEventListener('input', renderTable);
-      document.getElementById(id).addEventListener('change', renderTable);
+    ['f-start','f-end','f-metode'].forEach(id => {
+    document.getElementById(id).addEventListener('input', renderTable);
+    document.getElementById(id).addEventListener('change', renderTable);
     });
 
     document.getElementById('btn-reset-filter').addEventListener('click', () => {
-      document.getElementById('f-start').value = '';
-      document.getElementById('f-end').value = '';
-      document.getElementById('f-metode').value = 'Semua';
-      localSearch.value = '';
+    document.getElementById('f-start').value = '';
+    document.getElementById('f-end').value = '';
+    document.getElementById('f-metode').value = 'Semua';
 
-      if(globalSearch){
-        globalSearch.value = '';
-      }
+    if(globalSearch){
+      globalSearch.value = '';
+    }
 
-      renderTable();
-    });
+    renderTable();
+  });
 
     (async function init(){
       try{
