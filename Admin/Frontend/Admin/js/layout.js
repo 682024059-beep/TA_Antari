@@ -169,13 +169,17 @@ const hideSearchAndNotif =
         </div>
 
         ${activeKey !== 'dashboard' ? `
-  <div class="topbar__search" id="global-search-wrap">
+  <div
+  class="topbar__search"
+  id="global-search-wrap"
+  style="${hideTopbarTools ? 'display:none !important;' : ''}"
+>
     ${ICONS.search}
     <input type="text" id="global-search" placeholder="Cari produk, transaksi..." />
   </div>
 ` : ''}
 
-          <div class="topbar__notif" style="position:relative;">
+          <div style="position:relative; ${hideTopbarTools ? 'display:none !important;' : ''}">
             <button class="icon-btn" id="btn-notif" title="Notifikasi">
               ${ICONS.bell}
               <span class="dot" id="notif-dot" style="display:none;"></span>
