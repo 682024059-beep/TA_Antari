@@ -151,11 +151,12 @@ function renderLayout(activeKey){
           <div class="crumb">${crumb}</div>
         </div>
 
-        <div class="topbar__right">
-          <div class="topbar__search" id="global-search-wrap">
-            ${ICONS.search}
-            <input type="text" id="global-search" placeholder="Cari produk, transaksi..." />
-          </div>
+        ${activeKey !== 'dashboard' ? `
+  <div class="topbar__search" id="global-search-wrap">
+    ${ICONS.search}
+    <input type="text" id="global-search" placeholder="Cari produk, transaksi..." />
+  </div>
+` : ''}
 
           <div style="position:relative;">
             <button class="icon-btn" id="btn-notif" title="Notifikasi">
