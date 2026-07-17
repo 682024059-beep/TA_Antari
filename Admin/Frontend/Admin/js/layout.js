@@ -51,6 +51,15 @@ function getLayoutIcon(iconName){
 
 function renderLayout(activeKey){
   const session = requireAuth(['admin']);
+  const currentPath = window.location.pathname;
+
+  const hideTopbarActions =
+    activeKey === "akun-kasir" ||
+    activeKey === "profil" ||
+    currentPath.includes("/admin/akun-kasir.html") ||
+    currentPath.includes("/admin/profil.html");
+
+  document.body.classList.toggle("hide-topbar-actions", hideTopbarActions);
 
   if(!session){
     return null;
@@ -166,7 +175,7 @@ const hideSearchAndNotif =
   </div>
 ` : ''}
 
-          <div style="position:relative;">
+          <div class="topbar__notif" style="position:relative;">
             <button class="icon-btn" id="btn-notif" title="Notifikasi">
               ${ICONS.bell}
               <span class="dot" id="notif-dot" style="display:none;"></span>

@@ -1994,3 +1994,19 @@ textarea.input:focus,
 .topbar__avatar {
   flex-shrink: 0;
 }
+
+/* Hilangkan search bar dan notifikasi khusus halaman Akun Kasir & Profil */
+body.hide-topbar-actions #global-search-wrap,
+body.hide-topbar-actions .topbar__notif {
+  display: none !important;
+}
+
+/* Rapikan posisi avatar setelah search dan notifikasi disembunyikan */
+body.hide-topbar-actions .topbar__right {
+  margin-left: auto !important;
+  width: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 0 !important;
+}
