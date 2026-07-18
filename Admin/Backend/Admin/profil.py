@@ -34,7 +34,7 @@ def update_profil():
     email = data.get("email")
 
     if email:
-        email = str(email).strip().lower()
+        email = str(email).strip()
     else:
         email = None
 
@@ -48,23 +48,23 @@ def update_profil():
         return jsonify({"message": "Nama tidak boleh kosong."}), 400
 
     existing = query(
-    """
-    SELECT id
-    FROM users
-    WHERE id <> %s
-      AND (
-            username = %s
-            OR (
-                email IS NOT NULL
-                AND TRIM(email) <> ''
-                AND LOWER(TRIM(email)) = %s
-            )
-          )
-    LIMIT 1
-    """,
-    (g.user["id"], username, email),
-    fetch="one",
-)
+        """
+        SELECT id
+        FROM users
+        WHERE id <> %s
+          AND (
+                username = %s
+                OR (
+                    email IS NOT NULL
+                    AND email <> ''
+                    AND email = %s
+                )
+              )
+        LIMIT 1
+        """,
+        (g.user["id"], username, email),
+        fetch="one",
+    )
 
     if existing:
         return jsonify({
