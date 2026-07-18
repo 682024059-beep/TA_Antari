@@ -131,6 +131,51 @@ def buat_notifikasi_stok_admin(cursor, produk, stok_lama, stok_baru):
         "tipe": tipe
     }
 
+def ambil_email_admin_notifikasi():
+    """
+    Mengambil email admin aktif dari database.
+    Jadi kalau admin mengganti email di Profil Saya,
+    notifikasi email akan dikirim ke email terbaru.
+    """
+
+    emails = []
+    conn = None
+
+    try:
+        conn = get_db_connection()
+
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT email
+                FROM users
+                WHERE LOWER(role) = 'admin'
+                  AND email IS NOT NULL
+                  AND TRIM(email) <> ''
+                  AND is_active = 1
+            """)
+
+            rows = cursor.fetchall()
+
+        for row in rows:
+            email = (row.get("email") or "").strip().lower()
+
+            if email and email not in emails:
+                emails.append(email)
+
+    except Exception as err:
+        print("[Email Admin] Gagal mengambil email admin dari database:", err)
+
+    finally:
+        if conn:
+            conn.close()
+
+    if not emails:
+        env_email = os.getenv("RESEND_ADMIN_EMAIL", "").strip().lower()
+
+        if env_email:
+            emails.append(env_email)
+
+    return emails
 
 def kirim_email_stok_admin_dari_kasir(produk_list):
     """
@@ -142,15 +187,15 @@ def kirim_email_stok_admin_dari_kasir(produk_list):
         return
 
     api_key = os.getenv("RESEND_API_KEY", "").strip()
-    admin_email = os.getenv("RESEND_ADMIN_EMAIL", "").strip()
+    admin_emails = ambil_email_admin_notifikasi()
     from_email = os.getenv(
         "RESEND_FROM_EMAIL",
         "ANTARI CoffeeShop <onboarding@resend.dev>"
     ).strip()
 
-    if not api_key or not admin_email:
-        print("[Resend Kasir] RESEND_API_KEY / RESEND_ADMIN_EMAIL belum diset.")
-        return
+    if not api_key or not admin_emails:
+        print("[Resend Kasir] RESEND_API_KEY belum diset atau email admin tidak ditemukan.")
+    return
 
     rows = ""
 
@@ -206,7 +251,7 @@ def kirim_email_stok_admin_dari_kasir(produk_list):
             },
             json={
                 "from": from_email,
-                "to": [admin_email],
+                "to": admin_emails,
                 "subject": "Peringatan: Stok Produk Menipis/Habis",
                 "html": html
             },
