@@ -861,5 +861,74 @@ function buildTopbarHTML(session){
             }
         }
     </script>
+
+<script>
+  (function () {
+    function hideAkunKasirTopbarTools() {
+      const searchWrap = document.getElementById("global-search-wrap");
+      const searchInput = document.getElementById("global-search");
+      const notifBtn = document.getElementById("btn-notif");
+      const notifDropdown = document.getElementById("notif-dropdown");
+
+      if (searchWrap) {
+        searchWrap.style.setProperty("display", "none", "important");
+      }
+
+      if (searchInput) {
+        const searchParent =
+          searchInput.closest("#global-search-wrap") ||
+          searchInput.closest(".topbar__search") ||
+          searchInput.parentElement;
+
+        if (searchParent) {
+          searchParent.style.setProperty("display", "none", "important");
+        }
+
+        searchInput.style.setProperty("display", "none", "important");
+      }
+
+      if (notifBtn) {
+        const notifParent = notifBtn.parentElement;
+
+        if (notifParent) {
+          notifParent.style.setProperty("display", "none", "important");
+        }
+
+        notifBtn.style.setProperty("display", "none", "important");
+      }
+
+      if (notifDropdown) {
+        notifDropdown.style.setProperty("display", "none", "important");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      hideAkunKasirTopbarTools();
+
+      let count = 0;
+      const timer = setInterval(function () {
+        hideAkunKasirTopbarTools();
+        count++;
+
+        if (count >= 30) {
+          clearInterval(timer);
+        }
+      }, 100);
+
+      const observer = new MutationObserver(function () {
+        hideAkunKasirTopbarTools();
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+      setTimeout(function () {
+        observer.disconnect();
+      }, 5000);
+    });
+  })();
+</script>
 </body>
 </html>

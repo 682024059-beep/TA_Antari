@@ -73,6 +73,19 @@
 <script src="js/layout.js"></script>
 <script>
   const session = renderLayout('dashboard');
+  const dashboardSearch = document.getElementById('global-search');
+
+if (dashboardSearch) {
+  const searchWrapper = dashboardSearch.closest(
+    '.global-search, .topbar-search, .search-box, .search-wrap, .search-wrapper'
+  );
+
+  if (searchWrapper) {
+    searchWrapper.remove();
+  } else {
+    dashboardSearch.remove();
+  }
+}
   if(session){
     (async function init(){
       try{

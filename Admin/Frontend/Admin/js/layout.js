@@ -51,6 +51,15 @@ function getLayoutIcon(iconName){
 
 function renderLayout(activeKey){
   const session = requireAuth(['admin']);
+  const currentPath = window.location.pathname;
+
+  const hideTopbarActions =
+    activeKey === "akun-kasir" ||
+    activeKey === "profil" ||
+    currentPath.includes("/admin/akun-kasir.html") ||
+    currentPath.includes("/admin/profil.html");
+
+  document.body.classList.toggle("hide-topbar-actions", hideTopbarActions);
 
   if(!session){
     return null;
@@ -144,6 +153,14 @@ function renderLayout(activeKey){
   if(topbarEl){
     const [title, crumb] = PAGE_TITLES[activeKey] || ['ANTARI', ''];
 
+    const currentPath = window.location.pathname;
+
+const hideSearchAndNotif =
+  currentPath.includes("/admin/akun-kasir.html") ||
+  currentPath.includes("/admin/profil.html") ||
+  activeKey === "akun-kasir" ||
+  activeKey === "profil";
+
     topbarEl.outerHTML = `
       <header class="topbar" id="topbar">
         <div class="topbar__title">
@@ -151,13 +168,14 @@ function renderLayout(activeKey){
           <div class="crumb">${crumb}</div>
         </div>
 
-        <div class="topbar__right">
-          <div class="topbar__search" id="global-search-wrap">
-            ${ICONS.search}
-            <input type="text" id="global-search" placeholder="Cari produk, transaksi..." />
-          </div>
+        ${activeKey !== 'dashboard' ? `
+  <div class="topbar__search" id="global-search-wrap">
+    ${ICONS.search}
+    <input type="text" id="global-search" placeholder="Cari produk, transaksi..." />
+  </div>
+` : ''}
 
-          <div style="position:relative;">
+          <div class="topbar__notif" style="position:relative;">
             <button class="icon-btn" id="btn-notif" title="Notifikasi">
               ${ICONS.bell}
               <span class="dot" id="notif-dot" style="display:none;"></span>
